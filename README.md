@@ -37,7 +37,6 @@ See [Alternative: direct to New Relic](#alternative-direct-to-new-relic) to skip
 * `dashboards/newrelic-dashboard-python.json` — importable New Relic dashboard covering all Python app metrics below.
 * `dashboards/newrelic-dashboard-cp.json` — Confluent Platform (local) dashboard: 7 pages covering broker overview, Kafka cluster, throughput, Zookeeper, producer/consumer, fetch follower (sourced from [jmx-monitoring-stacks](https://github.com/confluentinc/jmx-monitoring-stacks)).
 * `dashboards/newrelic-dashboard-ccloud.json` — importable Confluent Cloud cluster dashboard (sourced from [newrelic-quickstarts](https://github.com/newrelic/newrelic-quickstarts)).
-* `dashboards/newrelic-dashboard-ccloud-jmx.json` — alternative Confluent Cloud dashboard (sourced from [jmx-monitoring-stacks](https://github.com/confluentinc/jmx-monitoring-stacks)).
 * `deploy_nr_dashboard.sh` — interactive script to deploy any dashboard from `dashboards/` via the NerdGraph API.
 * `requirements.txt` — Python dependencies.
 
