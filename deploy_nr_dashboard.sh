@@ -117,7 +117,8 @@ echo "==> Deploying: \"$DASHBOARD_NAME\" (account $NEW_RELIC_ACCOUNT_ID)"
 # ── Search for an existing dashboard with the same name ───────────────────────
 echo "    Checking for existing dashboard..."
 SEARCH_PAYLOAD=$(jq -n --arg name "$DASHBOARD_NAME" --argjson acct "$NEW_RELIC_ACCOUNT_ID" '{
-  query: "{ actor { account(id: \($acct)) { dashboards(query: {title: \($name)}) { results { guid name } } } } }"
+  query: "query($acct: Int!, $name: String!) { actor { account(id: $acct) { dashboards(query: {title: $name}) { results { guid name } } } } }",
+  variables: { acct: $acct, name: $name }
 }')
 
 SEARCH_RESPONSE=$(nerdgraph "$SEARCH_PAYLOAD")
