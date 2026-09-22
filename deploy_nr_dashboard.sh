@@ -116,9 +116,13 @@ echo "==> Deploying: \"$DASHBOARD_NAME\" (account $NEW_RELIC_ACCOUNT_ID)"
 
 # ── Search for an existing dashboard with the same name ───────────────────────
 echo "    Checking for existing dashboard..."
-SEARCH_PAYLOAD=$(jq -n --arg name "$DASHBOARD_NAME" --argjson acct "$NEW_RELIC_ACCOUNT_ID" '{
-  query: "query($acct: Int!, $name: String!) { actor { account(id: $acct) { dashboards(query: {title: $name}) { results { guid name } } } } }",
-  variables: { acct: $acct, name: $name }
+# entitySearch is the correct API for finding dashboards by name.
+# domainType = 'VIZ-DASHBOARD' scopes results to dashboards only.
+# accountId filter ensures we only match within the target account.
+SEARCH_PAYLOAD=$(jq -n \
+  --arg query "domainType IN ('VIZ-DASHBOARD') AND name = '${DASHBOARD_NAME//\'/\'\'}' AND accountId = ${NEW_RELIC_ACCOUNT_ID}" '{
+  query: "query($q: String!) { actor { entitySearch(query: $q) { results { entities { guid name } } } } }",
+  variables: { q: $query }
 }')
 
 SEARCH_RESPONSE=$(nerdgraph "$SEARCH_PAYLOAD")
@@ -130,7 +134,7 @@ if echo "$SEARCH_RESPONSE" | jq -e '.errors // [] | length > 0' >/dev/null 2>&1;
 fi
 
 EXISTING_GUID=$(echo "$SEARCH_RESPONSE" | jq -r '
-  .data.actor.account.dashboards.results[]
+  .data.actor.entitySearch.results.entities[]
   | select(.name == "'"$DASHBOARD_NAME"'")
   | .guid' 2>/dev/null | head -1)
 
