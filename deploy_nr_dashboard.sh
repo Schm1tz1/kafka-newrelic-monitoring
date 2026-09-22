@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
-# Deploy a New Relic dashboard via the NerdGraph API.
+# Deploy a New Relic dashboard via the NerdGraph API — idempotent.
+#
+# Searches for an existing dashboard with the same name in the target account.
+# If found, updates it in place (dashboardUpdate). If not, creates a new one
+# (dashboardCreate). Re-running the script never produces duplicates.
 #
 # When called with no arguments the script lists every JSON file in dashboards/
 # and prompts you to pick one. Pass a path directly to skip the prompt:
@@ -34,7 +38,6 @@ NEW_RELIC_ACCOUNT_ID="${NEW_RELIC_ACCOUNT_ID:-0}"
 if [[ $# -ge 1 ]]; then
   DASHBOARD_FILE="$1"
 else
-  # Build list of JSON files in dashboards/
   if [[ ! -d "$DASHBOARDS_DIR" ]]; then
     echo "ERROR: dashboards/ directory not found at $DASHBOARDS_DIR" >&2
     exit 1
@@ -65,7 +68,6 @@ else
 fi
 
 [[ -f "$DASHBOARD_FILE" ]] || { echo "ERROR: Dashboard file not found: $DASHBOARD_FILE" >&2; exit 1; }
-echo "==> Deploying: $(basename "$DASHBOARD_FILE") (account $NEW_RELIC_ACCOUNT_ID)"
 
 # ── NerdGraph endpoint (US vs EU) ─────────────────────────────────────────────
 NERDGRAPH_URL="https://api.newrelic.com/graphql"
@@ -73,21 +75,23 @@ case "${NEW_RELIC_OTLP_ENDPOINT:-}" in
   *eu*) NERDGRAPH_URL="https://api.eu.newrelic.com/graphql" ;;
 esac
 
-# ── Normalise + rewrite before POST ──────────────────────────────────────────
-# Handles dashboards from multiple sources that have slightly different shapes:
-#
-#  1. permissions: null              → "PUBLIC_READ_WRITE"   (NerdGraph requires non-null)
-#  2. variables[].nrqlQuery.accountId (singular, some sources use this)
-#                                    → accountIds: [$acct]   (API requires the array form;
-#                                                              drop the singular key)
-#  3. widgets[].linkedEntityGuids: null → []                 (API rejects null here)
-#  4. accountId  (singular, widget nrqlQueries) → $acct
-#  5. accountIds (plural array)      → [$acct]
-DASHBOARD=$(jq --argjson acct "$NEW_RELIC_ACCOUNT_ID" '
-  # 1. Ensure permissions is set
-  if .permissions == null then .permissions = "PUBLIC_READ_WRITE" else . end |
+# ── Helper: POST a NerdGraph query ────────────────────────────────────────────
+nerdgraph() {
+  curl -sS "$NERDGRAPH_URL" \
+    -H "Api-Key: $NEW_RELIC_API_KEY" \
+    -H "Content-Type: application/json" \
+    -d "$1"
+}
 
-  # 2. Fix variable nrqlQuery: rename accountId → accountIds array, drop singular key
+# ── Normalise dashboard JSON ──────────────────────────────────────────────────
+# Handles dashboards from multiple sources with slightly different shapes:
+#  1. permissions: null              → "PUBLIC_READ_WRITE"
+#  2. variables[].nrqlQuery.accountId (singular) → accountIds: [$acct] array
+#  3. widgets[].linkedEntityGuids: null → []
+#  4. accountId  (singular) → $acct
+#  5. accountIds (plural array) → [$acct]
+DASHBOARD=$(jq --argjson acct "$NEW_RELIC_ACCOUNT_ID" '
+  if .permissions == null then .permissions = "PUBLIC_READ_WRITE" else . end |
   if .variables then
     .variables = [
       .variables[] |
@@ -96,8 +100,6 @@ DASHBOARD=$(jq --argjson acct "$NEW_RELIC_ACCOUNT_ID" '
       else . end
     ]
   else . end |
-
-  # 3 + 4 + 5. Fix linkedEntityGuids null and rewrite all accountId/accountIds
   walk(
     if type == "object" and has("linkedEntityGuids") and .linkedEntityGuids == null then
       .linkedEntityGuids = []
@@ -109,32 +111,73 @@ DASHBOARD=$(jq --argjson acct "$NEW_RELIC_ACCOUNT_ID" '
   )
 ' "$DASHBOARD_FILE")
 
-PAYLOAD=$(jq -n --argjson dashboard "$DASHBOARD" --argjson acct "$NEW_RELIC_ACCOUNT_ID" '{
-    query: "mutation($accountId: Int!, $dashboard: DashboardInput!) { dashboardCreate(accountId: $accountId, dashboard: $dashboard) { entityResult { guid name } errors { description type } } }",
-    variables: { accountId: $acct, dashboard: $dashboard }
-  }')
+DASHBOARD_NAME=$(echo "$DASHBOARD" | jq -r '.name')
+echo "==> Deploying: \"$DASHBOARD_NAME\" (account $NEW_RELIC_ACCOUNT_ID)"
 
-RESPONSE=$(curl -sS "$NERDGRAPH_URL" \
-  -H "Api-Key: $NEW_RELIC_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d "$PAYLOAD")
+# ── Search for an existing dashboard with the same name ───────────────────────
+echo "    Checking for existing dashboard..."
+SEARCH_PAYLOAD=$(jq -n --arg name "$DASHBOARD_NAME" --argjson acct "$NEW_RELIC_ACCOUNT_ID" '{
+  query: "{ actor { account(id: \($acct)) { dashboards(query: {title: \($name)}) { results { guid name } } } } }"
+}')
 
-echo "$RESPONSE" | jq .
+SEARCH_RESPONSE=$(nerdgraph "$SEARCH_PAYLOAD")
 
-if echo "$RESPONSE" | jq -e '.errors // [] | length > 0' >/dev/null 2>&1; then
-  echo "GraphQL request failed (e.g. bad NEW_RELIC_API_KEY), see errors above." >&2
+if echo "$SEARCH_RESPONSE" | jq -e '.errors // [] | length > 0' >/dev/null 2>&1; then
+  echo "ERROR: Search query failed:" >&2
+  echo "$SEARCH_RESPONSE" | jq . >&2
   exit 1
 fi
 
-if ! echo "$RESPONSE" | jq -e '.data.dashboardCreate.errors // [] | length == 0' >/dev/null 2>&1; then
-  echo "dashboardCreate returned errors, see above." >&2
-  exit 1
-fi
+EXISTING_GUID=$(echo "$SEARCH_RESPONSE" | jq -r '
+  .data.actor.account.dashboards.results[]
+  | select(.name == "'"$DASHBOARD_NAME"'")
+  | .guid' 2>/dev/null | head -1)
 
-GUID=$(echo "$RESPONSE" | jq -r '.data.dashboardCreate.entityResult.guid // empty')
-if [[ -z "$GUID" ]]; then
-  echo "No entityResult returned — check the response above." >&2
-  exit 1
-fi
+# ── Create or update ──────────────────────────────────────────────────────────
+if [[ -n "$EXISTING_GUID" ]]; then
+  echo "    Found existing dashboard (guid=$EXISTING_GUID) — updating..."
+  UPDATE_PAYLOAD=$(jq -n \
+    --arg guid "$EXISTING_GUID" \
+    --argjson dashboard "$DASHBOARD" '{
+      query: "mutation($guid: EntityGuid!, $dashboard: DashboardInput!) { dashboardUpdate(guid: $guid, dashboard: $dashboard) { entityResult { guid name } errors { description type } } }",
+      variables: { guid: $guid, dashboard: $dashboard }
+    }')
 
-echo "Dashboard created: guid=$GUID"
+  RESPONSE=$(nerdgraph "$UPDATE_PAYLOAD")
+  echo "$RESPONSE" | jq .
+
+  if echo "$RESPONSE" | jq -e '.errors // [] | length > 0' >/dev/null 2>&1; then
+    echo "ERROR: GraphQL request failed, see above." >&2; exit 1
+  fi
+  if ! echo "$RESPONSE" | jq -e '.data.dashboardUpdate.errors // [] | length == 0' >/dev/null 2>&1; then
+    echo "ERROR: dashboardUpdate returned errors, see above." >&2; exit 1
+  fi
+
+  GUID=$(echo "$RESPONSE" | jq -r '.data.dashboardUpdate.entityResult.guid // empty')
+  echo "Dashboard updated: guid=$GUID"
+
+else
+  echo "    No existing dashboard found — creating..."
+  CREATE_PAYLOAD=$(jq -n \
+    --argjson dashboard "$DASHBOARD" \
+    --argjson acct "$NEW_RELIC_ACCOUNT_ID" '{
+      query: "mutation($accountId: Int!, $dashboard: DashboardInput!) { dashboardCreate(accountId: $accountId, dashboard: $dashboard) { entityResult { guid name } errors { description type } } }",
+      variables: { accountId: $acct, dashboard: $dashboard }
+    }')
+
+  RESPONSE=$(nerdgraph "$CREATE_PAYLOAD")
+  echo "$RESPONSE" | jq .
+
+  if echo "$RESPONSE" | jq -e '.errors // [] | length > 0' >/dev/null 2>&1; then
+    echo "ERROR: GraphQL request failed, see above." >&2; exit 1
+  fi
+  if ! echo "$RESPONSE" | jq -e '.data.dashboardCreate.errors // [] | length == 0' >/dev/null 2>&1; then
+    echo "ERROR: dashboardCreate returned errors, see above." >&2; exit 1
+  fi
+
+  GUID=$(echo "$RESPONSE" | jq -r '.data.dashboardCreate.entityResult.guid // empty')
+  if [[ -z "$GUID" ]]; then
+    echo "ERROR: No entityResult returned — check the response above." >&2; exit 1
+  fi
+  echo "Dashboard created: guid=$GUID"
+fi
