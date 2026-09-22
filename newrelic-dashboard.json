@@ -1,0 +1,156 @@
+{
+  "name": "Python Kafka Monitoring",
+  "description": "Producer/consumer throughput, errors, latency, lag, and rebalances emitted by the python-kafka-newrelic-monitoring example bundle (app/, faststream_confluent/, faststream_aiokafka/).",
+  "permissions": "PUBLIC_READ_WRITE",
+  "pages": [
+    {
+      "name": "Kafka Application Metrics",
+      "description": null,
+      "widgets": [
+        {
+          "title": "Producer Delivery Errors",
+          "layout": { "column": 1, "row": 1, "width": 3, "height": 3 },
+          "visualization": { "id": "viz.billboard" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": 123456789,
+                "query": "FROM Metric SELECT sum(kafka_app.producer_delivery_errors) AS 'Delivery Errors'"
+              }
+            ],
+            "thresholds": [
+              { "alertSeverity": "CRITICAL", "value": 1 }
+            ]
+          }
+        },
+        {
+          "title": "Consumer Processing Errors",
+          "layout": { "column": 4, "row": 1, "width": 3, "height": 3 },
+          "visualization": { "id": "viz.billboard" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": 123456789,
+                "query": "FROM Metric SELECT sum(kafka_app.consumer_processing_errors) AS 'Processing Errors'"
+              }
+            ],
+            "thresholds": [
+              { "alertSeverity": "CRITICAL", "value": 1 }
+            ]
+          }
+        },
+        {
+          "title": "Consumer Rebalances",
+          "layout": { "column": 7, "row": 1, "width": 3, "height": 3 },
+          "visualization": { "id": "viz.billboard" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": 123456789,
+                "query": "FROM Metric SELECT sum(kafka_app.consumer_rebalances) AS 'Rebalances'"
+              }
+            ],
+            "thresholds": [
+              { "alertSeverity": "WARNING", "value": 5 }
+            ]
+          }
+        },
+        {
+          "title": "Max Consumer Lag",
+          "layout": { "column": 10, "row": 1, "width": 3, "height": 3 },
+          "visualization": { "id": "viz.billboard" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": 123456789,
+                "query": "FROM Metric SELECT max(kafka_app.consumer_lag_records) AS 'Max Lag'"
+              }
+            ],
+            "thresholds": [
+              { "alertSeverity": "WARNING", "value": 100 },
+              { "alertSeverity": "CRITICAL", "value": 1000 }
+            ]
+          }
+        },
+        {
+          "title": "Throughput (produced vs. consumed, per minute)",
+          "layout": { "column": 1, "row": 4, "width": 6, "height": 3 },
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": 123456789,
+                "query": "FROM Metric SELECT rate(sum(kafka_app.produced_records), 1 minute) AS 'Produced/min', rate(sum(kafka_app.consumed_records), 1 minute) AS 'Consumed/min' FACET service.name TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Consumer Lag Trend",
+          "layout": { "column": 7, "row": 4, "width": 6, "height": 3 },
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": 123456789,
+                "query": "FROM Metric SELECT max(kafka_app.consumer_lag_records) FACET topic, consumer.group TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Producer Delivery Latency (ms)",
+          "layout": { "column": 1, "row": 7, "width": 6, "height": 3 },
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": 123456789,
+                "query": "FROM Metric SELECT average(kafka_app.producer_delivery_latency_ms) AS 'Avg', percentile(kafka_app.producer_delivery_latency_ms, 95) AS 'p95' FACET service.name TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Consumer Processing Latency (ms)",
+          "layout": { "column": 7, "row": 7, "width": 6, "height": 3 },
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": 123456789,
+                "query": "FROM Metric SELECT average(kafka_app.consumer_processing_latency_ms) AS 'Avg', percentile(kafka_app.consumer_processing_latency_ms, 95) AS 'p95' FACET service.name TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Rebalances Over Time",
+          "layout": { "column": 1, "row": 10, "width": 6, "height": 3 },
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": 123456789,
+                "query": "FROM Metric SELECT sum(kafka_app.consumer_rebalances) FACET service.name TIMESERIES"
+              }
+            ]
+          }
+        },
+        {
+          "title": "Errors by Service",
+          "layout": { "column": 7, "row": 10, "width": 6, "height": 3 },
+          "visualization": { "id": "viz.table" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": 123456789,
+                "query": "FROM Metric SELECT sum(kafka_app.producer_delivery_errors) AS 'Delivery Errors', sum(kafka_app.consumer_processing_errors) AS 'Processing Errors' FACET service.name"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

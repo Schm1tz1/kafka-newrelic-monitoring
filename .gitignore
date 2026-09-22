@@ -1,0 +1,16 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+
+# Credentials
+.env*
+
+# Local machine settings, not meant to be shared
+.claude/settings.local.json
+
+# macOS
+.DS_Store
+
+# AI
+CLAUDE.md
