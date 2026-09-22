@@ -1,0 +1,85 @@
+# OTel Collector config for Confluent Cloud mode.
+#
+# Two pipelines run in parallel:
+#
+#   confluent_metrics  — prometheus receiver scrapes the Confluent Metrics API
+#                        (api.telemetry.confluent.cloud) every 60 s and pushes
+#                        cluster/connector/schema-registry metrics to New Relic.
+#
+#   app_metrics        — otlp receiver accepts metrics pushed by the Python
+#                        producer/consumer (same port as the local-Kafka config)
+#                        and forwards them to New Relic.
+#
+# Required env vars (see env.example):
+#   NEW_RELIC_LICENSE_KEY, NEW_RELIC_OTLP_ENDPOINT
+#   CONFLUENT_API_KEY, CONFLUENT_API_SECRET
+#   CONFLUENT_CLUSTER_ID
+# Optional (uncomment the matching params blocks below if set):
+#   CONFLUENT_SCHEMA_REGISTRY_ID
+#   CONFLUENT_CONNECTOR_ID
+
+receivers:
+
+  # ── 1. Confluent Metrics API scraper (New Relic-recommended prometheus receiver) ──
+  prometheus/confluent:
+    config:
+      scrape_configs:
+        - job_name: confluent_cloud
+          scrape_interval: 1m
+          scrape_timeout: 1m
+          honor_timestamps: true
+          scheme: https
+          static_configs:
+            - targets:
+                - api.telemetry.confluent.cloud
+          basic_auth:
+            username: ${env:CONFLUENT_API_KEY}
+            password: ${env:CONFLUENT_API_SECRET}
+          metrics_path: /v2/metrics/cloud/export
+          params:
+            "resource.kafka.id":
+              - ${env:CONFLUENT_CLUSTER_ID}
+            # Uncomment to also scrape Schema Registry metrics:
+            # "resource.schema_registry.id":
+            #   - ${env:CONFLUENT_SCHEMA_REGISTRY_ID}
+            # Uncomment to also scrape Connector metrics:
+            # "resource.connector.id":
+            #   - ${env:CONFLUENT_CONNECTOR_ID}
+
+  # ── 2. OTLP receiver — accepts push metrics from the Python app ──
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 256
+  batch:
+    send_batch_size: 1024
+    timeout: 10s
+
+exporters:
+  debug:
+    verbosity: basic
+  otlp_http/newrelic:
+    endpoint: ${env:NEW_RELIC_OTLP_ENDPOINT}
+    headers:
+      api-key: ${env:NEW_RELIC_LICENSE_KEY}
+
+service:
+  pipelines:
+    # Confluent Metrics API → New Relic
+    metrics/confluent_metrics:
+      receivers: [prometheus/confluent]
+      processors: [memory_limiter, batch]
+      exporters: [debug, otlp_http/newrelic]
+
+    # Python app OTLP push → New Relic
+    metrics/app_metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [debug, otlp_http/newrelic]

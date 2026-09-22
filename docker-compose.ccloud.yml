@@ -1,0 +1,32 @@
+# docker-compose.ccloud.yml — Confluent Cloud mode.
+#
+# Self-contained: no local Kafka. Starts one service:
+#   otel-collector-ccloud — scrapes Confluent Metrics API (prometheus receiver)
+#                           and receives OTLP push metrics from the Python app,
+#                           both forwarded to New Relic.
+#
+# Usage (via start-infra-ccloud.sh, or manually):
+#   docker compose -f docker-compose.ccloud.yml up -d
+#
+# Required env vars: NEW_RELIC_LICENSE_KEY, NEW_RELIC_OTLP_ENDPOINT,
+#                    CONFLUENT_API_KEY, CONFLUENT_API_SECRET, CONFLUENT_CLUSTER_ID
+
+services:
+  otel-collector-ccloud:
+    image: otel/opentelemetry-collector-contrib:0.160.0
+    command: ["--config=/etc/otelcol-contrib/otel-collector.yaml"]
+    environment:
+      NEW_RELIC_LICENSE_KEY: ${NEW_RELIC_LICENSE_KEY:?Set NEW_RELIC_LICENSE_KEY before starting the Collector}
+      NEW_RELIC_OTLP_ENDPOINT: ${NEW_RELIC_OTLP_ENDPOINT:-https://otlp.eu01.nr-data.net}
+      CONFLUENT_API_KEY: ${CONFLUENT_API_KEY:?Set CONFLUENT_API_KEY (MetricsViewer role) before starting the Collector}
+      CONFLUENT_API_SECRET: ${CONFLUENT_API_SECRET:?Set CONFLUENT_API_SECRET before starting the Collector}
+      CONFLUENT_CLUSTER_ID: ${CONFLUENT_CLUSTER_ID:?Set CONFLUENT_CLUSTER_ID (e.g. lkc-abc123) before starting the Collector}
+      # Optional — uncomment if you want to scrape Schema Registry or Connector metrics
+      # and have uncommented the matching params blocks in collector/otel-collector-ccloud.yaml:
+      # CONFLUENT_SCHEMA_REGISTRY_ID: ${CONFLUENT_SCHEMA_REGISTRY_ID:-}
+      # CONFLUENT_CONNECTOR_ID: ${CONFLUENT_CONNECTOR_ID:-}
+    volumes:
+      - ./collector/otel-collector-ccloud.yaml:/etc/otelcol-contrib/otel-collector.yaml:ro
+    ports:
+      - "4317:4317"
+      - "4318:4318"

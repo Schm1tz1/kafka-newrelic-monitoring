@@ -1,0 +1,32 @@
+# nri-prometheus configuration for Confluent Platform (local Docker Kafka).
+#
+# nri-prometheus scrapes the JMX Prometheus Java Agent endpoints exposed by
+# each CP component and forwards the metrics directly to New Relic using the
+# LICENSE_KEY env var — no OTel Collector involved in this path.
+#
+# Targets: only the single-broker KRaft Kafka defined in docker-compose.cp.yml.
+# Add more URLs (Connect, Schema Registry, ksqlDB, …) when those services
+# are present in your compose file — see commented examples below.
+#
+# Docs: https://docs.newrelic.com/docs/infrastructure/prometheus-integrations/
+
+cluster_name: "confluent-platform-local"
+
+verbose: false
+audit: false
+insecure_skip_verify: false
+
+scrape_services: true
+scrape_endpoints: false
+
+targets:
+  - description: "Confluent Platform brokers"
+    urls:
+      - "http://kafka:1234"         # Kafka broker JMX exporter (KRaft, single-node)
+      # Add more brokers if you scale out:
+      # - "http://kafka2:1234"
+      # Add other CP components when present:
+      # - "http://connect:1234"       # Kafka Connect
+      # - "http://schemaregistry:1234" # Schema Registry
+      # - "http://ksqldb-server:1234"  # ksqlDB
+      # - "http://restproxy:1234"      # REST Proxy

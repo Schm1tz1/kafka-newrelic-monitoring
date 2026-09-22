@@ -31,10 +31,14 @@ See [Alternative: direct to New Relic](#alternative-direct-to-new-relic) to skip
 * `python/faststream_confluent/producer.py` / `consumer.py` — the same producer/consumer example built on [FastStream](https://faststream.ag2.ai/)'s `faststream.confluent` broker (still backed by `confluent-kafka`/`librdkafka`).
 * `python/faststream_aiokafka/producer.py` / `consumer.py` — the same example built on FastStream's `faststream.kafka` broker (backed by `aiokafka` instead of `librdkafka`).
 * `collector/otel-collector.yaml` — Collector pipeline forwarding metrics to New Relic.
-* `docker-compose.yml` — optional single-node local Kafka and Collector.
+* `docker-compose.cp.yml` — Confluent Platform (local): Kafka broker + OTel Collector + nri-prometheus (JMX).
+* `docker-compose.ccloud.yml` — Confluent Cloud: OTel Collector only (no local Kafka).
 * `env.example` — configuration template for local Kafka or Confluent Cloud.
-* `newrelic-dashboard.json` — importable New Relic dashboard covering all metrics below.
-* `deploy_nr_dashboard.sh` — deploys `newrelic-dashboard.json` via the NerdGraph API.
+* `dashboards/newrelic-dashboard-python.json` — importable New Relic dashboard covering all Python app metrics below.
+* `dashboards/newrelic-dashboard-cp.json` — Confluent Platform (local) dashboard: 7 pages covering broker overview, Kafka cluster, throughput, Zookeeper, producer/consumer, fetch follower (sourced from [jmx-monitoring-stacks](https://github.com/confluentinc/jmx-monitoring-stacks)).
+* `dashboards/newrelic-dashboard-ccloud.json` — importable Confluent Cloud cluster dashboard (sourced from [newrelic-quickstarts](https://github.com/newrelic/newrelic-quickstarts)).
+* `dashboards/newrelic-dashboard-ccloud-jmx.json` — alternative Confluent Cloud dashboard (sourced from [jmx-monitoring-stacks](https://github.com/confluentinc/jmx-monitoring-stacks)).
+* `deploy_nr_dashboard.sh` — interactive script to deploy any dashboard from `dashboards/` via the NerdGraph API.
 * `requirements.txt` — Python dependencies.
 
 **Always run examples as `python -m python.<package>.<module>` from the repository root**, exactly as shown below — never `cd python && python -m confluent_kafka.consumer`. `python/confluent_kafka/` shares its name with the real `confluent_kafka` PyPI package; running it from inside `python/` puts that directory on `sys.path` and shadows the real library, breaking `from confluent_kafka import Producer` with a confusing `ImportError` that appears to come from `confluent_kafka` itself.
@@ -45,7 +49,7 @@ See [Alternative: direct to New Relic](#alternative-direct-to-new-relic) to skip
 * Docker and Docker Compose if using the included local Kafka broker and Collector.
 * A New Relic license/ingest key for metric export.
 * Network access from the Collector to the selected New Relic OTLP endpoint (or from the application directly, if using the [direct alternative](#alternative-direct-to-new-relic)).
-* `jq`, only if deploying `newrelic-dashboard.json` via curl instead of the UI (see [New Relic dashboard](#new-relic-dashboard)).
+* `jq`, only if deploying a dashboard from `dashboards/` via `deploy_nr_dashboard.sh` instead of the UI (see [New Relic dashboard](#new-relic-dashboard)).
 
 ## Quick start with local Kafka
 
@@ -233,18 +237,27 @@ For an alerting starting point, alert on any producer delivery error, a sustaine
 
 ## New Relic dashboard
 
-`newrelic-dashboard.json` is a ready-to-import dashboard built from the queries above, covering all eight metrics: billboards for delivery/processing errors, rebalances, and max lag, plus timeseries for throughput, latency (avg/p95), lag trend, and rebalance history, and a table breaking down errors by `service.name`.
+All dashboards live under `dashboards/`. Each uses `"accountId": 0` as a placeholder; the deploy script replaces it with your real account ID before sending.
 
-To import through the UI: replace the placeholder `123456789` (every widget's `accountId`) with your New Relic account ID, then in New Relic go to **Dashboards → Import dashboard** and paste the file's contents.
+`dashboards/newrelic-dashboard-python.json` is a ready-to-import dashboard built from the queries above, covering all eight Python app metrics: billboards for delivery/processing errors, rebalances, and max lag, plus timeseries for throughput, latency (avg/p95), lag trend, and rebalance history, and a table breaking down errors by `service.name`.
 
-To deploy it via the NerdGraph API instead, using the same `.env` file, add two variables it doesn't otherwise need — a User API key (`NEW_RELIC_API_KEY`, starts with `NRAK-...`, **not** the ingest `NEW_RELIC_LICENSE_KEY`) and `NEW_RELIC_ACCOUNT_ID` (both already stubbed out in `env.example`; `NEW_RELIC_ACCOUNT_ID` defaults to the same `123456789` placeholder baked into `newrelic-dashboard.json`) — then run `deploy_nr_dashboard.sh` (requires `jq`):
+To import any dashboard through the UI: replace every `"accountId": 0` with your New Relic account ID, then in New Relic go to **Dashboards → Import dashboard** and paste the file's contents.
+
+To deploy via the NerdGraph API, add two variables to `.env` — a User API key (`NEW_RELIC_API_KEY`, starts with `NRAK-...`, **not** the ingest `NEW_RELIC_LICENSE_KEY`) and `NEW_RELIC_ACCOUNT_ID` — then run:
 
 ```bash
 chmod +x deploy_nr_dashboard.sh   # first time only
 ./deploy_nr_dashboard.sh
 ```
 
-It loads `.env`, picks the right NerdGraph endpoint (US vs EU) from `NEW_RELIC_OTLP_ENDPOINT`, rewrites every widget's `accountId` placeholder to your real `NEW_RELIC_ACCOUNT_ID`, and `curl`s the `dashboardCreate` mutation. On success it prints `guid=...` for the new dashboard; on failure (bad API key, invalid NRQL, etc.) it prints the full GraphQL response and exits non-zero. Pass a different dashboard file as the first argument (`./deploy_nr_dashboard.sh path/to/other.json`) to deploy something other than `newrelic-dashboard.json`.
+With no arguments the script lists all JSON files in `dashboards/` and prompts you to pick one. Pass a path directly to skip the prompt:
+
+```bash
+./deploy_nr_dashboard.sh dashboards/newrelic-dashboard-python.json
+./deploy_nr_dashboard.sh dashboards/newrelic-dashboard-ccloud.json
+```
+
+It loads `.env`, picks the right NerdGraph endpoint (US vs EU) from `NEW_RELIC_OTLP_ENDPOINT`, rewrites every widget's `accountId` placeholder to your real `NEW_RELIC_ACCOUNT_ID`, and `curl`s the `dashboardCreate` mutation. On success it prints `guid=...` for the new dashboard; on failure (bad API key, invalid NRQL, etc.) it prints the full GraphQL response and exits non-zero.
 
 The dashboard reads whichever metrics are actually reaching New Relic, so it works unchanged whether you're using the default Collector path or the [direct alternative](#alternative-direct-to-new-relic), and against any of the three example pairs (`python/confluent_kafka/`, `python/faststream_confluent/`, `python/faststream_aiokafka/`) — see the usage matrix above for which script emits which metric.
 
