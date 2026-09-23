@@ -83,6 +83,7 @@ receivers:
         - confluent-audit-log-events
       encoding: raw
     tls:
+      insecure: false
     auth:
       sasl:
         username: ${env:CONFLUENT_AUDIT_SASL_USERNAME}
@@ -106,6 +107,7 @@ receivers:
         - confluent-connect-log-events
       encoding: raw
     tls:
+      insecure: false
     auth:
       sasl:
         username: ${env:CONFLUENT_AUDIT_SASL_USERNAME}
