@@ -47,16 +47,16 @@ def fetch(label: str, query: str, path: str) -> None:
 
 
 fetch(
-    "audit logs (100 records, 7 days)",
+    "audit logs (100 newest records, last 1 hour)",
     "SELECT * FROM Log WHERE `confluent.log.source` = 'confluent-audit' "
-    "LIMIT 100 SINCE 7 days ago",
+    "SINCE 1 hour ago ORDER BY timestamp DESC LIMIT 100",
     "testdata/newrelic-audit-sample.json",
 )
 
 fetch(
-    "connector logs (100 records, 7 days)",
+    "connector logs (100 newest records, last 1 hour)",
     "SELECT * FROM Log WHERE `confluent.log.source` = 'confluent-connector' "
-    "LIMIT 100 SINCE 7 days ago",
+    "SINCE 1 hour ago ORDER BY timestamp DESC LIMIT 100",
     "testdata/newrelic-connector-sample.json",
 )
 
