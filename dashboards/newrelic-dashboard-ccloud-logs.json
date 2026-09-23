@@ -36,7 +36,7 @@
           }
         },
         {
-          "title": "Authorization Denials",
+          "title": "AuthZ DENY",
           "layout": {
             "column": 4,
             "row": 1,
@@ -50,7 +50,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) AS 'Denials' FROM Log WHERE confluent.log.source = 'confluent-audit' AND (data.authorizationInfo.result = 'DENY' OR data.authorizationInfo.granted = 'False' OR data.authenticationInfo.errorMessage IS NOT NULL) AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all')"
+                "query": "SELECT count(*) AS 'AuthZ DENY' FROM Log WHERE confluent.log.source = 'confluent-audit' AND data.authorizationInfo.result = 'DENY' AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all')"
               }
             ],
             "platformOptions": {
@@ -65,10 +65,97 @@
           }
         },
         {
-          "title": "Event Count Over Time",
+          "title": "RBAC Denied",
+          "layout": {
+            "column": 7,
+            "row": 1,
+            "width": 3,
+            "height": 3
+          },
+          "visualization": {
+            "id": "viz.billboard"
+          },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": 0,
+                "query": "SELECT count(*) AS 'RBAC Denied' FROM Log WHERE confluent.log.source = 'confluent-audit' AND data.authorizationInfo.granted = 'False' AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all')"
+              }
+            ],
+            "platformOptions": {
+              "ignoreTimeRange": false
+            },
+            "thresholds": [
+              {
+                "alertSeverity": "CRITICAL",
+                "value": 0
+              }
+            ]
+          }
+        },
+        {
+          "title": "Auth Token Errors",
+          "layout": {
+            "column": 10,
+            "row": 1,
+            "width": 3,
+            "height": 3
+          },
+          "visualization": {
+            "id": "viz.billboard"
+          },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": 0,
+                "query": "SELECT count(*) AS 'Token Errors' FROM Log WHERE confluent.log.source = 'confluent-audit' AND data.authenticationInfo.errorMessage IS NOT NULL AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all')"
+              }
+            ],
+            "platformOptions": {
+              "ignoreTimeRange": false
+            },
+            "thresholds": [
+              {
+                "alertSeverity": "CRITICAL",
+                "value": 0
+              }
+            ]
+          }
+        },
+        {
+          "title": "Denial Types Over Time",
           "layout": {
             "column": 1,
             "row": 4,
+            "width": 12,
+            "height": 3
+          },
+          "visualization": {
+            "id": "viz.line"
+          },
+          "rawConfiguration": {
+            "legend": {
+              "enabled": true
+            },
+            "nrqlQueries": [
+              {
+                "accountId": 0,
+                "query": "SELECT count(*) FROM Log WHERE confluent.log.source = 'confluent-audit' AND (data.authorizationInfo.result = 'DENY' OR data.authorizationInfo.granted = 'False' OR data.authenticationInfo.errorMessage IS NOT NULL) AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all') TIMESERIES AUTO FACET cases(WHERE data.authorizationInfo.result = 'DENY' AS 'AuthZ DENY', WHERE data.authorizationInfo.granted = 'False' AS 'RBAC Denied', WHERE data.authenticationInfo.errorMessage IS NOT NULL AS 'Token Error') LIMIT 3"
+              }
+            ],
+            "platformOptions": {
+              "ignoreTimeRange": false
+            },
+            "yAxisLeft": {
+              "zero": true
+            }
+          }
+        },
+        {
+          "title": "Event Count Over Time",
+          "layout": {
+            "column": 1,
+            "row": 7,
             "width": 12,
             "height": 3
           },
@@ -97,7 +184,7 @@
           "title": "Raw Audit Log Events",
           "layout": {
             "column": 1,
-            "row": 7,
+            "row": 10,
             "width": 12,
             "height": 8
           },
