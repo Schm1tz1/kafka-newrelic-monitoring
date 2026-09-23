@@ -7,10 +7,39 @@
       "description": null,
       "widgets": [
         {
-          "title": "Event Count Over Time",
+          "title": "Authorization Failures",
           "layout": {
             "column": 1,
             "row": 1,
+            "width": 3,
+            "height": 3
+          },
+          "visualization": {
+            "id": "viz.billboard"
+          },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": 0,
+                "query": "SELECT count(*) AS 'Failures' FROM Log WHERE confluent.log.source = 'confluent-audit' AND data.result.status = 'FAILURE' AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all')"
+              }
+            ],
+            "platformOptions": {
+              "ignoreTimeRange": false
+            },
+            "thresholds": [
+              {
+                "alertSeverity": "CRITICAL",
+                "value": 0
+              }
+            ]
+          }
+        },
+        {
+          "title": "Event Count Over Time",
+          "layout": {
+            "column": 1,
+            "row": 4,
             "width": 12,
             "height": 3
           },
@@ -24,7 +53,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE confluent.log.source = 'confluent-audit' AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all') TIMESERIES AUTO FACET type LIMIT 20"
+                "query": "SELECT count(*) FROM Log WHERE confluent.log.source = 'confluent-audit' AND (data.result.status = {{result_status}} OR {{result_status}} = 'all') AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all') TIMESERIES AUTO FACET type LIMIT 20"
               }
             ],
             "platformOptions": {
@@ -39,7 +68,7 @@
           "title": "Raw Audit Log Events",
           "layout": {
             "column": 1,
-            "row": 4,
+            "row": 7,
             "width": 12,
             "height": 8
           },
@@ -50,7 +79,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT timestamp, type, `data.methodName`, `data.authenticationInfo.principal`, `data.authenticationInfo.identity`, `data.result.status`, `data.authorizationInfo.operation`, `data.authorizationInfo.resourceType`, `data.authorizationInfo.result`, source FROM Log WHERE confluent.log.source = 'confluent-audit' AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all') LIMIT 100"
+                "query": "SELECT timestamp, type, `data.methodName`, `data.authenticationInfo.principal`, `data.authenticationInfo.identity`, `data.result.status`, `data.authorizationInfo.operation`, `data.authorizationInfo.resourceType`, `data.authorizationInfo.result`, source FROM Log WHERE confluent.log.source = 'confluent-audit' AND (data.result.status = {{result_status}} OR {{result_status}} = 'all') AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all') LIMIT 100"
               }
             ],
             "platformOptions": {
@@ -120,6 +149,28 @@
     }
   ],
   "variables": [
+    {
+      "name": "result_status",
+      "items": null,
+      "defaultValues": [
+        {
+          "value": {
+            "string": "all"
+          }
+        }
+      ],
+      "nrqlQuery": {
+        "accountId": 0,
+        "query": "SELECT uniques(data.result.status) FROM Log WHERE confluent.log.source = 'confluent-audit' SINCE 1 week ago"
+      },
+      "options": {
+        "ignoreTimeRange": true
+      },
+      "title": "Result Status",
+      "type": "NRQL",
+      "isMultiSelection": false,
+      "replacementStrategy": "STRING"
+    },
     {
       "name": "crn_environment",
       "items": null,
