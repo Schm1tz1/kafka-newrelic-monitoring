@@ -24,7 +24,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (`crn.environment` = '{{crn_environment}}' OR '{{crn_environment}}' = 'all') AND (`crn.cloud_cluster` = '{{crn_cluster}}' OR '{{crn_cluster}}' = 'all') AND (`crn.schema_registry` = '{{crn_schema_registry}}' OR '{{crn_schema_registry}}' = 'all') TIMESERIES AUTO FACET type LIMIT 20"
+                "query": "SELECT count(*) FROM Log WHERE confluent.log.source = 'confluent-audit' AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all') TIMESERIES AUTO FACET type LIMIT 20"
               }
             ],
             "platformOptions": {
@@ -50,7 +50,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT timestamp, type, `data.methodName`, `data.authenticationInfo.principal`, `data.authenticationInfo.identity`, `data.result.status`, `data.authorizationInfo.operation`, `data.authorizationInfo.resourceType`, `data.authorizationInfo.result`, source FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (`crn.environment` = '{{crn_environment}}' OR '{{crn_environment}}' = 'all') AND (`crn.cloud_cluster` = '{{crn_cluster}}' OR '{{crn_cluster}}' = 'all') AND (`crn.schema_registry` = '{{crn_schema_registry}}' OR '{{crn_schema_registry}}' = 'all') LIMIT 100"
+                "query": "SELECT timestamp, type, `data.methodName`, `data.authenticationInfo.principal`, `data.authenticationInfo.identity`, `data.result.status`, `data.authorizationInfo.operation`, `data.authorizationInfo.resourceType`, `data.authorizationInfo.result`, source FROM Log WHERE confluent.log.source = 'confluent-audit' AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all') LIMIT 100"
               }
             ],
             "platformOptions": {
@@ -82,7 +82,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND (`crn.environment` = '{{crn_environment}}' OR '{{crn_environment}}' = 'all') AND (`crn.connector` = '{{crn_connector}}' OR '{{crn_connector}}' = 'all') TIMESERIES AUTO FACET `data.context.connectorId` LIMIT 10"
+                "query": "SELECT count(*) FROM Log WHERE confluent.log.source = 'confluent-connector' AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.connector = {{crn_connector}} OR {{crn_connector}} = 'all') TIMESERIES AUTO FACET `data.context.connectorId` LIMIT 10"
               }
             ],
             "platformOptions": {
@@ -108,7 +108,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT timestamp, `data.context.connectorId`, `data.summary.connectorErrorSummary.message`, `data.summary.connectorErrorSummary.rootCause`, source FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND (`crn.environment` = '{{crn_environment}}' OR '{{crn_environment}}' = 'all') AND (`crn.connector` = '{{crn_connector}}' OR '{{crn_connector}}' = 'all') LIMIT 100"
+                "query": "SELECT timestamp, `data.context.connectorId`, `data.summary.connectorErrorSummary.message`, `data.summary.connectorErrorSummary.rootCause`, source FROM Log WHERE confluent.log.source = 'confluent-connector' AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.connector = {{crn_connector}} OR {{crn_connector}} = 'all') LIMIT 100"
               }
             ],
             "platformOptions": {
@@ -132,7 +132,7 @@
       ],
       "nrqlQuery": {
         "accountId": 0,
-        "query": "SELECT uniques(`crn.environment`) FROM Log WHERE `confluent.log.source` IN ('confluent-audit', 'confluent-connector') SINCE 1 week ago"
+        "query": "SELECT uniques(crn.environment) FROM Log WHERE confluent.log.source IN ('confluent-audit', 'confluent-connector') SINCE 1 week ago"
       },
       "options": {
         "ignoreTimeRange": true
@@ -154,7 +154,7 @@
       ],
       "nrqlQuery": {
         "accountId": 0,
-        "query": "SELECT uniques(`crn.cloud_cluster`) FROM Log WHERE `confluent.log.source` = 'confluent-audit' SINCE 1 week ago"
+        "query": "SELECT uniques(crn.cloud_cluster) FROM Log WHERE confluent.log.source = 'confluent-audit' SINCE 1 week ago"
       },
       "options": {
         "ignoreTimeRange": true
@@ -176,7 +176,7 @@
       ],
       "nrqlQuery": {
         "accountId": 0,
-        "query": "SELECT uniques(`crn.schema_registry`) FROM Log WHERE `confluent.log.source` = 'confluent-audit' SINCE 1 week ago"
+        "query": "SELECT uniques(crn.schema_registry) FROM Log WHERE confluent.log.source = 'confluent-audit' SINCE 1 week ago"
       },
       "options": {
         "ignoreTimeRange": true
@@ -198,7 +198,7 @@
       ],
       "nrqlQuery": {
         "accountId": 0,
-        "query": "SELECT uniques(`crn.connector`) FROM Log WHERE `confluent.log.source` = 'confluent-connector' SINCE 1 week ago"
+        "query": "SELECT uniques(crn.connector) FROM Log WHERE confluent.log.source = 'confluent-connector' SINCE 1 week ago"
       },
       "options": {
         "ignoreTimeRange": true
