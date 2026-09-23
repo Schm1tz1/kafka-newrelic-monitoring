@@ -75,8 +75,7 @@ receivers:
   kafka/audit:
     brokers:
       - ${env:CONFLUENT_AUDIT_BOOTSTRAP_SERVERS}
-    topics:
-      - confluent-audit-log-events
+    topic: confluent-audit-log-events
     group_id: otel-collector-audit-log
     initial_offset: latest
     protocol_version: 2.6.0
@@ -85,8 +84,8 @@ receivers:
         username: ${env:CONFLUENT_AUDIT_SASL_USERNAME}
         password: ${env:CONFLUENT_AUDIT_SASL_PASSWORD}
         mechanism: PLAIN
-      tls:
-        insecure_skip_verify: false
+    tls:
+      insecure_skip_verify: false
 
   # ── 4. Confluent Cloud managed connector log consumer ────────────────────────
   # Reads from the confluent-connect-log-events topic on the same audit log
@@ -98,8 +97,7 @@ receivers:
   kafka/connector_logs:
     brokers:
       - ${env:CONFLUENT_AUDIT_BOOTSTRAP_SERVERS}
-    topics:
-      - confluent-connect-log-events
+    topic: confluent-connect-log-events
     group_id: otel-collector-connector-logs
     initial_offset: latest
     protocol_version: 2.6.0
@@ -108,8 +106,8 @@ receivers:
         username: ${env:CONFLUENT_AUDIT_SASL_USERNAME}
         password: ${env:CONFLUENT_AUDIT_SASL_PASSWORD}
         mechanism: PLAIN
-      tls:
-        insecure_skip_verify: false
+    tls:
+      insecure_skip_verify: false
 
 processors:
   memory_limiter:
