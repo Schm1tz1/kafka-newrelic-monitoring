@@ -15,3 +15,5 @@ __pycache__/
 # AI
 CLAUDE.md
 .bob/
+# Test data (may contain sensitive sampled records)
+testdata/
