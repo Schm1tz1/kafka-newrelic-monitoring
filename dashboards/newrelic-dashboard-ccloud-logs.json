@@ -39,7 +39,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (`confluent.environment` = '{{audit_environment}}' OR '{{audit_environment}}' = '%') AND (`confluent.cluster` = '{{audit_cluster}}' OR '{{audit_cluster}}' = '%') AND (`confluent.schema_registry` = '{{audit_schema_registry}}' OR '{{audit_schema_registry}}' = '%') TIMESERIES AUTO FACET type LIMIT 20"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = '%') TIMESERIES AUTO FACET type LIMIT 20"
               }
             ],
             "platformOptions": {
@@ -71,7 +71,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (`confluent.environment` = '{{audit_environment}}' OR '{{audit_environment}}' = '%') AND (`confluent.cluster` = '{{audit_cluster}}' OR '{{audit_cluster}}' = '%') AND (`confluent.schema_registry` = '{{audit_schema_registry}}' OR '{{audit_schema_registry}}' = '%') FACET cases(WHERE type LIKE 'io.confluent.kafka.server/%' AS 'Kafka', WHERE type LIKE 'io.confluent.sg.server/%' AS 'Schema Registry', WHERE type LIKE 'io.confluent.flink.server/%' AS 'Flink', WHERE type LIKE 'io.confluent.cloud/%' AS 'Cloud', WHERE 1=1 AS 'Other')"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = '%') FACET cases(WHERE type LIKE 'io.confluent.kafka.server/%' AS 'Kafka', WHERE type LIKE 'io.confluent.sg.server/%' AS 'Schema Registry', WHERE type LIKE 'io.confluent.flink.server/%' AS 'Flink', WHERE type LIKE 'io.confluent.cloud/%' AS 'Cloud', WHERE 1=1 AS 'Other')"
               }
             ],
             "platformOptions": {
@@ -100,7 +100,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type = 'io.confluent.kafka.server/authentication' AND (`confluent.environment` = '{{audit_environment}}' OR '{{audit_environment}}' = '%') AND (`confluent.cluster` = '{{audit_cluster}}' OR '{{audit_cluster}}' = '%') FACET `data.result.status`"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = '%') AND type = 'io.confluent.kafka.server/authentication' FACET `data.result.status`"
               }
             ],
             "platformOptions": {
@@ -129,7 +129,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type = 'io.confluent.kafka.server/authentication' AND (`confluent.environment` = '{{audit_environment}}' OR '{{audit_environment}}' = '%') AND (`confluent.cluster` = '{{audit_cluster}}' OR '{{audit_cluster}}' = '%') FACET `data.authenticationInfo.metadata.mechanism`"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = '%') AND type = 'io.confluent.kafka.server/authentication' FACET `data.authenticationInfo.metadata.mechanism`"
               }
             ],
             "platformOptions": {
@@ -158,7 +158,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type = 'io.confluent.sg.server/authentication' AND (`confluent.environment` = '{{audit_environment}}' OR '{{audit_environment}}' = '%') AND (`confluent.schema_registry` = '{{audit_schema_registry}}' OR '{{audit_schema_registry}}' = '%') FACET `data.authenticationInfo.result`"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = '%') AND type = 'io.confluent.sg.server/authentication' FACET `data.authenticationInfo.result`"
               }
             ],
             "platformOptions": {
@@ -187,7 +187,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type = 'io.confluent.sg.server/authentication' AND (`confluent.environment` = '{{audit_environment}}' OR '{{audit_environment}}' = '%') AND (`confluent.schema_registry` = '{{audit_schema_registry}}' OR '{{audit_schema_registry}}' = '%') FACET `data.authenticationInfo.credentials.mechanism`"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = '%') AND type = 'io.confluent.sg.server/authentication' FACET `data.authenticationInfo.credentials.mechanism`"
               }
             ],
             "platformOptions": {
@@ -216,7 +216,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type LIKE '%/authorization' AND (`confluent.environment` = '{{audit_environment}}' OR '{{audit_environment}}' = '%') AND (`confluent.cluster` = '{{audit_cluster}}' OR '{{audit_cluster}}' = '%') AND (`confluent.schema_registry` = '{{audit_schema_registry}}' OR '{{audit_schema_registry}}' = '%') FACET `data.authorizationInfo.result`"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = '%') AND type LIKE '%/authorization' FACET `data.authorizationInfo.result`"
               }
             ],
             "platformOptions": {
@@ -242,7 +242,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type LIKE '%/authorization' AND (`confluent.environment` = '{{audit_environment}}' OR '{{audit_environment}}' = '%') AND (`confluent.cluster` = '{{audit_cluster}}' OR '{{audit_cluster}}' = '%') AND (`confluent.schema_registry` = '{{audit_schema_registry}}' OR '{{audit_schema_registry}}' = '%') FACET `data.authorizationInfo.operation` LIMIT 20"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = '%') AND type LIKE '%/authorization' FACET `data.authorizationInfo.operation` LIMIT 20"
               }
             ],
             "platformOptions": {
@@ -268,7 +268,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type LIKE '%/authorization' AND (`confluent.environment` = '{{audit_environment}}' OR '{{audit_environment}}' = '%') AND (`confluent.cluster` = '{{audit_cluster}}' OR '{{audit_cluster}}' = '%') AND (`confluent.schema_registry` = '{{audit_schema_registry}}' OR '{{audit_schema_registry}}' = '%') FACET `data.authorizationInfo.resourceType` LIMIT 20"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = '%') AND type LIKE '%/authorization' FACET `data.authorizationInfo.resourceType` LIMIT 20"
               }
             ],
             "platformOptions": {
@@ -294,7 +294,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (`confluent.environment` = '{{audit_environment}}' OR '{{audit_environment}}' = '%') AND (`confluent.cluster` = '{{audit_cluster}}' OR '{{audit_cluster}}' = '%') AND (`confluent.schema_registry` = '{{audit_schema_registry}}' OR '{{audit_schema_registry}}' = '%') FACET coalesce(`data.authenticationInfo.principal`, `data.authenticationInfo.identity`) LIMIT 20"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = '%') FACET coalesce(`data.authenticationInfo.principal`, `data.authenticationInfo.identity`) LIMIT 20"
               }
             ],
             "platformOptions": {
@@ -320,7 +320,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND `data.authorizationInfo.rbacAuthorization.role` IS NOT NULL AND (`confluent.environment` = '{{audit_environment}}' OR '{{audit_environment}}' = '%') FACET `data.authorizationInfo.rbacAuthorization.role` LIMIT 20"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = '%') AND `data.authorizationInfo.rbacAuthorization.role` IS NOT NULL FACET `data.authorizationInfo.rbacAuthorization.role` LIMIT 20"
               }
             ],
             "platformOptions": {
@@ -343,7 +343,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT timestamp, type, `data.methodName`, coalesce(`data.authenticationInfo.principal`, `data.authenticationInfo.identity`) AS principal, `data.result.status`, `data.authorizationInfo.operation`, `data.authorizationInfo.resourceType`, `data.authorizationInfo.result`, source FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (`confluent.environment` = '{{audit_environment}}' OR '{{audit_environment}}' = '%') AND (`confluent.cluster` = '{{audit_cluster}}' OR '{{audit_cluster}}' = '%') AND (`confluent.schema_registry` = '{{audit_schema_registry}}' OR '{{audit_schema_registry}}' = '%') LIMIT 100"
+                "query": "SELECT timestamp, type, `data.methodName`, coalesce(`data.authenticationInfo.principal`, `data.authenticationInfo.identity`) AS principal, `data.result.status`, `data.authorizationInfo.operation`, `data.authorizationInfo.resourceType`, `data.authorizationInfo.result`, source FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = '%') LIMIT 100"
               }
             ],
             "platformOptions": {
@@ -390,7 +390,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND (`confluent.environment` = '{{connector_environment}}' OR '{{connector_environment}}' = '%') AND (`confluent.kafka` = '{{connector_kafka}}' OR '{{connector_kafka}}' = '%') AND (`confluent.connector` = '{{connector_id}}' OR '{{connector_id}}' = '%') TIMESERIES AUTO FACET `data.context.connectorId` LIMIT 10"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND (`data.context.connectorId` = '{{connector_id}}' OR '{{connector_id}}' = '%') TIMESERIES AUTO FACET `data.context.connectorId` LIMIT 10"
               }
             ],
             "platformOptions": {
@@ -419,7 +419,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND (`confluent.environment` = '{{connector_environment}}' OR '{{connector_environment}}' = '%') AND (`confluent.kafka` = '{{connector_kafka}}' OR '{{connector_kafka}}' = '%') AND (`confluent.connector` = '{{connector_id}}' OR '{{connector_id}}' = '%') FACET `data.context.connectorId` LIMIT 20"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND (`data.context.connectorId` = '{{connector_id}}' OR '{{connector_id}}' = '%') FACET `data.context.connectorId` LIMIT 20"
               }
             ],
             "platformOptions": {
@@ -448,7 +448,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND (`confluent.environment` = '{{connector_environment}}' OR '{{connector_environment}}' = '%') AND (`confluent.kafka` = '{{connector_kafka}}' OR '{{connector_kafka}}' = '%') AND (`confluent.connector` = '{{connector_id}}' OR '{{connector_id}}' = '%') FACET `confluent.environment` LIMIT 20"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND (`data.context.connectorId` = '{{connector_id}}' OR '{{connector_id}}' = '%') FACET source LIMIT 20"
               }
             ],
             "platformOptions": {
@@ -474,7 +474,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND (`confluent.environment` = '{{connector_environment}}' OR '{{connector_environment}}' = '%') AND (`confluent.kafka` = '{{connector_kafka}}' OR '{{connector_kafka}}' = '%') AND (`confluent.connector` = '{{connector_id}}' OR '{{connector_id}}' = '%') FACET `data.summary.connectorErrorSummary.rootCause` LIMIT 10"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND (`data.context.connectorId` = '{{connector_id}}' OR '{{connector_id}}' = '%') FACET `data.summary.connectorErrorSummary.rootCause` LIMIT 10"
               }
             ],
             "platformOptions": {
@@ -500,7 +500,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND (`confluent.environment` = '{{connector_environment}}' OR '{{connector_environment}}' = '%') AND (`confluent.kafka` = '{{connector_kafka}}' OR '{{connector_kafka}}' = '%') AND (`confluent.connector` = '{{connector_id}}' OR '{{connector_id}}' = '%') FACET `data.summary.connectorErrorSummary.message` LIMIT 20"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND (`data.context.connectorId` = '{{connector_id}}' OR '{{connector_id}}' = '%') FACET `data.summary.connectorErrorSummary.message` LIMIT 20"
               }
             ],
             "platformOptions": {
@@ -523,7 +523,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT timestamp, `data.context.connectorId`, `data.summary.connectorErrorSummary.message`, `data.summary.connectorErrorSummary.rootCause`, source FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND (`confluent.environment` = '{{connector_environment}}' OR '{{connector_environment}}' = '%') AND (`confluent.kafka` = '{{connector_kafka}}' OR '{{connector_kafka}}' = '%') AND (`confluent.connector` = '{{connector_id}}' OR '{{connector_id}}' = '%') LIMIT 100"
+                "query": "SELECT timestamp, `data.context.connectorId`, `data.summary.connectorErrorSummary.message`, `data.summary.connectorErrorSummary.rootCause`, source FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND (`data.context.connectorId` = '{{connector_id}}' OR '{{connector_id}}' = '%') LIMIT 100"
               }
             ],
             "platformOptions": {
@@ -536,7 +536,7 @@
   ],
   "variables": [
     {
-      "name": "audit_environment",
+      "name": "audit_source",
       "items": null,
       "defaultValues": [
         {
@@ -547,100 +547,12 @@
       ],
       "nrqlQuery": {
         "accountId": 0,
-        "query": "SELECT uniques(`confluent.environment`) FROM Log WHERE `confluent.log.source` = 'confluent-audit' SINCE 1 week ago"
+        "query": "SELECT uniques(source) FROM Log WHERE `confluent.log.source` = 'confluent-audit' SINCE 1 week ago"
       },
       "options": {
         "ignoreTimeRange": true
       },
-      "title": "Environment (Audit)",
-      "type": "NRQL",
-      "isMultiSelection": false,
-      "replacementStrategy": "STRING"
-    },
-    {
-      "name": "audit_cluster",
-      "items": null,
-      "defaultValues": [
-        {
-          "value": {
-            "string": "%"
-          }
-        }
-      ],
-      "nrqlQuery": {
-        "accountId": 0,
-        "query": "SELECT uniques(`confluent.cluster`) FROM Log WHERE `confluent.log.source` = 'confluent-audit' SINCE 1 week ago"
-      },
-      "options": {
-        "ignoreTimeRange": true
-      },
-      "title": "Kafka Cluster (Audit)",
-      "type": "NRQL",
-      "isMultiSelection": false,
-      "replacementStrategy": "STRING"
-    },
-    {
-      "name": "audit_schema_registry",
-      "items": null,
-      "defaultValues": [
-        {
-          "value": {
-            "string": "%"
-          }
-        }
-      ],
-      "nrqlQuery": {
-        "accountId": 0,
-        "query": "SELECT uniques(`confluent.schema_registry`) FROM Log WHERE `confluent.log.source` = 'confluent-audit' SINCE 1 week ago"
-      },
-      "options": {
-        "ignoreTimeRange": true
-      },
-      "title": "Schema Registry (Audit)",
-      "type": "NRQL",
-      "isMultiSelection": false,
-      "replacementStrategy": "STRING"
-    },
-    {
-      "name": "connector_environment",
-      "items": null,
-      "defaultValues": [
-        {
-          "value": {
-            "string": "%"
-          }
-        }
-      ],
-      "nrqlQuery": {
-        "accountId": 0,
-        "query": "SELECT uniques(`confluent.environment`) FROM Log WHERE `confluent.log.source` = 'confluent-connector' SINCE 1 week ago"
-      },
-      "options": {
-        "ignoreTimeRange": true
-      },
-      "title": "Environment (Connectors)",
-      "type": "NRQL",
-      "isMultiSelection": false,
-      "replacementStrategy": "STRING"
-    },
-    {
-      "name": "connector_kafka",
-      "items": null,
-      "defaultValues": [
-        {
-          "value": {
-            "string": "%"
-          }
-        }
-      ],
-      "nrqlQuery": {
-        "accountId": 0,
-        "query": "SELECT uniques(`confluent.kafka`) FROM Log WHERE `confluent.log.source` = 'confluent-connector' SINCE 1 week ago"
-      },
-      "options": {
-        "ignoreTimeRange": true
-      },
-      "title": "Kafka Cluster (Connectors)",
+      "title": "Audit Source (cluster / SR)",
       "type": "NRQL",
       "isMultiSelection": false,
       "replacementStrategy": "STRING"
@@ -657,7 +569,7 @@
       ],
       "nrqlQuery": {
         "accountId": 0,
-        "query": "SELECT uniques(`confluent.connector`) FROM Log WHERE `confluent.log.source` = 'confluent-connector' SINCE 1 week ago"
+        "query": "SELECT uniques(`data.context.connectorId`) FROM Log WHERE `confluent.log.source` = 'confluent-connector' SINCE 1 week ago"
       },
       "options": {
         "ignoreTimeRange": true

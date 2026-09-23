@@ -133,12 +133,6 @@ processors:
         statements:
           - set(time, Time(attributes["time"], "%Y-%m-%dT%H:%M:%S.%fZ")) where attributes["time"] != nil
           - set(attributes["confluent.log.source"], "confluent-audit")
-          # Extract routing fields from the source CRN so NR variables can FACET on them directly.
-          # Example source: crn://confluent.cloud/organization=.../environment=env-abc/cloud-cluster=lkc-xyz/kafka=lkc-xyz
-          # Example source (SR): crn://confluent.cloud/organization=.../environment=env-abc/schema-registry=lsrc-xyz
-          - set(attributes["confluent.environment"], ExtractPatterns(attributes["source"], "environment=(?P<v>[^/]+)")["v"]) where attributes["source"] != nil
-          - set(attributes["confluent.cluster"], ExtractPatterns(attributes["source"], "cloud-cluster=(?P<v>[^/]+)")["v"]) where attributes["source"] != nil
-          - set(attributes["confluent.schema_registry"], ExtractPatterns(attributes["source"], "schema-registry=(?P<v>[^/]+)")["v"]) where attributes["source"] != nil
 
   transform/connector:
     log_statements:
@@ -146,11 +140,6 @@ processors:
         statements:
           - set(time, Time(attributes["time"], "%Y-%m-%dT%H:%M:%S.%fZ")) where attributes["time"] != nil
           - set(attributes["confluent.log.source"], "confluent-connector")
-          # Extract routing fields from the source CRN so NR variables can FACET on them directly.
-          # Example source: crn://confluent.cloud/environment=env-abc/kafka=lkc-xyz/connector=lcc-abc
-          - set(attributes["confluent.environment"], ExtractPatterns(attributes["source"], "environment=(?P<v>[^/]+)")["v"]) where attributes["source"] != nil
-          - set(attributes["confluent.kafka"], ExtractPatterns(attributes["source"], "kafka=(?P<v>[^/]+)")["v"]) where attributes["source"] != nil
-          - set(attributes["confluent.connector"], ExtractPatterns(attributes["source"], "connector=(?P<v>[^/]+)")["v"]) where attributes["source"] != nil
 
 exporters:
   debug:
