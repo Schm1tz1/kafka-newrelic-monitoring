@@ -8,135 +8,227 @@
       "widgets": [
         {
           "title": "",
-          "layout": { "column": 1, "row": 1, "width": 2, "height": 5 },
-          "linkedEntityGuids": [],
-          "visualization": { "id": "viz.markdown" },
+          "layout": {
+            "column": 1,
+            "row": 1,
+            "width": 2,
+            "height": 5
+          },
+          "visualization": {
+            "id": "viz.markdown"
+          },
           "rawConfiguration": {
             "text": "![ConfluentLogo](https://cdn.confluent.io/wp-content/uploads/seo-logo-meadow.png)\n## Confluent Cloud\n### Audit Logs\nSource: `confluent-audit-log-events`\n\nEach record is a CloudEvent (`io.confluent.*`) emitted by the Confluent Cloud control plane.\n\nFilter by **Organization**, **Environment**, **Cluster**, or **Schema Registry** using the variables above."
           }
         },
         {
           "title": "Event Volume Over Time",
-          "layout": { "column": 3, "row": 1, "width": 5, "height": 3 },
-          "linkedEntityGuids": [],
-          "visualization": { "id": "viz.line" },
+          "layout": {
+            "column": 3,
+            "row": 1,
+            "width": 5,
+            "height": 3
+          },
+          "visualization": {
+            "id": "viz.line"
+          },
           "rawConfiguration": {
-            "legend": { "enabled": true },
+            "legend": {
+              "enabled": true
+            },
             "nrqlQueries": [
               {
                 "accountId": 0,
                 "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND otelcol.receiver = 'kafka' AND source LIKE '%confluent.cloud%' AND source NOT LIKE '%connector%' AND source LIKE {{audit_environment}} AND source LIKE {{audit_organization}} AND source LIKE {{audit_cluster}} TIMESERIES AUTO FACET type LIMIT 20"
               }
             ],
-            "platformOptions": { "ignoreTimeRange": false },
-            "yAxisLeft": { "zero": true }
+            "platformOptions": {
+              "ignoreTimeRange": false
+            },
+            "yAxisLeft": {
+              "zero": true
+            }
           }
         },
         {
           "title": "Events by Type",
-          "layout": { "column": 8, "row": 1, "width": 5, "height": 3 },
-          "linkedEntityGuids": [],
-          "visualization": { "id": "viz.pie" },
+          "layout": {
+            "column": 8,
+            "row": 1,
+            "width": 5,
+            "height": 3
+          },
+          "visualization": {
+            "id": "viz.pie"
+          },
           "rawConfiguration": {
-            "facet": { "showOtherSeries": true },
-            "legend": { "enabled": true },
+            "facet": {
+              "showOtherSeries": true
+            },
+            "legend": {
+              "enabled": true
+            },
             "nrqlQueries": [
               {
                 "accountId": 0,
                 "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND otelcol.receiver = 'kafka' AND source LIKE '%confluent.cloud%' AND source NOT LIKE '%connector%' AND source LIKE {{audit_environment}} AND source LIKE {{audit_organization}} AND source LIKE {{audit_cluster}} FACET type LIMIT 20"
               }
             ],
-            "platformOptions": { "ignoreTimeRange": false }
+            "platformOptions": {
+              "ignoreTimeRange": false
+            }
           }
         },
         {
           "title": "Authentication Results",
-          "layout": { "column": 3, "row": 4, "width": 4, "height": 3 },
-          "linkedEntityGuids": [],
-          "visualization": { "id": "viz.pie" },
+          "layout": {
+            "column": 3,
+            "row": 4,
+            "width": 4,
+            "height": 3
+          },
+          "visualization": {
+            "id": "viz.pie"
+          },
           "rawConfiguration": {
-            "facet": { "showOtherSeries": true },
-            "legend": { "enabled": true },
+            "facet": {
+              "showOtherSeries": true
+            },
+            "legend": {
+              "enabled": true
+            },
             "nrqlQueries": [
               {
                 "accountId": 0,
                 "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND otelcol.receiver = 'kafka' AND source LIKE '%confluent.cloud%' AND source NOT LIKE '%connector%' AND type = 'io.confluent.kafka.server/authentication' AND source LIKE {{audit_environment}} AND source LIKE {{audit_organization}} AND source LIKE {{audit_cluster}} FACET `data.result.status` LIMIT 10"
               }
             ],
-            "platformOptions": { "ignoreTimeRange": false }
+            "platformOptions": {
+              "ignoreTimeRange": false
+            }
           }
         },
         {
           "title": "Auth Failures Over Time",
-          "layout": { "column": 7, "row": 4, "width": 6, "height": 3 },
-          "linkedEntityGuids": [],
-          "visualization": { "id": "viz.line" },
+          "layout": {
+            "column": 7,
+            "row": 4,
+            "width": 6,
+            "height": 3
+          },
+          "visualization": {
+            "id": "viz.line"
+          },
           "rawConfiguration": {
-            "legend": { "enabled": true },
+            "legend": {
+              "enabled": true
+            },
             "nrqlQueries": [
               {
                 "accountId": 0,
                 "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND otelcol.receiver = 'kafka' AND source LIKE '%confluent.cloud%' AND source NOT LIKE '%connector%' AND type = 'io.confluent.kafka.server/authentication' AND `data.result.status` = 'FAILURE' AND source LIKE {{audit_environment}} AND source LIKE {{audit_organization}} AND source LIKE {{audit_cluster}} TIMESERIES AUTO FACET `data.authenticationInfo.principal` LIMIT 10"
               }
             ],
-            "platformOptions": { "ignoreTimeRange": false },
-            "yAxisLeft": { "zero": true }
+            "platformOptions": {
+              "ignoreTimeRange": false
+            },
+            "yAxisLeft": {
+              "zero": true
+            }
           }
         },
         {
           "title": "Authorization Events by Method",
-          "layout": { "column": 1, "row": 7, "width": 4, "height": 3 },
-          "linkedEntityGuids": [],
-          "visualization": { "id": "viz.bar" },
+          "layout": {
+            "column": 1,
+            "row": 7,
+            "width": 4,
+            "height": 3
+          },
+          "visualization": {
+            "id": "viz.bar"
+          },
           "rawConfiguration": {
-            "facet": { "showOtherSeries": true },
+            "facet": {
+              "showOtherSeries": true
+            },
             "nrqlQueries": [
               {
                 "accountId": 0,
                 "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND otelcol.receiver = 'kafka' AND source LIKE '%confluent.cloud%' AND source NOT LIKE '%connector%' AND type LIKE '%authorization%' AND source LIKE {{audit_environment}} AND source LIKE {{audit_organization}} AND source LIKE {{audit_cluster}} FACET `data.methodName` LIMIT 20"
               }
             ],
-            "platformOptions": { "ignoreTimeRange": false }
+            "platformOptions": {
+              "ignoreTimeRange": false
+            }
           }
         },
         {
           "title": "Top Principals (by event count)",
-          "layout": { "column": 5, "row": 7, "width": 4, "height": 3 },
-          "linkedEntityGuids": [],
-          "visualization": { "id": "viz.bar" },
+          "layout": {
+            "column": 5,
+            "row": 7,
+            "width": 4,
+            "height": 3
+          },
+          "visualization": {
+            "id": "viz.bar"
+          },
           "rawConfiguration": {
-            "facet": { "showOtherSeries": true },
+            "facet": {
+              "showOtherSeries": true
+            },
             "nrqlQueries": [
               {
                 "accountId": 0,
                 "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND otelcol.receiver = 'kafka' AND source LIKE '%confluent.cloud%' AND source NOT LIKE '%connector%' AND source LIKE {{audit_environment}} AND source LIKE {{audit_organization}} AND source LIKE {{audit_cluster}} FACET `data.authenticationInfo.principal` LIMIT 20"
               }
             ],
-            "platformOptions": { "ignoreTimeRange": false }
+            "platformOptions": {
+              "ignoreTimeRange": false
+            }
           }
         },
         {
           "title": "SASL Mechanisms",
-          "layout": { "column": 9, "row": 7, "width": 4, "height": 3 },
-          "linkedEntityGuids": [],
-          "visualization": { "id": "viz.pie" },
+          "layout": {
+            "column": 9,
+            "row": 7,
+            "width": 4,
+            "height": 3
+          },
+          "visualization": {
+            "id": "viz.pie"
+          },
           "rawConfiguration": {
-            "facet": { "showOtherSeries": true },
-            "legend": { "enabled": true },
+            "facet": {
+              "showOtherSeries": true
+            },
+            "legend": {
+              "enabled": true
+            },
             "nrqlQueries": [
               {
                 "accountId": 0,
                 "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND otelcol.receiver = 'kafka' AND source LIKE '%confluent.cloud%' AND source NOT LIKE '%connector%' AND source LIKE {{audit_environment}} AND source LIKE {{audit_organization}} AND source LIKE {{audit_cluster}} FACET `data.authenticationInfo.metadata.mechanism` LIMIT 10"
               }
             ],
-            "platformOptions": { "ignoreTimeRange": false }
+            "platformOptions": {
+              "ignoreTimeRange": false
+            }
           }
         },
         {
           "title": "Raw Audit Log Events",
-          "layout": { "column": 1, "row": 10, "width": 12, "height": 5 },
-          "linkedEntityGuids": [],
-          "visualization": { "id": "logger.log-table-widget" },
+          "layout": {
+            "column": 1,
+            "row": 10,
+            "width": 12,
+            "height": 5
+          },
+          "visualization": {
+            "id": "logger.log-table-widget"
+          },
           "rawConfiguration": {
             "nrqlQueries": [
               {
@@ -144,7 +236,9 @@
                 "query": "SELECT timestamp, type, `data.methodName`, `data.authenticationInfo.principal`, `data.result.status`, source FROM Log WHERE instrumentation.provider = 'opentelemetry' AND otelcol.receiver = 'kafka' AND source LIKE '%confluent.cloud%' AND source NOT LIKE '%connector%' AND source LIKE {{audit_environment}} AND source LIKE {{audit_organization}} AND source LIKE {{audit_cluster}} LIMIT 100"
               }
             ],
-            "platformOptions": { "ignoreTimeRange": false }
+            "platformOptions": {
+              "ignoreTimeRange": false
+            }
           }
         }
       ]
@@ -155,118 +249,198 @@
       "widgets": [
         {
           "title": "",
-          "layout": { "column": 1, "row": 1, "width": 2, "height": 5 },
-          "linkedEntityGuids": [],
-          "visualization": { "id": "viz.markdown" },
+          "layout": {
+            "column": 1,
+            "row": 1,
+            "width": 2,
+            "height": 5
+          },
+          "visualization": {
+            "id": "viz.markdown"
+          },
           "rawConfiguration": {
             "text": "![ConfluentLogo](https://cdn.confluent.io/wp-content/uploads/seo-logo-meadow.png)\n## Confluent Cloud\n### Connector Logs\nSource: `confluent-connect-log-events`\n\nEach record is a CloudEvent (`io.confluent.logevents.connect.*`) emitted by a managed connector task.\n\nFilter by **Environment**, **Kafka Cluster**, or **Connector** using the variables above."
           }
         },
         {
           "title": "Log Volume Over Time by Level",
-          "layout": { "column": 3, "row": 1, "width": 5, "height": 3 },
-          "linkedEntityGuids": [],
-          "visualization": { "id": "viz.line" },
+          "layout": {
+            "column": 3,
+            "row": 1,
+            "width": 5,
+            "height": 3
+          },
+          "visualization": {
+            "id": "viz.line"
+          },
           "rawConfiguration": {
-            "legend": { "enabled": true },
+            "legend": {
+              "enabled": true
+            },
             "nrqlQueries": [
               {
                 "accountId": 0,
                 "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND otelcol.receiver = 'kafka' AND source LIKE '%confluent.cloud%' AND source LIKE '%connector%' AND source LIKE {{connector_environment}} AND source LIKE {{connector_kafka}} AND source LIKE {{connector_id}} TIMESERIES AUTO FACET `data.level` LIMIT 10"
               }
             ],
-            "platformOptions": { "ignoreTimeRange": false },
-            "yAxisLeft": { "zero": true }
+            "platformOptions": {
+              "ignoreTimeRange": false
+            },
+            "yAxisLeft": {
+              "zero": true
+            }
           }
         },
         {
           "title": "Events by Type",
-          "layout": { "column": 8, "row": 1, "width": 5, "height": 3 },
-          "linkedEntityGuids": [],
-          "visualization": { "id": "viz.pie" },
+          "layout": {
+            "column": 8,
+            "row": 1,
+            "width": 5,
+            "height": 3
+          },
+          "visualization": {
+            "id": "viz.pie"
+          },
           "rawConfiguration": {
-            "facet": { "showOtherSeries": true },
-            "legend": { "enabled": true },
+            "facet": {
+              "showOtherSeries": true
+            },
+            "legend": {
+              "enabled": true
+            },
             "nrqlQueries": [
               {
                 "accountId": 0,
                 "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND otelcol.receiver = 'kafka' AND source LIKE '%confluent.cloud%' AND source LIKE '%connector%' AND source LIKE {{connector_environment}} AND source LIKE {{connector_kafka}} AND source LIKE {{connector_id}} FACET type LIMIT 20"
               }
             ],
-            "platformOptions": { "ignoreTimeRange": false }
+            "platformOptions": {
+              "ignoreTimeRange": false
+            }
           }
         },
         {
           "title": "Error Rate Over Time",
-          "layout": { "column": 3, "row": 4, "width": 5, "height": 3 },
-          "linkedEntityGuids": [],
-          "visualization": { "id": "viz.line" },
+          "layout": {
+            "column": 3,
+            "row": 4,
+            "width": 5,
+            "height": 3
+          },
+          "visualization": {
+            "id": "viz.line"
+          },
           "rawConfiguration": {
-            "legend": { "enabled": true },
+            "legend": {
+              "enabled": true
+            },
             "nrqlQueries": [
               {
                 "accountId": 0,
                 "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND otelcol.receiver = 'kafka' AND source LIKE '%confluent.cloud%' AND source LIKE '%connector%' AND `data.level` = 'ERROR' AND source LIKE {{connector_environment}} AND source LIKE {{connector_kafka}} AND source LIKE {{connector_id}} TIMESERIES AUTO FACET `data.context.connectorId` LIMIT 10"
               }
             ],
-            "platformOptions": { "ignoreTimeRange": false },
-            "yAxisLeft": { "zero": true }
+            "platformOptions": {
+              "ignoreTimeRange": false
+            },
+            "yAxisLeft": {
+              "zero": true
+            }
           }
         },
         {
           "title": "Errors by Connector",
-          "layout": { "column": 8, "row": 4, "width": 5, "height": 3 },
-          "linkedEntityGuids": [],
-          "visualization": { "id": "viz.bar" },
+          "layout": {
+            "column": 8,
+            "row": 4,
+            "width": 5,
+            "height": 3
+          },
+          "visualization": {
+            "id": "viz.bar"
+          },
           "rawConfiguration": {
-            "facet": { "showOtherSeries": true },
+            "facet": {
+              "showOtherSeries": true
+            },
             "nrqlQueries": [
               {
                 "accountId": 0,
                 "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND otelcol.receiver = 'kafka' AND source LIKE '%confluent.cloud%' AND source LIKE '%connector%' AND `data.level` = 'ERROR' AND source LIKE {{connector_environment}} AND source LIKE {{connector_kafka}} AND source LIKE {{connector_id}} FACET `data.context.connectorId` LIMIT 20"
               }
             ],
-            "platformOptions": { "ignoreTimeRange": false }
+            "platformOptions": {
+              "ignoreTimeRange": false
+            }
           }
         },
         {
           "title": "Top Error Root Causes",
-          "layout": { "column": 1, "row": 7, "width": 6, "height": 4 },
-          "linkedEntityGuids": [],
-          "visualization": { "id": "viz.bar" },
+          "layout": {
+            "column": 1,
+            "row": 7,
+            "width": 6,
+            "height": 4
+          },
+          "visualization": {
+            "id": "viz.bar"
+          },
           "rawConfiguration": {
-            "facet": { "showOtherSeries": true },
+            "facet": {
+              "showOtherSeries": true
+            },
             "nrqlQueries": [
               {
                 "accountId": 0,
                 "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND otelcol.receiver = 'kafka' AND source LIKE '%confluent.cloud%' AND source LIKE '%connector%' AND `data.level` = 'ERROR' AND source LIKE {{connector_environment}} AND source LIKE {{connector_kafka}} AND source LIKE {{connector_id}} FACET `data.summary.connectorErrorSummary.rootCause` LIMIT 10"
               }
             ],
-            "platformOptions": { "ignoreTimeRange": false }
+            "platformOptions": {
+              "ignoreTimeRange": false
+            }
           }
         },
         {
           "title": "Failed Task Events",
-          "layout": { "column": 7, "row": 7, "width": 6, "height": 4 },
-          "linkedEntityGuids": [],
-          "visualization": { "id": "viz.line" },
+          "layout": {
+            "column": 7,
+            "row": 7,
+            "width": 6,
+            "height": 4
+          },
+          "visualization": {
+            "id": "viz.line"
+          },
           "rawConfiguration": {
-            "legend": { "enabled": true },
+            "legend": {
+              "enabled": true
+            },
             "nrqlQueries": [
               {
                 "accountId": 0,
                 "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND otelcol.receiver = 'kafka' AND source LIKE '%confluent.cloud%' AND source LIKE '%connector%' AND type = 'io.confluent.logevents.connect.TaskFailed' AND source LIKE {{connector_environment}} AND source LIKE {{connector_kafka}} AND source LIKE {{connector_id}} TIMESERIES AUTO FACET `data.context.connectorId` LIMIT 10"
               }
             ],
-            "platformOptions": { "ignoreTimeRange": false },
-            "yAxisLeft": { "zero": true }
+            "platformOptions": {
+              "ignoreTimeRange": false
+            },
+            "yAxisLeft": {
+              "zero": true
+            }
           }
         },
         {
           "title": "Raw Connector Log Events",
-          "layout": { "column": 1, "row": 11, "width": 12, "height": 5 },
-          "linkedEntityGuids": [],
-          "visualization": { "id": "logger.log-table-widget" },
+          "layout": {
+            "column": 1,
+            "row": 11,
+            "width": 12,
+            "height": 5
+          },
+          "visualization": {
+            "id": "logger.log-table-widget"
+          },
           "rawConfiguration": {
             "nrqlQueries": [
               {
@@ -274,7 +448,9 @@
                 "query": "SELECT timestamp, `data.level`, type, `data.context.connectorId`, `data.summary.connectorErrorSummary.message`, `data.summary.connectorErrorSummary.rootCause`, source FROM Log WHERE instrumentation.provider = 'opentelemetry' AND otelcol.receiver = 'kafka' AND source LIKE '%confluent.cloud%' AND source LIKE '%connector%' AND source LIKE {{connector_environment}} AND source LIKE {{connector_kafka}} AND source LIKE {{connector_id}} LIMIT 100"
               }
             ],
-            "platformOptions": { "ignoreTimeRange": false }
+            "platformOptions": {
+              "ignoreTimeRange": false
+            }
           }
         }
       ]
@@ -296,8 +472,7 @@
         "query": "SELECT uniques(capture(source, r'organization=(?P<org>[^/]+)')) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND otelcol.receiver = 'kafka' AND source LIKE '%confluent.cloud%' AND source NOT LIKE '%connector%' LIMIT 100"
       },
       "options": {
-        "ignoreTimeRange": true,
-        "replacementStrategy": "STRING"
+        "ignoreTimeRange": true
       },
       "title": "Organization",
       "type": "NRQL",
@@ -319,8 +494,7 @@
         "query": "SELECT uniques(capture(source, r'environment=(?P<env>[^/]+)')) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND otelcol.receiver = 'kafka' AND source LIKE '%confluent.cloud%' AND source NOT LIKE '%connector%' LIMIT 100"
       },
       "options": {
-        "ignoreTimeRange": true,
-        "replacementStrategy": "STRING"
+        "ignoreTimeRange": true
       },
       "title": "Environment (Audit)",
       "type": "NRQL",
@@ -342,8 +516,7 @@
         "query": "SELECT uniques(capture(source, r'cloud-cluster=(?P<cluster>[^/]+)')) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND otelcol.receiver = 'kafka' AND source LIKE '%confluent.cloud%' AND source NOT LIKE '%connector%' LIMIT 100"
       },
       "options": {
-        "ignoreTimeRange": true,
-        "replacementStrategy": "STRING"
+        "ignoreTimeRange": true
       },
       "title": "Cloud Cluster (Audit)",
       "type": "NRQL",
@@ -365,8 +538,7 @@
         "query": "SELECT uniques(capture(source, r'environment=(?P<env>[^/]+)')) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND otelcol.receiver = 'kafka' AND source LIKE '%confluent.cloud%' AND source LIKE '%connector%' LIMIT 100"
       },
       "options": {
-        "ignoreTimeRange": true,
-        "replacementStrategy": "STRING"
+        "ignoreTimeRange": true
       },
       "title": "Environment (Connectors)",
       "type": "NRQL",
@@ -388,8 +560,7 @@
         "query": "SELECT uniques(capture(source, r'kafka=(?P<kafka>[^/]+)')) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND otelcol.receiver = 'kafka' AND source LIKE '%confluent.cloud%' AND source LIKE '%connector%' LIMIT 100"
       },
       "options": {
-        "ignoreTimeRange": true,
-        "replacementStrategy": "STRING"
+        "ignoreTimeRange": true
       },
       "title": "Kafka Cluster (Connectors)",
       "type": "NRQL",
@@ -411,8 +582,7 @@
         "query": "SELECT uniques(capture(source, r'connector=(?P<connector>[^/]+)')) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND otelcol.receiver = 'kafka' AND source LIKE '%confluent.cloud%' AND source LIKE '%connector%' LIMIT 100"
       },
       "options": {
-        "ignoreTimeRange": true,
-        "replacementStrategy": "STRING"
+        "ignoreTimeRange": true
       },
       "title": "Connector ID",
       "type": "NRQL",
