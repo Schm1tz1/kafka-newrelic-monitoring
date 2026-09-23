@@ -79,7 +79,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT timestamp, type, `data.methodName`, `data.authenticationInfo.principal`, `data.authenticationInfo.identity`, `data.result.status`, `data.authorizationInfo.operation`, `data.authorizationInfo.resourceType`, `data.authorizationInfo.result`, source FROM Log WHERE confluent.log.source = 'confluent-audit' AND (data.result.status = {{result_status}} OR {{result_status}} = 'all') AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all') LIMIT 100"
+                "query": "SELECT timestamp, type, `data.methodName`, `data.result.status`, `data.result.data.errorType`, `data.result.data.message`, `data.authenticationInfo.principal`, `data.authorizationInfo.operation`, `data.authorizationInfo.resourceType`, `data.authorizationInfo.result`, source FROM Log WHERE confluent.log.source = 'confluent-audit' AND (data.result.status = {{result_status}} OR {{result_status}} = 'all') AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all') LIMIT 100"
               }
             ],
             "platformOptions": {
