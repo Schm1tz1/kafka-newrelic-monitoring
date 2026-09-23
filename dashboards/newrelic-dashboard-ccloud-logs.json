@@ -8,22 +8,22 @@
       "widgets": [
         {
           "title": "",
-          "layout": { "column": 1, "row": 1, "width": 2, "height": 6 },
+          "layout": { "column": 1, "row": 1, "width": 2, "height": 7 },
           "visualization": { "id": "viz.markdown" },
           "rawConfiguration": {
-            "text": "![ConfluentLogo](https://cdn.confluent.io/wp-content/uploads/seo-logo-meadow.png)\n## Confluent Cloud\n### Audit Logs\nSource topic: `confluent-audit-log-events`\n\nCovers two CloudEvent families:\n- `io.confluent.kafka.server/*` — Kafka cluster auth/authz\n- `io.confluent.sg.server/*` — Schema Registry auth\n\nResource path is in `subject`. Use the variables above to filter by **Environment**, **Kafka Cluster**, or **Schema Registry**."
+            "text": "![ConfluentLogo](https://cdn.confluent.io/wp-content/uploads/seo-logo-meadow.png)\n## Confluent Cloud\n### Audit Logs\nSource topic: `confluent-audit-log-events`\n\n**Event types:**\n- `kafka.server/authentication`\n- `kafka.server/authorization`\n- `kafka.server/request`\n- `sg.server/authentication`\n- `sg.server/authorization`\n- `sg.server/request`\n- `flink.server/authentication`\n- `flink.server/authorization`\n- `cloud/request`\n\nFilter by **Environment**, **Cluster**, or **Schema Registry** using the variables above."
           }
         },
         {
-          "title": "Event Volume Over Time",
-          "layout": { "column": 3, "row": 1, "width": 5, "height": 3 },
+          "title": "Event Volume by Type",
+          "layout": { "column": 3, "row": 1, "width": 5, "height": 4 },
           "visualization": { "id": "viz.line" },
           "rawConfiguration": {
             "legend": { "enabled": true },
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_cluster}}%' AND subject LIKE '%{{audit_schema_registry}}%' TIMESERIES AUTO FACET type LIMIT 20"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND source LIKE '%{{audit_environment}}%' AND source LIKE '%{{audit_cluster}}%' AND source LIKE '%{{audit_schema_registry}}%' TIMESERIES AUTO FACET type LIMIT 20"
               }
             ],
             "platformOptions": { "ignoreTimeRange": false },
@@ -32,7 +32,7 @@
         },
         {
           "title": "Events by Service",
-          "layout": { "column": 8, "row": 1, "width": 5, "height": 3 },
+          "layout": { "column": 8, "row": 1, "width": 5, "height": 4 },
           "visualization": { "id": "viz.pie" },
           "rawConfiguration": {
             "facet": { "showOtherSeries": true },
@@ -40,15 +40,15 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_cluster}}%' AND subject LIKE '%{{audit_schema_registry}}%' FACET cases(WHERE type LIKE 'io.confluent.kafka.server/%' AS 'Kafka', WHERE type LIKE 'io.confluent.sg.server/%' AS 'Schema Registry', WHERE 1=1 AS 'Other')"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND source LIKE '%{{audit_environment}}%' AND source LIKE '%{{audit_cluster}}%' AND source LIKE '%{{audit_schema_registry}}%' FACET cases(WHERE type LIKE 'io.confluent.kafka.server/%' AS 'Kafka', WHERE type LIKE 'io.confluent.sg.server/%' AS 'Schema Registry', WHERE type LIKE 'io.confluent.flink.server/%' AS 'Flink', WHERE type LIKE 'io.confluent.cloud/%' AS 'Cloud', WHERE 1=1 AS 'Other')"
               }
             ],
             "platformOptions": { "ignoreTimeRange": false }
           }
         },
         {
-          "title": "Kafka Auth — Results",
-          "layout": { "column": 3, "row": 4, "width": 3, "height": 3 },
+          "title": "Kafka Authentication Results",
+          "layout": { "column": 3, "row": 5, "width": 2, "height": 3 },
           "visualization": { "id": "viz.pie" },
           "rawConfiguration": {
             "facet": { "showOtherSeries": true },
@@ -56,15 +56,15 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type = 'io.confluent.kafka.server/authentication' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_cluster}}%' FACET `data.result.status` LIMIT 10"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type = 'io.confluent.kafka.server/authentication' AND source LIKE '%{{audit_environment}}%' AND source LIKE '%{{audit_cluster}}%' FACET `data.result.status`"
               }
             ],
             "platformOptions": { "ignoreTimeRange": false }
           }
         },
         {
-          "title": "Schema Registry Auth — Results",
-          "layout": { "column": 6, "row": 4, "width": 3, "height": 3 },
+          "title": "Kafka Auth SASL Mechanisms",
+          "layout": { "column": 5, "row": 5, "width": 3, "height": 3 },
           "visualization": { "id": "viz.pie" },
           "rawConfiguration": {
             "facet": { "showOtherSeries": true },
@@ -72,31 +72,15 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type = 'io.confluent.sg.server/authentication' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_schema_registry}}%' FACET `data.authenticationInfo.result` LIMIT 10"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type = 'io.confluent.kafka.server/authentication' AND source LIKE '%{{audit_environment}}%' AND source LIKE '%{{audit_cluster}}%' FACET `data.authenticationInfo.metadata.mechanism`"
               }
             ],
             "platformOptions": { "ignoreTimeRange": false }
           }
         },
         {
-          "title": "Auth Failures Over Time",
-          "layout": { "column": 9, "row": 4, "width": 4, "height": 3 },
-          "visualization": { "id": "viz.line" },
-          "rawConfiguration": {
-            "legend": { "enabled": true },
-            "nrqlQueries": [
-              {
-                "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type IN ('io.confluent.kafka.server/authentication', 'io.confluent.sg.server/authentication') AND (`data.result.status` = 'FAILURE' OR `data.authenticationInfo.result` = 'FAILURE') AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_cluster}}%' AND subject LIKE '%{{audit_schema_registry}}%' TIMESERIES AUTO FACET type LIMIT 10"
-              }
-            ],
-            "platformOptions": { "ignoreTimeRange": false },
-            "yAxisLeft": { "zero": true }
-          }
-        },
-        {
-          "title": "SASL Mechanisms (Kafka)",
-          "layout": { "column": 1, "row": 7, "width": 3, "height": 3 },
+          "title": "SR Authentication Results",
+          "layout": { "column": 8, "row": 5, "width": 2, "height": 3 },
           "visualization": { "id": "viz.pie" },
           "rawConfiguration": {
             "facet": { "showOtherSeries": true },
@@ -104,15 +88,15 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type = 'io.confluent.kafka.server/authentication' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_cluster}}%' FACET `data.authenticationInfo.metadata.mechanism` LIMIT 10"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type = 'io.confluent.sg.server/authentication' AND source LIKE '%{{audit_environment}}%' AND source LIKE '%{{audit_schema_registry}}%' FACET `data.authenticationInfo.result`"
               }
             ],
             "platformOptions": { "ignoreTimeRange": false }
           }
         },
         {
-          "title": "Auth Mechanisms (Schema Registry)",
-          "layout": { "column": 4, "row": 7, "width": 3, "height": 3 },
+          "title": "SR Auth Mechanisms",
+          "layout": { "column": 10, "row": 5, "width": 3, "height": 3 },
           "visualization": { "id": "viz.pie" },
           "rawConfiguration": {
             "facet": { "showOtherSeries": true },
@@ -120,37 +104,83 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type = 'io.confluent.sg.server/authentication' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_schema_registry}}%' FACET `data.authenticationInfo.credentials.mechanism` LIMIT 10"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type = 'io.confluent.sg.server/authentication' AND source LIKE '%{{audit_environment}}%' AND source LIKE '%{{audit_schema_registry}}%' FACET `data.authenticationInfo.credentials.mechanism`"
               }
             ],
             "platformOptions": { "ignoreTimeRange": false }
           }
         },
         {
-          "title": "Authorization by Method (Kafka)",
-          "layout": { "column": 7, "row": 7, "width": 3, "height": 3 },
+          "title": "Authorization — Granted vs Denied",
+          "layout": { "column": 1, "row": 8, "width": 3, "height": 3 },
+          "visualization": { "id": "viz.pie" },
+          "rawConfiguration": {
+            "facet": { "showOtherSeries": true },
+            "legend": { "enabled": true },
+            "nrqlQueries": [
+              {
+                "accountId": 0,
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type LIKE '%/authorization' AND source LIKE '%{{audit_environment}}%' AND source LIKE '%{{audit_cluster}}%' AND source LIKE '%{{audit_schema_registry}}%' FACET `data.authorizationInfo.result`"
+              }
+            ],
+            "platformOptions": { "ignoreTimeRange": false }
+          }
+        },
+        {
+          "title": "Authorization — Operations",
+          "layout": { "column": 4, "row": 8, "width": 4, "height": 3 },
           "visualization": { "id": "viz.bar" },
           "rawConfiguration": {
             "facet": { "showOtherSeries": true },
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type LIKE 'io.confluent.kafka.server/authorization%' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_cluster}}%' FACET `data.methodName` LIMIT 20"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type LIKE '%/authorization' AND source LIKE '%{{audit_environment}}%' AND source LIKE '%{{audit_cluster}}%' AND source LIKE '%{{audit_schema_registry}}%' FACET `data.authorizationInfo.operation` LIMIT 20"
               }
             ],
             "platformOptions": { "ignoreTimeRange": false }
           }
         },
         {
-          "title": "Top Principals (all events)",
-          "layout": { "column": 10, "row": 7, "width": 3, "height": 3 },
+          "title": "Authorization — Resource Types",
+          "layout": { "column": 8, "row": 8, "width": 5, "height": 3 },
           "visualization": { "id": "viz.bar" },
           "rawConfiguration": {
             "facet": { "showOtherSeries": true },
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_cluster}}%' AND subject LIKE '%{{audit_schema_registry}}%' FACET cases(WHERE `data.authenticationInfo.principal` IS NOT NULL AS `data.authenticationInfo.principal`, WHERE `data.authenticationInfo.identity` IS NOT NULL AS `data.authenticationInfo.identity`) LIMIT 20"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type LIKE '%/authorization' AND source LIKE '%{{audit_environment}}%' AND source LIKE '%{{audit_cluster}}%' AND source LIKE '%{{audit_schema_registry}}%' FACET `data.authorizationInfo.resourceType` LIMIT 20"
+              }
+            ],
+            "platformOptions": { "ignoreTimeRange": false }
+          }
+        },
+        {
+          "title": "Top Principals",
+          "layout": { "column": 1, "row": 11, "width": 6, "height": 3 },
+          "visualization": { "id": "viz.bar" },
+          "rawConfiguration": {
+            "facet": { "showOtherSeries": true },
+            "nrqlQueries": [
+              {
+                "accountId": 0,
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND source LIKE '%{{audit_environment}}%' AND source LIKE '%{{audit_cluster}}%' AND source LIKE '%{{audit_schema_registry}}%' FACET coalesce(`data.authenticationInfo.principal`, `data.authenticationInfo.identity`) LIMIT 20"
+              }
+            ],
+            "platformOptions": { "ignoreTimeRange": false }
+          }
+        },
+        {
+          "title": "Top RBAC Roles Used",
+          "layout": { "column": 7, "row": 11, "width": 6, "height": 3 },
+          "visualization": { "id": "viz.bar" },
+          "rawConfiguration": {
+            "facet": { "showOtherSeries": true },
+            "nrqlQueries": [
+              {
+                "accountId": 0,
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND `data.authorizationInfo.rbacAuthorization.role` IS NOT NULL AND source LIKE '%{{audit_environment}}%' FACET `data.authorizationInfo.rbacAuthorization.role` LIMIT 20"
               }
             ],
             "platformOptions": { "ignoreTimeRange": false }
@@ -158,13 +188,13 @@
         },
         {
           "title": "Raw Audit Log Events",
-          "layout": { "column": 1, "row": 10, "width": 12, "height": 5 },
+          "layout": { "column": 1, "row": 14, "width": 12, "height": 5 },
           "visualization": { "id": "logger.log-table-widget" },
           "rawConfiguration": {
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT timestamp, type, `data.methodName`, `data.authenticationInfo.principal`, `data.authenticationInfo.identity`, `data.result.status`, `data.authenticationInfo.result`, subject FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_cluster}}%' AND subject LIKE '%{{audit_schema_registry}}%' LIMIT 100"
+                "query": "SELECT timestamp, type, `data.methodName`, coalesce(`data.authenticationInfo.principal`, `data.authenticationInfo.identity`) AS principal, `data.result.status`, `data.authorizationInfo.operation`, `data.authorizationInfo.resourceType`, `data.authorizationInfo.result`, source FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND source LIKE '%{{audit_environment}}%' AND source LIKE '%{{audit_cluster}}%' AND source LIKE '%{{audit_schema_registry}}%' LIMIT 100"
               }
             ],
             "platformOptions": { "ignoreTimeRange": false }
@@ -181,7 +211,7 @@
           "layout": { "column": 1, "row": 1, "width": 2, "height": 5 },
           "visualization": { "id": "viz.markdown" },
           "rawConfiguration": {
-            "text": "![ConfluentLogo](https://cdn.confluent.io/wp-content/uploads/seo-logo-meadow.png)\n## Confluent Cloud\n### Connector Logs\nSource topic: `confluent-connect-log-events`\n\nCloudEvent type: `io.confluent.logevents.connect.TaskFailed`\n\nResource path is in `source` (`environment`, `kafka`, `connector`). Filter using the variables above."
+            "text": "![ConfluentLogo](https://cdn.confluent.io/wp-content/uploads/seo-logo-meadow.png)\n## Confluent Cloud\n### Connector Logs\nSource topic: `confluent-connect-log-events`\n\nType: `io.confluent.logevents.connect.TaskFailed`\n\nResource path in `source`:\n`environment=X/kafka=Y/connector=Z`\n\nFilter using the variables above."
           }
         },
         {
@@ -217,7 +247,7 @@
         },
         {
           "title": "Failures by Environment",
-          "layout": { "column": 3, "row": 4, "width": 4, "height": 3 },
+          "layout": { "column": 3, "row": 4, "width": 3, "height": 3 },
           "visualization": { "id": "viz.pie" },
           "rawConfiguration": {
             "facet": { "showOtherSeries": true },
@@ -233,7 +263,7 @@
         },
         {
           "title": "Top Root Causes",
-          "layout": { "column": 7, "row": 4, "width": 6, "height": 3 },
+          "layout": { "column": 6, "row": 4, "width": 7, "height": 3 },
           "visualization": { "id": "viz.bar" },
           "rawConfiguration": {
             "facet": { "showOtherSeries": true },
@@ -248,7 +278,7 @@
         },
         {
           "title": "Error Messages",
-          "layout": { "column": 1, "row": 7, "width": 12, "height": 4 },
+          "layout": { "column": 1, "row": 7, "width": 12, "height": 3 },
           "visualization": { "id": "viz.bar" },
           "rawConfiguration": {
             "facet": { "showOtherSeries": true },
@@ -263,7 +293,7 @@
         },
         {
           "title": "Raw Connector Log Events",
-          "layout": { "column": 1, "row": 11, "width": 12, "height": 5 },
+          "layout": { "column": 1, "row": 10, "width": 12, "height": 5 },
           "visualization": { "id": "logger.log-table-widget" },
           "rawConfiguration": {
             "nrqlQueries": [
@@ -285,7 +315,7 @@
       "defaultValues": [{ "value": { "string": "%" } }],
       "nrqlQuery": {
         "accountId": 0,
-        "query": "SELECT uniques(capture(subject, 'environment=(?P<val>[^/]+)')) FROM Log WHERE `confluent.log.source` = 'confluent-audit'"
+        "query": "SELECT uniques(capture(source, 'environment=(?P<val>[^/]+)')) FROM Log WHERE `confluent.log.source` = 'confluent-audit' SINCE 1 week ago"
       },
       "options": { "ignoreTimeRange": true },
       "title": "Environment (Audit)",
@@ -299,7 +329,7 @@
       "defaultValues": [{ "value": { "string": "%" } }],
       "nrqlQuery": {
         "accountId": 0,
-        "query": "SELECT uniques(capture(subject, 'cloud-cluster=(?P<val>[^/]+)')) FROM Log WHERE `confluent.log.source` = 'confluent-audit'"
+        "query": "SELECT uniques(capture(source, 'cloud-cluster=(?P<val>[^/]+)')) FROM Log WHERE `confluent.log.source` = 'confluent-audit' SINCE 1 week ago"
       },
       "options": { "ignoreTimeRange": true },
       "title": "Kafka Cluster (Audit)",
@@ -313,7 +343,7 @@
       "defaultValues": [{ "value": { "string": "%" } }],
       "nrqlQuery": {
         "accountId": 0,
-        "query": "SELECT uniques(capture(subject, 'schema-registry=(?P<val>[^/]+)')) FROM Log WHERE `confluent.log.source` = 'confluent-audit'"
+        "query": "SELECT uniques(capture(source, 'schema-registry=(?P<val>[^/]+)')) FROM Log WHERE `confluent.log.source` = 'confluent-audit' SINCE 1 week ago"
       },
       "options": { "ignoreTimeRange": true },
       "title": "Schema Registry (Audit)",
@@ -327,7 +357,7 @@
       "defaultValues": [{ "value": { "string": "%" } }],
       "nrqlQuery": {
         "accountId": 0,
-        "query": "SELECT uniques(capture(source, 'environment=(?P<val>[^/]+)')) FROM Log WHERE `confluent.log.source` = 'confluent-connector'"
+        "query": "SELECT uniques(capture(source, 'environment=(?P<val>[^/]+)')) FROM Log WHERE `confluent.log.source` = 'confluent-connector' SINCE 1 week ago"
       },
       "options": { "ignoreTimeRange": true },
       "title": "Environment (Connectors)",
@@ -341,7 +371,7 @@
       "defaultValues": [{ "value": { "string": "%" } }],
       "nrqlQuery": {
         "accountId": 0,
-        "query": "SELECT uniques(capture(source, 'kafka=(?P<val>[^/]+)')) FROM Log WHERE `confluent.log.source` = 'confluent-connector'"
+        "query": "SELECT uniques(capture(source, 'kafka=(?P<val>[^/]+)')) FROM Log WHERE `confluent.log.source` = 'confluent-connector' SINCE 1 week ago"
       },
       "options": { "ignoreTimeRange": true },
       "title": "Kafka Cluster (Connectors)",
@@ -355,7 +385,7 @@
       "defaultValues": [{ "value": { "string": "%" } }],
       "nrqlQuery": {
         "accountId": 0,
-        "query": "SELECT uniques(capture(source, 'connector=(?P<val>[^/]+)')) FROM Log WHERE `confluent.log.source` = 'confluent-connector'"
+        "query": "SELECT uniques(capture(source, 'connector=(?P<val>[^/]+)')) FROM Log WHERE `confluent.log.source` = 'confluent-connector' SINCE 1 week ago"
       },
       "options": { "ignoreTimeRange": true },
       "title": "Connector ID",
