@@ -8,237 +8,166 @@
       "widgets": [
         {
           "title": "",
-          "layout": {
-            "column": 1,
-            "row": 1,
-            "width": 2,
-            "height": 5
-          },
-          "visualization": {
-            "id": "viz.markdown"
-          },
+          "layout": { "column": 1, "row": 1, "width": 2, "height": 6 },
+          "visualization": { "id": "viz.markdown" },
           "rawConfiguration": {
-            "text": "![ConfluentLogo](https://cdn.confluent.io/wp-content/uploads/seo-logo-meadow.png)\n## Confluent Cloud\n### Audit Logs\nSource topic: `confluent-audit-log-events`\n\nEach record is a CloudEvent (`io.confluent.kafka.server/*`) emitted by the Confluent Cloud control plane.\n\nThe resource path lives in `subject` \u2014 use the variables above to filter by **Organization**, **Environment**, **Cluster**, or **Schema Registry**."
+            "text": "![ConfluentLogo](https://cdn.confluent.io/wp-content/uploads/seo-logo-meadow.png)\n## Confluent Cloud\n### Audit Logs\nSource topic: `confluent-audit-log-events`\n\nCovers two CloudEvent families:\n- `io.confluent.kafka.server/*` — Kafka cluster auth/authz\n- `io.confluent.sg.server/*` — Schema Registry auth\n\nResource path is in `subject`. Use the variables above to filter by **Environment**, **Kafka Cluster**, or **Schema Registry**."
           }
         },
         {
           "title": "Event Volume Over Time",
-          "layout": {
-            "column": 3,
-            "row": 1,
-            "width": 5,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.line"
-          },
+          "layout": { "column": 3, "row": 1, "width": 5, "height": 3 },
+          "visualization": { "id": "viz.line" },
           "rawConfiguration": {
-            "legend": {
-              "enabled": true
-            },
+            "legend": { "enabled": true },
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND newrelic.source = 'api.logs.otlp' AND type LIKE 'io.confluent.kafka.server/%' AND subject LIKE '%{{audit_organization}}%' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_cluster}}%' TIMESERIES AUTO FACET type LIMIT 20"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_cluster}}%' AND subject LIKE '%{{audit_schema_registry}}%' TIMESERIES AUTO FACET type LIMIT 20"
               }
             ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            },
-            "yAxisLeft": {
-              "zero": true
-            }
+            "platformOptions": { "ignoreTimeRange": false },
+            "yAxisLeft": { "zero": true }
           }
         },
         {
-          "title": "Events by Type",
-          "layout": {
-            "column": 8,
-            "row": 1,
-            "width": 5,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.pie"
-          },
+          "title": "Events by Service",
+          "layout": { "column": 8, "row": 1, "width": 5, "height": 3 },
+          "visualization": { "id": "viz.pie" },
           "rawConfiguration": {
-            "facet": {
-              "showOtherSeries": true
-            },
-            "legend": {
-              "enabled": true
-            },
+            "facet": { "showOtherSeries": true },
+            "legend": { "enabled": true },
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND newrelic.source = 'api.logs.otlp' AND type LIKE 'io.confluent.kafka.server/%' AND subject LIKE '%{{audit_organization}}%' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_cluster}}%' FACET type LIMIT 20"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_cluster}}%' AND subject LIKE '%{{audit_schema_registry}}%' FACET cases(WHERE type LIKE 'io.confluent.kafka.server/%' AS 'Kafka', WHERE type LIKE 'io.confluent.sg.server/%' AS 'Schema Registry', WHERE 1=1 AS 'Other')"
               }
             ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
+            "platformOptions": { "ignoreTimeRange": false }
           }
         },
         {
-          "title": "Authentication Results",
-          "layout": {
-            "column": 3,
-            "row": 4,
-            "width": 4,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.pie"
-          },
+          "title": "Kafka Auth — Results",
+          "layout": { "column": 3, "row": 4, "width": 3, "height": 3 },
+          "visualization": { "id": "viz.pie" },
           "rawConfiguration": {
-            "facet": {
-              "showOtherSeries": true
-            },
-            "legend": {
-              "enabled": true
-            },
+            "facet": { "showOtherSeries": true },
+            "legend": { "enabled": true },
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND newrelic.source = 'api.logs.otlp' AND type = 'io.confluent.kafka.server/authentication' AND subject LIKE '%{{audit_organization}}%' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_cluster}}%' FACET `data.result.status` LIMIT 10"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type = 'io.confluent.kafka.server/authentication' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_cluster}}%' FACET `data.result.status` LIMIT 10"
               }
             ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
+            "platformOptions": { "ignoreTimeRange": false }
+          }
+        },
+        {
+          "title": "Schema Registry Auth — Results",
+          "layout": { "column": 6, "row": 4, "width": 3, "height": 3 },
+          "visualization": { "id": "viz.pie" },
+          "rawConfiguration": {
+            "facet": { "showOtherSeries": true },
+            "legend": { "enabled": true },
+            "nrqlQueries": [
+              {
+                "accountId": 0,
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type = 'io.confluent.sg.server/authentication' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_schema_registry}}%' FACET `data.authenticationInfo.result` LIMIT 10"
+              }
+            ],
+            "platformOptions": { "ignoreTimeRange": false }
           }
         },
         {
           "title": "Auth Failures Over Time",
-          "layout": {
-            "column": 7,
-            "row": 4,
-            "width": 6,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.line"
-          },
+          "layout": { "column": 9, "row": 4, "width": 4, "height": 3 },
+          "visualization": { "id": "viz.line" },
           "rawConfiguration": {
-            "legend": {
-              "enabled": true
-            },
+            "legend": { "enabled": true },
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND newrelic.source = 'api.logs.otlp' AND type = 'io.confluent.kafka.server/authentication' AND `data.result.status` = 'FAILURE' AND subject LIKE '%{{audit_organization}}%' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_cluster}}%' TIMESERIES AUTO FACET `data.authenticationInfo.principal` LIMIT 10"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type IN ('io.confluent.kafka.server/authentication', 'io.confluent.sg.server/authentication') AND (`data.result.status` = 'FAILURE' OR `data.authenticationInfo.result` = 'FAILURE') AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_cluster}}%' AND subject LIKE '%{{audit_schema_registry}}%' TIMESERIES AUTO FACET type LIMIT 10"
               }
             ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            },
-            "yAxisLeft": {
-              "zero": true
-            }
+            "platformOptions": { "ignoreTimeRange": false },
+            "yAxisLeft": { "zero": true }
           }
         },
         {
-          "title": "Authorization Events by Method",
-          "layout": {
-            "column": 1,
-            "row": 7,
-            "width": 4,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.bar"
-          },
+          "title": "SASL Mechanisms (Kafka)",
+          "layout": { "column": 1, "row": 7, "width": 3, "height": 3 },
+          "visualization": { "id": "viz.pie" },
           "rawConfiguration": {
-            "facet": {
-              "showOtherSeries": true
-            },
+            "facet": { "showOtherSeries": true },
+            "legend": { "enabled": true },
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND newrelic.source = 'api.logs.otlp' AND type LIKE 'io.confluent.kafka.server/authorization%' AND subject LIKE '%{{audit_organization}}%' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_cluster}}%' FACET `data.methodName` LIMIT 20"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type = 'io.confluent.kafka.server/authentication' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_cluster}}%' FACET `data.authenticationInfo.metadata.mechanism` LIMIT 10"
               }
             ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
+            "platformOptions": { "ignoreTimeRange": false }
           }
         },
         {
-          "title": "Top Principals (by event count)",
-          "layout": {
-            "column": 5,
-            "row": 7,
-            "width": 4,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.bar"
-          },
+          "title": "Auth Mechanisms (Schema Registry)",
+          "layout": { "column": 4, "row": 7, "width": 3, "height": 3 },
+          "visualization": { "id": "viz.pie" },
           "rawConfiguration": {
-            "facet": {
-              "showOtherSeries": true
-            },
+            "facet": { "showOtherSeries": true },
+            "legend": { "enabled": true },
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND newrelic.source = 'api.logs.otlp' AND type LIKE 'io.confluent.kafka.server/%' AND subject LIKE '%{{audit_organization}}%' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_cluster}}%' FACET `data.authenticationInfo.principal` LIMIT 20"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type = 'io.confluent.sg.server/authentication' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_schema_registry}}%' FACET `data.authenticationInfo.credentials.mechanism` LIMIT 10"
               }
             ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
+            "platformOptions": { "ignoreTimeRange": false }
           }
         },
         {
-          "title": "SASL Mechanisms",
-          "layout": {
-            "column": 9,
-            "row": 7,
-            "width": 4,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.pie"
-          },
+          "title": "Authorization by Method (Kafka)",
+          "layout": { "column": 7, "row": 7, "width": 3, "height": 3 },
+          "visualization": { "id": "viz.bar" },
           "rawConfiguration": {
-            "facet": {
-              "showOtherSeries": true
-            },
-            "legend": {
-              "enabled": true
-            },
+            "facet": { "showOtherSeries": true },
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND newrelic.source = 'api.logs.otlp' AND type = 'io.confluent.kafka.server/authentication' AND subject LIKE '%{{audit_organization}}%' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_cluster}}%' FACET `data.authenticationInfo.metadata.mechanism` LIMIT 10"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND type LIKE 'io.confluent.kafka.server/authorization%' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_cluster}}%' FACET `data.methodName` LIMIT 20"
               }
             ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
+            "platformOptions": { "ignoreTimeRange": false }
+          }
+        },
+        {
+          "title": "Top Principals (all events)",
+          "layout": { "column": 10, "row": 7, "width": 3, "height": 3 },
+          "visualization": { "id": "viz.bar" },
+          "rawConfiguration": {
+            "facet": { "showOtherSeries": true },
+            "nrqlQueries": [
+              {
+                "accountId": 0,
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_cluster}}%' AND subject LIKE '%{{audit_schema_registry}}%' FACET cases(WHERE `data.authenticationInfo.principal` IS NOT NULL AS `data.authenticationInfo.principal`, WHERE `data.authenticationInfo.identity` IS NOT NULL AS `data.authenticationInfo.identity`) LIMIT 20"
+              }
+            ],
+            "platformOptions": { "ignoreTimeRange": false }
           }
         },
         {
           "title": "Raw Audit Log Events",
-          "layout": {
-            "column": 1,
-            "row": 10,
-            "width": 12,
-            "height": 5
-          },
-          "visualization": {
-            "id": "logger.log-table-widget"
-          },
+          "layout": { "column": 1, "row": 10, "width": 12, "height": 5 },
+          "visualization": { "id": "logger.log-table-widget" },
           "rawConfiguration": {
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT timestamp, type, `data.methodName`, `data.authenticationInfo.principal`, `data.result.status`, subject FROM Log WHERE instrumentation.provider = 'opentelemetry' AND newrelic.source = 'api.logs.otlp' AND type LIKE 'io.confluent.kafka.server/%' AND subject LIKE '%{{audit_organization}}%' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_cluster}}%'"
+                "query": "SELECT timestamp, type, `data.methodName`, `data.authenticationInfo.principal`, `data.authenticationInfo.identity`, `data.result.status`, `data.authenticationInfo.result`, subject FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND subject LIKE '%{{audit_environment}}%' AND subject LIKE '%{{audit_cluster}}%' AND subject LIKE '%{{audit_schema_registry}}%' LIMIT 100"
               }
             ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
+            "platformOptions": { "ignoreTimeRange": false }
           }
         }
       ]
@@ -249,208 +178,101 @@
       "widgets": [
         {
           "title": "",
-          "layout": {
-            "column": 1,
-            "row": 1,
-            "width": 2,
-            "height": 5
-          },
-          "visualization": {
-            "id": "viz.markdown"
-          },
+          "layout": { "column": 1, "row": 1, "width": 2, "height": 5 },
+          "visualization": { "id": "viz.markdown" },
           "rawConfiguration": {
-            "text": "![ConfluentLogo](https://cdn.confluent.io/wp-content/uploads/seo-logo-meadow.png)\n## Confluent Cloud\n### Connector Logs\nSource topic: `confluent-connect-log-events`\n\nEach record is a CloudEvent (`io.confluent.logevents.connect.*`) emitted by a managed connector task.\n\nThe resource path is in `source` \u2014 filter by **Environment**, **Kafka Cluster**, or **Connector** using the variables above."
+            "text": "![ConfluentLogo](https://cdn.confluent.io/wp-content/uploads/seo-logo-meadow.png)\n## Confluent Cloud\n### Connector Logs\nSource topic: `confluent-connect-log-events`\n\nCloudEvent type: `io.confluent.logevents.connect.TaskFailed`\n\nResource path is in `source` (`environment`, `kafka`, `connector`). Filter using the variables above."
           }
         },
         {
-          "title": "Log Volume Over Time by Level",
-          "layout": {
-            "column": 3,
-            "row": 1,
-            "width": 5,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.line"
-          },
+          "title": "Failed Tasks Over Time",
+          "layout": { "column": 3, "row": 1, "width": 5, "height": 3 },
+          "visualization": { "id": "viz.line" },
           "rawConfiguration": {
-            "legend": {
-              "enabled": true
-            },
+            "legend": { "enabled": true },
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND newrelic.source = 'api.logs.otlp' AND type LIKE 'io.confluent.logevents.connect/%' AND source LIKE '%{{connector_environment}}%' AND source LIKE '%{{connector_kafka}}%' AND source LIKE '%{{connector_id}}%' TIMESERIES AUTO FACET `data.level` LIMIT 10"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND source LIKE '%{{connector_environment}}%' AND source LIKE '%{{connector_kafka}}%' AND source LIKE '%{{connector_id}}%' TIMESERIES AUTO FACET `data.context.connectorId` LIMIT 10"
               }
             ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            },
-            "yAxisLeft": {
-              "zero": true
-            }
+            "platformOptions": { "ignoreTimeRange": false },
+            "yAxisLeft": { "zero": true }
           }
         },
         {
-          "title": "Events by Type",
-          "layout": {
-            "column": 8,
-            "row": 1,
-            "width": 5,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.pie"
-          },
+          "title": "Failures by Connector",
+          "layout": { "column": 8, "row": 1, "width": 5, "height": 3 },
+          "visualization": { "id": "viz.bar" },
           "rawConfiguration": {
-            "facet": {
-              "showOtherSeries": true
-            },
-            "legend": {
-              "enabled": true
-            },
+            "facet": { "showOtherSeries": true },
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND newrelic.source = 'api.logs.otlp' AND type LIKE 'io.confluent.logevents.connect/%' AND source LIKE '%{{connector_environment}}%' AND source LIKE '%{{connector_kafka}}%' AND source LIKE '%{{connector_id}}%' FACET type LIMIT 20"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND source LIKE '%{{connector_environment}}%' AND source LIKE '%{{connector_kafka}}%' AND source LIKE '%{{connector_id}}%' FACET `data.context.connectorId` LIMIT 20"
               }
             ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
+            "platformOptions": { "ignoreTimeRange": false }
           }
         },
         {
-          "title": "Error Rate Over Time",
-          "layout": {
-            "column": 3,
-            "row": 4,
-            "width": 5,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.line"
-          },
+          "title": "Failures by Environment",
+          "layout": { "column": 3, "row": 4, "width": 4, "height": 3 },
+          "visualization": { "id": "viz.pie" },
           "rawConfiguration": {
-            "legend": {
-              "enabled": true
-            },
+            "facet": { "showOtherSeries": true },
+            "legend": { "enabled": true },
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND newrelic.source = 'api.logs.otlp' AND type LIKE 'io.confluent.logevents.connect/%' AND `data.level` = 'ERROR' AND source LIKE '%{{connector_environment}}%' AND source LIKE '%{{connector_kafka}}%' AND source LIKE '%{{connector_id}}%' TIMESERIES AUTO FACET `data.context.connectorId` LIMIT 10"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND source LIKE '%{{connector_environment}}%' AND source LIKE '%{{connector_kafka}}%' AND source LIKE '%{{connector_id}}%' FACET capture(source, 'environment=(?P<val>[^/]+)') LIMIT 20"
               }
             ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            },
-            "yAxisLeft": {
-              "zero": true
-            }
+            "platformOptions": { "ignoreTimeRange": false }
           }
         },
         {
-          "title": "Errors by Connector",
-          "layout": {
-            "column": 8,
-            "row": 4,
-            "width": 5,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.bar"
-          },
+          "title": "Top Root Causes",
+          "layout": { "column": 7, "row": 4, "width": 6, "height": 3 },
+          "visualization": { "id": "viz.bar" },
           "rawConfiguration": {
-            "facet": {
-              "showOtherSeries": true
-            },
+            "facet": { "showOtherSeries": true },
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND newrelic.source = 'api.logs.otlp' AND type LIKE 'io.confluent.logevents.connect/%' AND `data.level` = 'ERROR' AND source LIKE '%{{connector_environment}}%' AND source LIKE '%{{connector_kafka}}%' AND source LIKE '%{{connector_id}}%' FACET `data.context.connectorId` LIMIT 20"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND source LIKE '%{{connector_environment}}%' AND source LIKE '%{{connector_kafka}}%' AND source LIKE '%{{connector_id}}%' FACET `data.summary.connectorErrorSummary.rootCause` LIMIT 10"
               }
             ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
+            "platformOptions": { "ignoreTimeRange": false }
           }
         },
         {
-          "title": "Top Error Root Causes",
-          "layout": {
-            "column": 1,
-            "row": 7,
-            "width": 6,
-            "height": 4
-          },
-          "visualization": {
-            "id": "viz.bar"
-          },
+          "title": "Error Messages",
+          "layout": { "column": 1, "row": 7, "width": 12, "height": 4 },
+          "visualization": { "id": "viz.bar" },
           "rawConfiguration": {
-            "facet": {
-              "showOtherSeries": true
-            },
+            "facet": { "showOtherSeries": true },
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND newrelic.source = 'api.logs.otlp' AND type LIKE 'io.confluent.logevents.connect/%' AND `data.level` = 'ERROR' AND source LIKE '%{{connector_environment}}%' AND source LIKE '%{{connector_kafka}}%' AND source LIKE '%{{connector_id}}%' FACET `data.summary.connectorErrorSummary.rootCause` LIMIT 10"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND source LIKE '%{{connector_environment}}%' AND source LIKE '%{{connector_kafka}}%' AND source LIKE '%{{connector_id}}%' FACET `data.summary.connectorErrorSummary.message` LIMIT 20"
               }
             ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
-          }
-        },
-        {
-          "title": "TaskFailed Events Over Time",
-          "layout": {
-            "column": 7,
-            "row": 7,
-            "width": 6,
-            "height": 4
-          },
-          "visualization": {
-            "id": "viz.line"
-          },
-          "rawConfiguration": {
-            "legend": {
-              "enabled": true
-            },
-            "nrqlQueries": [
-              {
-                "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND newrelic.source = 'api.logs.otlp' AND type = 'io.confluent.logevents.connect.TaskFailed' AND source LIKE '%{{connector_environment}}%' AND source LIKE '%{{connector_kafka}}%' AND source LIKE '%{{connector_id}}%' TIMESERIES AUTO FACET `data.context.connectorId` LIMIT 10"
-              }
-            ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            },
-            "yAxisLeft": {
-              "zero": true
-            }
+            "platformOptions": { "ignoreTimeRange": false }
           }
         },
         {
           "title": "Raw Connector Log Events",
-          "layout": {
-            "column": 1,
-            "row": 11,
-            "width": 12,
-            "height": 5
-          },
-          "visualization": {
-            "id": "logger.log-table-widget"
-          },
+          "layout": { "column": 1, "row": 11, "width": 12, "height": 5 },
+          "visualization": { "id": "logger.log-table-widget" },
           "rawConfiguration": {
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT timestamp, `data.level`, type, `data.context.connectorId`, `data.summary.connectorErrorSummary.message`, `data.summary.connectorErrorSummary.rootCause`, source FROM Log WHERE instrumentation.provider = 'opentelemetry' AND newrelic.source = 'api.logs.otlp' AND type LIKE 'io.confluent.logevents.connect/%' AND source LIKE '%{{connector_environment}}%' AND source LIKE '%{{connector_kafka}}%' AND source LIKE '%{{connector_id}}%'"
+                "query": "SELECT timestamp, `data.context.connectorId`, `data.summary.connectorErrorSummary.message`, `data.summary.connectorErrorSummary.rootCause`, source FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND source LIKE '%{{connector_environment}}%' AND source LIKE '%{{connector_kafka}}%' AND source LIKE '%{{connector_id}}%' LIMIT 100"
               }
             ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
+            "platformOptions": { "ignoreTimeRange": false }
           }
         }
       ]
@@ -458,44 +280,14 @@
   ],
   "variables": [
     {
-      "name": "audit_organization",
-      "items": null,
-      "defaultValues": [
-        {
-          "value": {
-            "string": "%"
-          }
-        }
-      ],
-      "nrqlQuery": {
-        "accountId": 0,
-        "query": "SELECT uniques(capture(subject, 'organization=(?P<val>[^/]+)')) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND newrelic.source = 'api.logs.otlp' AND type LIKE 'io.confluent.kafka.server/%'"
-      },
-      "options": {
-        "ignoreTimeRange": true
-      },
-      "title": "Organization",
-      "type": "NRQL",
-      "isMultiSelection": false,
-      "replacementStrategy": "STRING"
-    },
-    {
       "name": "audit_environment",
       "items": null,
-      "defaultValues": [
-        {
-          "value": {
-            "string": "%"
-          }
-        }
-      ],
+      "defaultValues": [{ "value": { "string": "%" } }],
       "nrqlQuery": {
         "accountId": 0,
-        "query": "SELECT uniques(capture(subject, 'environment=(?P<val>[^/]+)')) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND newrelic.source = 'api.logs.otlp' AND type LIKE 'io.confluent.kafka.server/%'"
+        "query": "SELECT uniques(capture(subject, 'environment=(?P<val>[^/]+)')) FROM Log WHERE `confluent.log.source` = 'confluent-audit'"
       },
-      "options": {
-        "ignoreTimeRange": true
-      },
+      "options": { "ignoreTimeRange": true },
       "title": "Environment (Audit)",
       "type": "NRQL",
       "isMultiSelection": false,
@@ -504,21 +296,27 @@
     {
       "name": "audit_cluster",
       "items": null,
-      "defaultValues": [
-        {
-          "value": {
-            "string": "%"
-          }
-        }
-      ],
+      "defaultValues": [{ "value": { "string": "%" } }],
       "nrqlQuery": {
         "accountId": 0,
-        "query": "SELECT uniques(capture(subject, 'cloud-cluster=(?P<val>[^/]+)')) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND newrelic.source = 'api.logs.otlp' AND type LIKE 'io.confluent.kafka.server/%'"
+        "query": "SELECT uniques(capture(subject, 'cloud-cluster=(?P<val>[^/]+)')) FROM Log WHERE `confluent.log.source` = 'confluent-audit'"
       },
-      "options": {
-        "ignoreTimeRange": true
+      "options": { "ignoreTimeRange": true },
+      "title": "Kafka Cluster (Audit)",
+      "type": "NRQL",
+      "isMultiSelection": false,
+      "replacementStrategy": "STRING"
+    },
+    {
+      "name": "audit_schema_registry",
+      "items": null,
+      "defaultValues": [{ "value": { "string": "%" } }],
+      "nrqlQuery": {
+        "accountId": 0,
+        "query": "SELECT uniques(capture(subject, 'schema-registry=(?P<val>[^/]+)')) FROM Log WHERE `confluent.log.source` = 'confluent-audit'"
       },
-      "title": "Cloud Cluster (Audit)",
+      "options": { "ignoreTimeRange": true },
+      "title": "Schema Registry (Audit)",
       "type": "NRQL",
       "isMultiSelection": false,
       "replacementStrategy": "STRING"
@@ -526,20 +324,12 @@
     {
       "name": "connector_environment",
       "items": null,
-      "defaultValues": [
-        {
-          "value": {
-            "string": "%"
-          }
-        }
-      ],
+      "defaultValues": [{ "value": { "string": "%" } }],
       "nrqlQuery": {
         "accountId": 0,
-        "query": "SELECT uniques(capture(source, 'environment=(?P<val>[^/]+)')) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND newrelic.source = 'api.logs.otlp' AND type LIKE 'io.confluent.logevents.connect/%'"
+        "query": "SELECT uniques(capture(source, 'environment=(?P<val>[^/]+)')) FROM Log WHERE `confluent.log.source` = 'confluent-connector'"
       },
-      "options": {
-        "ignoreTimeRange": true
-      },
+      "options": { "ignoreTimeRange": true },
       "title": "Environment (Connectors)",
       "type": "NRQL",
       "isMultiSelection": false,
@@ -548,20 +338,12 @@
     {
       "name": "connector_kafka",
       "items": null,
-      "defaultValues": [
-        {
-          "value": {
-            "string": "%"
-          }
-        }
-      ],
+      "defaultValues": [{ "value": { "string": "%" } }],
       "nrqlQuery": {
         "accountId": 0,
-        "query": "SELECT uniques(capture(source, 'kafka=(?P<val>[^/]+)')) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND newrelic.source = 'api.logs.otlp' AND type LIKE 'io.confluent.logevents.connect/%'"
+        "query": "SELECT uniques(capture(source, 'kafka=(?P<val>[^/]+)')) FROM Log WHERE `confluent.log.source` = 'confluent-connector'"
       },
-      "options": {
-        "ignoreTimeRange": true
-      },
+      "options": { "ignoreTimeRange": true },
       "title": "Kafka Cluster (Connectors)",
       "type": "NRQL",
       "isMultiSelection": false,
@@ -570,20 +352,12 @@
     {
       "name": "connector_id",
       "items": null,
-      "defaultValues": [
-        {
-          "value": {
-            "string": "%"
-          }
-        }
-      ],
+      "defaultValues": [{ "value": { "string": "%" } }],
       "nrqlQuery": {
         "accountId": 0,
-        "query": "SELECT uniques(capture(source, 'connector=(?P<val>[^/]+)')) FROM Log WHERE instrumentation.provider = 'opentelemetry' AND newrelic.source = 'api.logs.otlp' AND type LIKE 'io.confluent.logevents.connect/%'"
+        "query": "SELECT uniques(capture(source, 'connector=(?P<val>[^/]+)')) FROM Log WHERE `confluent.log.source` = 'confluent-connector'"
       },
-      "options": {
-        "ignoreTimeRange": true
-      },
+      "options": { "ignoreTimeRange": true },
       "title": "Connector ID",
       "type": "NRQL",
       "isMultiSelection": false,
