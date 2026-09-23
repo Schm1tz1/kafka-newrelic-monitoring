@@ -1,6 +1,6 @@
 # OTel Collector config for Confluent Cloud mode.
 #
-# Three pipelines run in parallel:
+# Four pipelines run in parallel:
 #
 #   confluent_metrics  — prometheus receiver scrapes the Confluent Metrics API
 #                        (api.telemetry.confluent.cloud) every 60 s and pushes
@@ -13,6 +13,11 @@
 #   audit_logs         — kafka receiver consumes the confluent-audit-log-events
 #                        topic on the Confluent Cloud audit log cluster and
 #                        forwards log records to New Relic.
+#
+#   connector_logs     — kafka receiver consumes the confluent-connect-log-events
+#                        topic on the same audit log cluster (same bootstrap and
+#                        credentials) and forwards managed connector log records
+#                        to New Relic.
 #
 # Required env vars (see env.example):
 #   NEW_RELIC_LICENSE_KEY, NEW_RELIC_OTLP_ENDPOINT
@@ -83,6 +88,29 @@ receivers:
       tls:
         insecure_skip_verify: false
 
+  # ── 4. Confluent Cloud managed connector log consumer ────────────────────────
+  # Reads from the confluent-connect-log-events topic on the same audit log
+  # cluster as kafka/audit (same bootstrap servers and credentials).
+  # Each message contains a JSON log record emitted by a managed connector task.
+  #
+  # Topic name confirmed via: confluent connect event describe
+  # The service account used for kafka/audit already has access to this topic.
+  kafka/connector_logs:
+    brokers:
+      - ${env:CONFLUENT_AUDIT_BOOTSTRAP_SERVERS}
+    topics:
+      - confluent-connect-log-events
+    group_id: otel-collector-connector-logs
+    initial_offset: latest
+    protocol_version: 2.6.0
+    auth:
+      sasl:
+        username: ${env:CONFLUENT_AUDIT_SASL_USERNAME}
+        password: ${env:CONFLUENT_AUDIT_SASL_PASSWORD}
+        mechanism: PLAIN
+      tls:
+        insecure_skip_verify: false
+
 processors:
   memory_limiter:
     check_interval: 1s
@@ -116,5 +144,11 @@ service:
     # Confluent Cloud audit logs → New Relic
     logs/audit:
       receivers: [kafka/audit]
+      processors: [memory_limiter, batch]
+      exporters: [debug, otlp_http/newrelic]
+
+    # Confluent Cloud managed connector logs → New Relic
+    logs/connector:
+      receivers: [kafka/connector_logs]
       processors: [memory_limiter, batch]
       exporters: [debug, otlp_http/newrelic]
