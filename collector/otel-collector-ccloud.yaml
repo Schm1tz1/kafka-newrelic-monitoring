@@ -127,11 +127,19 @@ processors:
   # `time` is a top-level body attribute after encoding: json decodes the payload.
   # The statement is wrapped in a where clause so records without `time` are left
   # unchanged rather than erroring.
-  transform/cloudevent_time:
+  transform/audit:
     log_statements:
       - context: log
         statements:
           - set(time, Time(attributes["time"], "%Y-%m-%dT%H:%M:%S.%fZ")) where attributes["time"] != nil
+          - set(attributes["confluent.log.source"], "confluent-audit")
+
+  transform/connector:
+    log_statements:
+      - context: log
+        statements:
+          - set(time, Time(attributes["time"], "%Y-%m-%dT%H:%M:%S.%fZ")) where attributes["time"] != nil
+          - set(attributes["confluent.log.source"], "confluent-connector")
 
 exporters:
   debug:
@@ -158,11 +166,11 @@ service:
     # Confluent Cloud audit logs → New Relic
     logs/audit:
       receivers: [kafka/audit]
-      processors: [memory_limiter, transform/cloudevent_time, batch]
+      processors: [memory_limiter, transform/audit, batch]
       exporters: [debug, otlp_http/newrelic]
 
     # Confluent Cloud managed connector logs → New Relic
     logs/connector:
       receivers: [kafka/connector_logs]
-      processors: [memory_limiter, transform/cloudevent_time, batch]
+      processors: [memory_limiter, transform/connector, batch]
       exporters: [debug, otlp_http/newrelic]
