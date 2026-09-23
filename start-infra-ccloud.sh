@@ -80,17 +80,22 @@ docker run --rm \
     --replication-factor 3
 echo "   Topic '${TOPIC}' is ready."
 
-# ── 4. Deploy Confluent Cloud New Relic dashboard ─────────────────────────────
-DASHBOARD_FILE="$SCRIPT_DIR/dashboards/newrelic-dashboard-ccloud.json"
-if [[ -f "$DASHBOARD_FILE" ]] && command -v jq &>/dev/null \
+# ── 4. Deploy New Relic dashboards ───────────────────────────────────────────
+if command -v jq &>/dev/null \
    && [[ -n "${NEW_RELIC_API_KEY:-}" ]] && [[ -n "${NEW_RELIC_ACCOUNT_ID:-}" ]]; then
-  echo "==> Deploying Confluent Cloud New Relic dashboard..."
-  "$SCRIPT_DIR/deploy_nr_dashboard.sh" "$DASHBOARD_FILE" && \
-    echo "   Dashboard deployed." || \
-    echo "   Dashboard deploy failed — check credentials, continuing anyway."
+  for DASHBOARD_FILE in \
+    "$SCRIPT_DIR/dashboards/newrelic-dashboard-ccloud.json" \
+    "$SCRIPT_DIR/dashboards/newrelic-dashboard-ccloud-logs.json"; do
+    if [[ -f "$DASHBOARD_FILE" ]]; then
+      echo "==> Deploying $(basename "$DASHBOARD_FILE")..."
+      "$SCRIPT_DIR/deploy_nr_dashboard.sh" "$DASHBOARD_FILE" && \
+        echo "   Deployed." || \
+        echo "   Deploy failed — check credentials, continuing anyway."
+    fi
+  done
 else
-  echo "==> Skipping dashboard deploy (missing: jq, NEW_RELIC_API_KEY, NEW_RELIC_ACCOUNT_ID,"
-  echo "    or dashboards/newrelic-dashboard-ccloud.json). Run deploy_nr_dashboard.sh manually later."
+  echo "==> Skipping dashboard deploy (missing: jq, NEW_RELIC_API_KEY, or NEW_RELIC_ACCOUNT_ID)."
+  echo "    Run deploy_nr_dashboard.sh manually later."
 fi
 
 # ── 5. Done ───────────────────────────────────────────────────────────────────
