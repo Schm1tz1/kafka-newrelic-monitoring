@@ -8,32 +8,54 @@
       "widgets": [
         {
           "title": "Event Count Over Time",
-          "layout": { "column": 1, "row": 1, "width": 12, "height": 3 },
-          "visualization": { "id": "viz.line" },
+          "layout": {
+            "column": 1,
+            "row": 1,
+            "width": 12,
+            "height": 3
+          },
+          "visualization": {
+            "id": "viz.line"
+          },
           "rawConfiguration": {
-            "legend": { "enabled": true },
+            "legend": {
+              "enabled": true
+            },
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = 'all') TIMESERIES AUTO FACET type LIMIT 20"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (subject = '{{audit_source}}' OR '{{audit_source}}' = 'all') TIMESERIES AUTO FACET type LIMIT 20"
               }
             ],
-            "platformOptions": { "ignoreTimeRange": false },
-            "yAxisLeft": { "zero": true }
+            "platformOptions": {
+              "ignoreTimeRange": false
+            },
+            "yAxisLeft": {
+              "zero": true
+            }
           }
         },
         {
           "title": "Raw Audit Log Events",
-          "layout": { "column": 1, "row": 4, "width": 12, "height": 8 },
-          "visualization": { "id": "logger.log-table-widget" },
+          "layout": {
+            "column": 1,
+            "row": 4,
+            "width": 12,
+            "height": 8
+          },
+          "visualization": {
+            "id": "logger.log-table-widget"
+          },
           "rawConfiguration": {
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT timestamp, type, `data.methodName`, `data.authenticationInfo.principal`, `data.authenticationInfo.identity`, `data.result.status`, `data.authorizationInfo.operation`, `data.authorizationInfo.resourceType`, `data.authorizationInfo.result`, source FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = 'all') LIMIT 100"
+                "query": "SELECT timestamp, type, `data.methodName`, `data.authenticationInfo.principal`, `data.authenticationInfo.identity`, `data.result.status`, `data.authorizationInfo.operation`, `data.authorizationInfo.resourceType`, `data.authorizationInfo.result`, source FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (subject = '{{audit_source}}' OR '{{audit_source}}' = 'all') LIMIT 100"
               }
             ],
-            "platformOptions": { "ignoreTimeRange": false }
+            "platformOptions": {
+              "ignoreTimeRange": false
+            }
           }
         }
       ]
@@ -44,24 +66,44 @@
       "widgets": [
         {
           "title": "Failed Tasks Over Time",
-          "layout": { "column": 1, "row": 1, "width": 12, "height": 3 },
-          "visualization": { "id": "viz.line" },
+          "layout": {
+            "column": 1,
+            "row": 1,
+            "width": 12,
+            "height": 3
+          },
+          "visualization": {
+            "id": "viz.line"
+          },
           "rawConfiguration": {
-            "legend": { "enabled": true },
+            "legend": {
+              "enabled": true
+            },
             "nrqlQueries": [
               {
                 "accountId": 0,
                 "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND (`data.context.connectorId` = '{{connector_id}}' OR '{{connector_id}}' = 'all') TIMESERIES AUTO FACET `data.context.connectorId` LIMIT 10"
               }
             ],
-            "platformOptions": { "ignoreTimeRange": false },
-            "yAxisLeft": { "zero": true }
+            "platformOptions": {
+              "ignoreTimeRange": false
+            },
+            "yAxisLeft": {
+              "zero": true
+            }
           }
         },
         {
           "title": "Raw Connector Log Events",
-          "layout": { "column": 1, "row": 4, "width": 12, "height": 8 },
-          "visualization": { "id": "logger.log-table-widget" },
+          "layout": {
+            "column": 1,
+            "row": 4,
+            "width": 12,
+            "height": 8
+          },
+          "visualization": {
+            "id": "logger.log-table-widget"
+          },
           "rawConfiguration": {
             "nrqlQueries": [
               {
@@ -69,7 +111,9 @@
                 "query": "SELECT timestamp, `data.context.connectorId`, `data.summary.connectorErrorSummary.message`, `data.summary.connectorErrorSummary.rootCause`, source FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND (`data.context.connectorId` = '{{connector_id}}' OR '{{connector_id}}' = 'all') LIMIT 100"
               }
             ],
-            "platformOptions": { "ignoreTimeRange": false }
+            "platformOptions": {
+              "ignoreTimeRange": false
+            }
           }
         }
       ]
@@ -79,13 +123,21 @@
     {
       "name": "audit_source",
       "items": null,
-      "defaultValues": [{ "value": { "string": "all" } }],
+      "defaultValues": [
+        {
+          "value": {
+            "string": "all"
+          }
+        }
+      ],
       "nrqlQuery": {
         "accountId": 0,
-        "query": "SELECT uniques(source) FROM Log WHERE `confluent.log.source` = 'confluent-audit' SINCE 1 week ago"
+        "query": "SELECT uniques(subject) FROM Log WHERE `confluent.log.source` = 'confluent-audit' SINCE 1 week ago"
       },
-      "options": { "ignoreTimeRange": true },
-      "title": "Audit Source (cluster / SR)",
+      "options": {
+        "ignoreTimeRange": true
+      },
+      "title": "Audit Subject (resource)",
       "type": "NRQL",
       "isMultiSelection": false,
       "replacementStrategy": "STRING"
@@ -93,12 +145,20 @@
     {
       "name": "connector_id",
       "items": null,
-      "defaultValues": [{ "value": { "string": "all" } }],
+      "defaultValues": [
+        {
+          "value": {
+            "string": "all"
+          }
+        }
+      ],
       "nrqlQuery": {
         "accountId": 0,
         "query": "SELECT uniques(`data.context.connectorId`) FROM Log WHERE `confluent.log.source` = 'confluent-connector' SINCE 1 week ago"
       },
-      "options": { "ignoreTimeRange": true },
+      "options": {
+        "ignoreTimeRange": true
+      },
       "title": "Connector ID",
       "type": "NRQL",
       "isMultiSelection": false,
