@@ -1,6 +1,6 @@
 # OTel Collector config for Confluent Cloud mode.
 #
-# Two pipelines run in parallel:
+# Three pipelines run in parallel:
 #
 #   confluent_metrics  — prometheus receiver scrapes the Confluent Metrics API
 #                        (api.telemetry.confluent.cloud) every 60 s and pushes
@@ -10,17 +10,22 @@
 #                        producer/consumer (same port as the local-Kafka config)
 #                        and forwards them to New Relic.
 #
+#   audit_logs         — kafka receiver consumes the confluent-audit-log-events
+#                        topic on the Confluent Cloud audit log cluster and
+#                        forwards log records to New Relic.
+#
 # Required env vars (see env.example):
 #   NEW_RELIC_LICENSE_KEY, NEW_RELIC_OTLP_ENDPOINT
 #   CONFLUENT_API_KEY, CONFLUENT_API_SECRET
 #   CONFLUENT_CLUSTER_ID
+#   CONFLUENT_AUDIT_BOOTSTRAP_SERVERS, CONFLUENT_AUDIT_SASL_USERNAME, CONFLUENT_AUDIT_SASL_PASSWORD
 # Optional (uncomment the matching params blocks below if set):
 #   CONFLUENT_SCHEMA_REGISTRY_ID
 #   CONFLUENT_CONNECTOR_ID
 
 receivers:
 
-  # ── 1. Confluent Metrics API scraper (New Relic-recommended prometheus receiver) ──
+  # ── 1. Confluent Metrics API scraper ─────────────────────────────────────────
   prometheus/confluent:
     config:
       scrape_configs:
@@ -46,13 +51,37 @@ receivers:
             # "resource.connector.id":
             #   - ${env:CONFLUENT_CONNECTOR_ID}
 
-  # ── 2. OTLP receiver — accepts push metrics from the Python app ──
+  # ── 2. OTLP receiver — accepts push metrics from the Python app ──────────────
   otlp:
     protocols:
       grpc:
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
+
+  # ── 3. Confluent Cloud audit log consumer ────────────────────────────────────
+  # Reads from the confluent-audit-log-events topic on the dedicated audit log
+  # cluster (separate bootstrap endpoint and credentials from the main cluster).
+  # Audit log records are JSON-encoded CloudEvents delivered as Kafka messages.
+  #
+  # Audit log cluster bootstrap and credentials can be found in the Confluent
+  # Cloud UI under "Audit log cluster" or via: confluent audit-log describe
+  # A service account with the OrganizationAdmin or AuditLogViewer role is needed.
+  kafka/audit:
+    brokers:
+      - ${env:CONFLUENT_AUDIT_BOOTSTRAP_SERVERS}
+    topics:
+      - confluent-audit-log-events
+    group_id: otel-collector-audit-log
+    initial_offset: latest
+    protocol_version: 2.6.0
+    auth:
+      sasl:
+        username: ${env:CONFLUENT_AUDIT_SASL_USERNAME}
+        password: ${env:CONFLUENT_AUDIT_SASL_PASSWORD}
+        mechanism: PLAIN
+      tls:
+        insecure_skip_verify: false
 
 processors:
   memory_limiter:
@@ -81,5 +110,11 @@ service:
     # Python app OTLP push → New Relic
     metrics/app_metrics:
       receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [debug, otlp_http/newrelic]
+
+    # Confluent Cloud audit logs → New Relic
+    logs/audit:
+      receivers: [kafka/audit]
       processors: [memory_limiter, batch]
       exporters: [debug, otlp_http/newrelic]

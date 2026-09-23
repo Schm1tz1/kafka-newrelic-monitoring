@@ -21,6 +21,10 @@ services:
       CONFLUENT_API_KEY: ${CONFLUENT_API_KEY:?Set CONFLUENT_API_KEY (MetricsViewer role) before starting the Collector}
       CONFLUENT_API_SECRET: ${CONFLUENT_API_SECRET:?Set CONFLUENT_API_SECRET before starting the Collector}
       CONFLUENT_CLUSTER_ID: ${CONFLUENT_CLUSTER_ID:?Set CONFLUENT_CLUSTER_ID (e.g. lkc-abc123) before starting the Collector}
+      # Audit log cluster (separate from the main cluster — see env.example)
+      CONFLUENT_AUDIT_BOOTSTRAP_SERVERS: ${CONFLUENT_AUDIT_BOOTSTRAP_SERVERS:?Set CONFLUENT_AUDIT_BOOTSTRAP_SERVERS before starting the Collector}
+      CONFLUENT_AUDIT_SASL_USERNAME: ${CONFLUENT_AUDIT_SASL_USERNAME:?Set CONFLUENT_AUDIT_SASL_USERNAME before starting the Collector}
+      CONFLUENT_AUDIT_SASL_PASSWORD: ${CONFLUENT_AUDIT_SASL_PASSWORD:?Set CONFLUENT_AUDIT_SASL_PASSWORD before starting the Collector}
       # Optional — uncomment if you want to scrape Schema Registry or Connector metrics
       # and have uncommented the matching params blocks in collector/otel-collector-ccloud.yaml:
       # CONFLUENT_SCHEMA_REGISTRY_ID: ${CONFLUENT_SCHEMA_REGISTRY_ID:-}

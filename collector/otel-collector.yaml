@@ -1,10 +1,48 @@
+# OTel Collector config for Confluent Platform (local Docker) mode.
+#
+# Two pipelines:
+#
+#   metrics  — OTLP push from the Python app → New Relic
+#   logs     — filelog receiver tails the Kafka broker container's Docker JSON
+#              log files and forwards structured logs to New Relic
+#
+# The filelog receiver reads from the Docker JSON log driver files mounted at
+# /var/log/containers inside the Collector container (see docker-compose.cp.yml).
+# Each line is parsed as JSON and the embedded `log` field becomes the log body.
+# Container metadata (name, ID) is extracted from the file path.
+
 receivers:
+
+  # ── App metrics (OTLP push from Python producer/consumer) ────────────────────
   otlp:
     protocols:
       grpc:
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
+
+  # ── Kafka broker logs (Docker JSON log driver) ───────────────────────────────
+  filelog/kafka:
+    include:
+      - /var/log/containers/kafka*.log
+    # Docker JSON log driver writes one JSON object per line:
+    # {"log":"...","stream":"stdout","time":"..."}
+    operators:
+      - type: json_parser
+        timestamp:
+          parse_from: attributes.time
+          layout: "%Y-%m-%dT%H:%M:%S.%fZ"
+      - type: move
+        from: attributes.log
+        to: body
+      - type: move
+        from: attributes.stream
+        to: attributes["log.iostream"]
+      - type: remove
+        field: attributes.time
+    resource:
+      service.name: kafka-broker
+      deployment.environment: ${env:DEPLOYMENT_ENVIRONMENT}
 
 processors:
   memory_limiter:
@@ -24,7 +62,14 @@ exporters:
 
 service:
   pipelines:
+    # Python app OTLP push → New Relic
     metrics:
       receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [debug, otlp_http/newrelic]
+
+    # Kafka broker Docker logs → New Relic
+    logs/kafka:
+      receivers: [filelog/kafka]
       processors: [memory_limiter, batch]
       exporters: [debug, otlp_http/newrelic]
