@@ -67,7 +67,8 @@ receivers:
   # ── 3. Confluent Cloud audit log consumer ────────────────────────────────────
   # Reads from the confluent-audit-log-events topic on the dedicated audit log
   # cluster (separate bootstrap endpoint and credentials from the main cluster).
-  # Audit log records are JSON-encoded CloudEvents delivered as Kafka messages.
+  # Audit log records are JSON-encoded CloudEvents delivered as Kafka messages;
+  # encoding: raw preserves the raw bytes as the log record body.
   #
   # Audit log cluster bootstrap and credentials can be found in the Confluent
   # Cloud UI under "Audit log cluster" or via: confluent audit-log describe
@@ -75,17 +76,18 @@ receivers:
   kafka/audit:
     brokers:
       - ${env:CONFLUENT_AUDIT_BOOTSTRAP_SERVERS}
-    topic: confluent-audit-log-events
     group_id: otel-collector-audit-log
     initial_offset: latest
-    protocol_version: 2.6.0
+    logs:
+      topics:
+        - confluent-audit-log-events
+      encoding: raw
+    tls:
     auth:
       sasl:
         username: ${env:CONFLUENT_AUDIT_SASL_USERNAME}
         password: ${env:CONFLUENT_AUDIT_SASL_PASSWORD}
         mechanism: PLAIN
-    tls:
-      insecure_skip_verify: false
 
   # ── 4. Confluent Cloud managed connector log consumer ────────────────────────
   # Reads from the confluent-connect-log-events topic on the same audit log
@@ -97,17 +99,18 @@ receivers:
   kafka/connector_logs:
     brokers:
       - ${env:CONFLUENT_AUDIT_BOOTSTRAP_SERVERS}
-    topic: confluent-connect-log-events
     group_id: otel-collector-connector-logs
     initial_offset: latest
-    protocol_version: 2.6.0
+    logs:
+      topics:
+        - confluent-connect-log-events
+      encoding: raw
+    tls:
     auth:
       sasl:
         username: ${env:CONFLUENT_AUDIT_SASL_USERNAME}
         password: ${env:CONFLUENT_AUDIT_SASL_PASSWORD}
         mechanism: PLAIN
-    tls:
-      insecure_skip_verify: false
 
 processors:
   memory_limiter:
