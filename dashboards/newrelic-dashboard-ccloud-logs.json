@@ -7,7 +7,7 @@
       "description": null,
       "widgets": [
         {
-          "title": "Authorization Failures",
+          "title": "Failed Operations",
           "layout": {
             "column": 1,
             "row": 1,
@@ -21,7 +21,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) AS 'Failures' FROM Log WHERE confluent.log.source = 'confluent-audit' AND data.result.status = 'FAILURE' AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all')"
+                "query": "SELECT count(*) AS 'Failed Operations' FROM Log WHERE confluent.log.source = 'confluent-audit' AND data.result.status = 'FAILURE' AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all')"
               }
             ],
             "platformOptions": {
