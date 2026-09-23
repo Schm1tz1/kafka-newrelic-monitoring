@@ -8,6 +8,7 @@
       "widgets": [
         {
           "title": "Failed Operations",
+          "description": "Kafka/API operations that were authorised but failed at execution (data.result.status = 'FAILURE'). Examples: topic already exists, quota exceeded, invalid config. The principal had permission — the operation itself errored.",
           "layout": {
             "column": 1,
             "row": 1,
@@ -67,7 +68,7 @@
         },
         {
           "title": "RBAC Denied",
-          "description": "Kafka RBAC rejection via the MDS (Metadata Service) broker-side check (kafka.server/authorization, method mds.Authorize). Covers all Kafka protocol operations — topics, connectors, compute pools, schema registry clusters. Fired before the broker executes the request; the principal has no role binding covering this resource and operation. Field: data.authorizationInfo.granted = 'False'.",
+          "description": "Confluent RBAC rejection via the MDS (Metadata Service) broker-side check (kafka.server/authorization, method mds.Authorize). Covers all Kafka protocol operations — topics, connectors, compute pools, schema registry clusters. Fired before the broker executes the request; the principal has no role binding covering this resource and operation. Field: data.authorizationInfo.granted = 'False'.",
           "layout": {
             "column": 7,
             "row": 1,
