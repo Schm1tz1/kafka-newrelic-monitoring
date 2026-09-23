@@ -122,6 +122,17 @@ processors:
     send_batch_size: 1024
     timeout: 10s
 
+  # Parse the CloudEvent `time` field (RFC3339Nano) and promote it to the OTel
+  # log record timestamp so New Relic uses the event time, not ingestion time.
+  # `time` is a top-level body attribute after encoding: json decodes the payload.
+  # The statement is wrapped in a where clause so records without `time` are left
+  # unchanged rather than erroring.
+  transform/cloudevent_time:
+    log_statements:
+      - context: log
+        statements:
+          - set(time, Time(attributes["time"], "%Y-%m-%dT%H:%M:%S.%fZ")) where attributes["time"] != nil
+
 exporters:
   debug:
     verbosity: basic
@@ -147,11 +158,11 @@ service:
     # Confluent Cloud audit logs → New Relic
     logs/audit:
       receivers: [kafka/audit]
-      processors: [memory_limiter, batch]
+      processors: [memory_limiter, transform/cloudevent_time, batch]
       exporters: [debug, otlp_http/newrelic]
 
     # Confluent Cloud managed connector logs → New Relic
     logs/connector:
       receivers: [kafka/connector_logs]
-      processors: [memory_limiter, batch]
+      processors: [memory_limiter, transform/cloudevent_time, batch]
       exporters: [debug, otlp_http/newrelic]
