@@ -36,6 +36,35 @@
           }
         },
         {
+          "title": "Authorization Denials",
+          "layout": {
+            "column": 4,
+            "row": 1,
+            "width": 3,
+            "height": 3
+          },
+          "visualization": {
+            "id": "viz.billboard"
+          },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": 0,
+                "query": "SELECT count(*) AS 'Denials' FROM Log WHERE confluent.log.source = 'confluent-audit' AND data.authorizationInfo.result = 'DENY' AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all')"
+              }
+            ],
+            "platformOptions": {
+              "ignoreTimeRange": false
+            },
+            "thresholds": [
+              {
+                "alertSeverity": "CRITICAL",
+                "value": 0
+              }
+            ]
+          }
+        },
+        {
           "title": "Event Count Over Time",
           "layout": {
             "column": 1,
@@ -53,7 +82,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE confluent.log.source = 'confluent-audit' AND (data.result.status = {{result_status}} OR {{result_status}} = 'all') AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all') TIMESERIES AUTO FACET type LIMIT 20"
+                "query": "SELECT count(*) FROM Log WHERE confluent.log.source = 'confluent-audit' AND (data.result.status = {{result_status}} OR {{result_status}} = 'all') AND (data.authorizationInfo.result = {{authz_result}} OR {{authz_result}} = 'all') AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all') TIMESERIES AUTO FACET type LIMIT 20"
               }
             ],
             "platformOptions": {
@@ -79,7 +108,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT timestamp, type, `data.methodName`, `data.result.status`, `data.result.data.errorType`, `data.result.data.message`, `data.authenticationInfo.principal`, `data.authorizationInfo.operation`, `data.authorizationInfo.resourceType`, `data.authorizationInfo.result`, source FROM Log WHERE confluent.log.source = 'confluent-audit' AND (data.result.status = {{result_status}} OR {{result_status}} = 'all') AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all') LIMIT 100"
+                "query": "SELECT timestamp, type, `data.methodName`, `data.result.status`, `data.result.data.errorType`, `data.result.data.message`, `data.authenticationInfo.principal`, `data.authorizationInfo.result`, `data.authorizationInfo.operation`, `data.authorizationInfo.resourceType`, source FROM Log WHERE confluent.log.source = 'confluent-audit' AND (data.result.status = {{result_status}} OR {{result_status}} = 'all') AND (data.authorizationInfo.result = {{authz_result}} OR {{authz_result}} = 'all') AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all') LIMIT 100"
               }
             ],
             "platformOptions": {
@@ -167,6 +196,28 @@
         "ignoreTimeRange": true
       },
       "title": "Result Status",
+      "type": "NRQL",
+      "isMultiSelection": false,
+      "replacementStrategy": "STRING"
+    },
+    {
+      "name": "authz_result",
+      "items": null,
+      "defaultValues": [
+        {
+          "value": {
+            "string": "all"
+          }
+        }
+      ],
+      "nrqlQuery": {
+        "accountId": 0,
+        "query": "SELECT uniques(data.authorizationInfo.result) FROM Log WHERE confluent.log.source = 'confluent-audit' SINCE 1 week ago"
+      },
+      "options": {
+        "ignoreTimeRange": true
+      },
+      "title": "Authz Result",
       "type": "NRQL",
       "isMultiSelection": false,
       "replacementStrategy": "STRING"
