@@ -47,6 +47,7 @@
             "id": "viz.billboard"
           },
           "rawConfiguration": {
+            "description": "Schema Registry service-level RBAC rejection (sg.server/authorization). The SR evaluated the principal's role binding (e.g. SchemaRegistryDeveloperRead) against the requested subject/schema resource and denied it. Field: data.authorizationInfo.result = 'DENY'.",
             "nrqlQueries": [
               {
                 "accountId": 0,
@@ -76,6 +77,7 @@
             "id": "viz.billboard"
           },
           "rawConfiguration": {
+            "description": "Kafka MDS (Metadata Service) broker-side RBAC rejection (kafka.server/authorization, method mds.Authorize). Fired before the broker executes the request; the principal has no role binding covering this resource and operation. Field: data.authorizationInfo.granted = 'False'.",
             "nrqlQueries": [
               {
                 "accountId": 0,
@@ -105,6 +107,7 @@
             "id": "viz.billboard"
           },
           "rawConfiguration": {
+            "description": "Authentication soft-rejections where the token was recognised but invalid (e.g. JWT_EXPIRED). Confluent records result = 'SUCCESS' (identity resolved) but sets data.authenticationInfo.errorMessage with the real reason. Common cause: client not refreshing OAuth token before expiry.",
             "nrqlQueries": [
               {
                 "accountId": 0,
