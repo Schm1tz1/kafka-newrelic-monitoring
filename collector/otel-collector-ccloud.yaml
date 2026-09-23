@@ -133,6 +133,15 @@ processors:
         statements:
           - set(time, Time(attributes["time"], "%Y-%m-%dT%H:%M:%S.%fZ")) where attributes["time"] != nil
           - set(attributes["confluent.log.source"], "confluent-audit")
+          # Break down the subject CRN into individual labels for easy filtering in New Relic.
+          # subject format: crn://confluent.cloud/organization=X/environment=Y/<resource>=Z[/...]
+          - set(attributes["crn.organization"], ExtractPatterns(attributes["subject"], "organization=(?P<v>[^/]+)")["v"]) where attributes["subject"] != nil
+          - set(attributes["crn.environment"], ExtractPatterns(attributes["subject"], "environment=(?P<v>[^/]+)")["v"]) where attributes["subject"] != nil
+          - set(attributes["crn.cloud_cluster"], ExtractPatterns(attributes["subject"], "cloud-cluster=(?P<v>[^/]+)")["v"]) where attributes["subject"] != nil
+          - set(attributes["crn.kafka"], ExtractPatterns(attributes["subject"], "kafka=(?P<v>[^/]+)")["v"]) where attributes["subject"] != nil
+          - set(attributes["crn.schema_registry"], ExtractPatterns(attributes["subject"], "schema-registry=(?P<v>[^/]+)")["v"]) where attributes["subject"] != nil
+          - set(attributes["crn.flink_region"], ExtractPatterns(attributes["subject"], "flink-region=(?P<v>[^/]+)")["v"]) where attributes["subject"] != nil
+          - set(attributes["crn.compute_pool"], ExtractPatterns(attributes["subject"], "compute-pool=(?P<v>[^/]+)")["v"]) where attributes["subject"] != nil
 
   transform/connector:
     log_statements:
@@ -140,6 +149,11 @@ processors:
         statements:
           - set(time, Time(attributes["time"], "%Y-%m-%dT%H:%M:%S.%fZ")) where attributes["time"] != nil
           - set(attributes["confluent.log.source"], "confluent-connector")
+          # Break down the source CRN into individual labels for easy filtering in New Relic.
+          # source format: crn://confluent.cloud/environment=X/kafka=Y/connector=Z
+          - set(attributes["crn.environment"], ExtractPatterns(attributes["source"], "environment=(?P<v>[^/]+)")["v"]) where attributes["source"] != nil
+          - set(attributes["crn.kafka"], ExtractPatterns(attributes["source"], "kafka=(?P<v>[^/]+)")["v"]) where attributes["source"] != nil
+          - set(attributes["crn.connector"], ExtractPatterns(attributes["source"], "connector=(?P<v>[^/]+)")["v"]) where attributes["source"] != nil
 
 exporters:
   debug:
