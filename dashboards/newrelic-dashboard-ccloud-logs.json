@@ -7,348 +7,33 @@
       "description": null,
       "widgets": [
         {
-          "title": "",
-          "layout": {
-            "column": 1,
-            "row": 1,
-            "width": 2,
-            "height": 7
-          },
-          "visualization": {
-            "id": "viz.markdown"
-          },
+          "title": "Event Count Over Time",
+          "layout": { "column": 1, "row": 1, "width": 12, "height": 3 },
+          "visualization": { "id": "viz.line" },
           "rawConfiguration": {
-            "text": "![ConfluentLogo](https://cdn.confluent.io/wp-content/uploads/seo-logo-meadow.png)\n## Confluent Cloud\n### Audit Logs\nSource topic: `confluent-audit-log-events`\n\n**Event types:**\n- `kafka.server/authentication`\n- `kafka.server/authorization`\n- `kafka.server/request`\n- `sg.server/authentication`\n- `sg.server/authorization`\n- `sg.server/request`\n- `flink.server/authentication`\n- `flink.server/authorization`\n- `cloud/request`\n\nFilter by **Environment**, **Cluster**, or **Schema Registry** using the variables above."
-          }
-        },
-        {
-          "title": "Event Volume by Type",
-          "layout": {
-            "column": 3,
-            "row": 1,
-            "width": 5,
-            "height": 4
-          },
-          "visualization": {
-            "id": "viz.line"
-          },
-          "rawConfiguration": {
-            "legend": {
-              "enabled": true
-            },
+            "legend": { "enabled": true },
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = '%') TIMESERIES AUTO FACET type LIMIT 20"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = 'all') TIMESERIES AUTO FACET type LIMIT 20"
               }
             ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            },
-            "yAxisLeft": {
-              "zero": true
-            }
-          }
-        },
-        {
-          "title": "Events by Service",
-          "layout": {
-            "column": 8,
-            "row": 1,
-            "width": 5,
-            "height": 4
-          },
-          "visualization": {
-            "id": "viz.pie"
-          },
-          "rawConfiguration": {
-            "facet": {
-              "showOtherSeries": true
-            },
-            "legend": {
-              "enabled": true
-            },
-            "nrqlQueries": [
-              {
-                "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = '%') FACET cases(WHERE type LIKE 'io.confluent.kafka.server/%' AS 'Kafka', WHERE type LIKE 'io.confluent.sg.server/%' AS 'Schema Registry', WHERE type LIKE 'io.confluent.flink.server/%' AS 'Flink', WHERE type LIKE 'io.confluent.cloud/%' AS 'Cloud', WHERE 1=1 AS 'Other')"
-              }
-            ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
-          }
-        },
-        {
-          "title": "Kafka Authentication Results",
-          "layout": {
-            "column": 3,
-            "row": 5,
-            "width": 2,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.pie"
-          },
-          "rawConfiguration": {
-            "facet": {
-              "showOtherSeries": true
-            },
-            "legend": {
-              "enabled": true
-            },
-            "nrqlQueries": [
-              {
-                "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = '%') AND type = 'io.confluent.kafka.server/authentication' FACET `data.result.status`"
-              }
-            ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
-          }
-        },
-        {
-          "title": "Kafka Auth SASL Mechanisms",
-          "layout": {
-            "column": 5,
-            "row": 5,
-            "width": 3,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.pie"
-          },
-          "rawConfiguration": {
-            "facet": {
-              "showOtherSeries": true
-            },
-            "legend": {
-              "enabled": true
-            },
-            "nrqlQueries": [
-              {
-                "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = '%') AND type = 'io.confluent.kafka.server/authentication' FACET `data.authenticationInfo.metadata.mechanism`"
-              }
-            ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
-          }
-        },
-        {
-          "title": "SR Authentication Results",
-          "layout": {
-            "column": 8,
-            "row": 5,
-            "width": 2,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.pie"
-          },
-          "rawConfiguration": {
-            "facet": {
-              "showOtherSeries": true
-            },
-            "legend": {
-              "enabled": true
-            },
-            "nrqlQueries": [
-              {
-                "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = '%') AND type = 'io.confluent.sg.server/authentication' FACET `data.authenticationInfo.result`"
-              }
-            ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
-          }
-        },
-        {
-          "title": "SR Auth Mechanisms",
-          "layout": {
-            "column": 10,
-            "row": 5,
-            "width": 3,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.pie"
-          },
-          "rawConfiguration": {
-            "facet": {
-              "showOtherSeries": true
-            },
-            "legend": {
-              "enabled": true
-            },
-            "nrqlQueries": [
-              {
-                "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = '%') AND type = 'io.confluent.sg.server/authentication' FACET `data.authenticationInfo.credentials.mechanism`"
-              }
-            ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
-          }
-        },
-        {
-          "title": "Authorization \u2014 Granted vs Denied",
-          "layout": {
-            "column": 1,
-            "row": 8,
-            "width": 3,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.pie"
-          },
-          "rawConfiguration": {
-            "facet": {
-              "showOtherSeries": true
-            },
-            "legend": {
-              "enabled": true
-            },
-            "nrqlQueries": [
-              {
-                "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = '%') AND type LIKE '%/authorization' FACET `data.authorizationInfo.result`"
-              }
-            ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
-          }
-        },
-        {
-          "title": "Authorization \u2014 Operations",
-          "layout": {
-            "column": 4,
-            "row": 8,
-            "width": 4,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.bar"
-          },
-          "rawConfiguration": {
-            "facet": {
-              "showOtherSeries": true
-            },
-            "nrqlQueries": [
-              {
-                "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = '%') AND type LIKE '%/authorization' FACET `data.authorizationInfo.operation` LIMIT 20"
-              }
-            ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
-          }
-        },
-        {
-          "title": "Authorization \u2014 Resource Types",
-          "layout": {
-            "column": 8,
-            "row": 8,
-            "width": 5,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.bar"
-          },
-          "rawConfiguration": {
-            "facet": {
-              "showOtherSeries": true
-            },
-            "nrqlQueries": [
-              {
-                "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = '%') AND type LIKE '%/authorization' FACET `data.authorizationInfo.resourceType` LIMIT 20"
-              }
-            ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
-          }
-        },
-        {
-          "title": "Top Principals",
-          "layout": {
-            "column": 1,
-            "row": 11,
-            "width": 6,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.bar"
-          },
-          "rawConfiguration": {
-            "facet": {
-              "showOtherSeries": true
-            },
-            "nrqlQueries": [
-              {
-                "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = '%') FACET coalesce(`data.authenticationInfo.principal`, `data.authenticationInfo.identity`) LIMIT 20"
-              }
-            ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
-          }
-        },
-        {
-          "title": "Top RBAC Roles Used",
-          "layout": {
-            "column": 7,
-            "row": 11,
-            "width": 6,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.bar"
-          },
-          "rawConfiguration": {
-            "facet": {
-              "showOtherSeries": true
-            },
-            "nrqlQueries": [
-              {
-                "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = '%') AND `data.authorizationInfo.rbacAuthorization.role` IS NOT NULL FACET `data.authorizationInfo.rbacAuthorization.role` LIMIT 20"
-              }
-            ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
+            "platformOptions": { "ignoreTimeRange": false },
+            "yAxisLeft": { "zero": true }
           }
         },
         {
           "title": "Raw Audit Log Events",
-          "layout": {
-            "column": 1,
-            "row": 14,
-            "width": 12,
-            "height": 5
-          },
-          "visualization": {
-            "id": "logger.log-table-widget"
-          },
+          "layout": { "column": 1, "row": 4, "width": 12, "height": 8 },
+          "visualization": { "id": "logger.log-table-widget" },
           "rawConfiguration": {
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT timestamp, type, `data.methodName`, coalesce(`data.authenticationInfo.principal`, `data.authenticationInfo.identity`) AS principal, `data.result.status`, `data.authorizationInfo.operation`, `data.authorizationInfo.resourceType`, `data.authorizationInfo.result`, source FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = '%') LIMIT 100"
+                "query": "SELECT timestamp, type, `data.methodName`, `data.authenticationInfo.principal`, `data.authenticationInfo.identity`, `data.result.status`, `data.authorizationInfo.operation`, `data.authorizationInfo.resourceType`, `data.authorizationInfo.result`, source FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (source = '{{audit_source}}' OR '{{audit_source}}' = 'all') LIMIT 100"
               }
             ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
+            "platformOptions": { "ignoreTimeRange": false }
           }
         }
       ]
@@ -358,177 +43,33 @@
       "description": null,
       "widgets": [
         {
-          "title": "",
-          "layout": {
-            "column": 1,
-            "row": 1,
-            "width": 2,
-            "height": 5
-          },
-          "visualization": {
-            "id": "viz.markdown"
-          },
-          "rawConfiguration": {
-            "text": "![ConfluentLogo](https://cdn.confluent.io/wp-content/uploads/seo-logo-meadow.png)\n## Confluent Cloud\n### Connector Logs\nSource topic: `confluent-connect-log-events`\n\nType: `io.confluent.logevents.connect.TaskFailed`\n\nResource path in `source`:\n`environment=X/kafka=Y/connector=Z`\n\nFilter using the variables above."
-          }
-        },
-        {
           "title": "Failed Tasks Over Time",
-          "layout": {
-            "column": 3,
-            "row": 1,
-            "width": 5,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.line"
-          },
+          "layout": { "column": 1, "row": 1, "width": 12, "height": 3 },
+          "visualization": { "id": "viz.line" },
           "rawConfiguration": {
-            "legend": {
-              "enabled": true
-            },
+            "legend": { "enabled": true },
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND (`data.context.connectorId` = '{{connector_id}}' OR '{{connector_id}}' = '%') TIMESERIES AUTO FACET `data.context.connectorId` LIMIT 10"
+                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND (`data.context.connectorId` = '{{connector_id}}' OR '{{connector_id}}' = 'all') TIMESERIES AUTO FACET `data.context.connectorId` LIMIT 10"
               }
             ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            },
-            "yAxisLeft": {
-              "zero": true
-            }
-          }
-        },
-        {
-          "title": "Failures by Connector",
-          "layout": {
-            "column": 8,
-            "row": 1,
-            "width": 5,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.bar"
-          },
-          "rawConfiguration": {
-            "facet": {
-              "showOtherSeries": true
-            },
-            "nrqlQueries": [
-              {
-                "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND (`data.context.connectorId` = '{{connector_id}}' OR '{{connector_id}}' = '%') FACET `data.context.connectorId` LIMIT 20"
-              }
-            ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
-          }
-        },
-        {
-          "title": "Failures by Environment",
-          "layout": {
-            "column": 3,
-            "row": 4,
-            "width": 3,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.pie"
-          },
-          "rawConfiguration": {
-            "facet": {
-              "showOtherSeries": true
-            },
-            "legend": {
-              "enabled": true
-            },
-            "nrqlQueries": [
-              {
-                "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND (`data.context.connectorId` = '{{connector_id}}' OR '{{connector_id}}' = '%') FACET source LIMIT 20"
-              }
-            ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
-          }
-        },
-        {
-          "title": "Top Root Causes",
-          "layout": {
-            "column": 6,
-            "row": 4,
-            "width": 7,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.bar"
-          },
-          "rawConfiguration": {
-            "facet": {
-              "showOtherSeries": true
-            },
-            "nrqlQueries": [
-              {
-                "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND (`data.context.connectorId` = '{{connector_id}}' OR '{{connector_id}}' = '%') FACET `data.summary.connectorErrorSummary.rootCause` LIMIT 10"
-              }
-            ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
-          }
-        },
-        {
-          "title": "Error Messages",
-          "layout": {
-            "column": 1,
-            "row": 7,
-            "width": 12,
-            "height": 3
-          },
-          "visualization": {
-            "id": "viz.bar"
-          },
-          "rawConfiguration": {
-            "facet": {
-              "showOtherSeries": true
-            },
-            "nrqlQueries": [
-              {
-                "accountId": 0,
-                "query": "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND (`data.context.connectorId` = '{{connector_id}}' OR '{{connector_id}}' = '%') FACET `data.summary.connectorErrorSummary.message` LIMIT 20"
-              }
-            ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
+            "platformOptions": { "ignoreTimeRange": false },
+            "yAxisLeft": { "zero": true }
           }
         },
         {
           "title": "Raw Connector Log Events",
-          "layout": {
-            "column": 1,
-            "row": 10,
-            "width": 12,
-            "height": 5
-          },
-          "visualization": {
-            "id": "logger.log-table-widget"
-          },
+          "layout": { "column": 1, "row": 4, "width": 12, "height": 8 },
+          "visualization": { "id": "logger.log-table-widget" },
           "rawConfiguration": {
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT timestamp, `data.context.connectorId`, `data.summary.connectorErrorSummary.message`, `data.summary.connectorErrorSummary.rootCause`, source FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND (`data.context.connectorId` = '{{connector_id}}' OR '{{connector_id}}' = '%') LIMIT 100"
+                "query": "SELECT timestamp, `data.context.connectorId`, `data.summary.connectorErrorSummary.message`, `data.summary.connectorErrorSummary.rootCause`, source FROM Log WHERE `confluent.log.source` = 'confluent-connector' AND (`data.context.connectorId` = '{{connector_id}}' OR '{{connector_id}}' = 'all') LIMIT 100"
               }
             ],
-            "platformOptions": {
-              "ignoreTimeRange": false
-            }
+            "platformOptions": { "ignoreTimeRange": false }
           }
         }
       ]
@@ -538,20 +79,12 @@
     {
       "name": "audit_source",
       "items": null,
-      "defaultValues": [
-        {
-          "value": {
-            "string": "%"
-          }
-        }
-      ],
+      "defaultValues": [{ "value": { "string": "all" } }],
       "nrqlQuery": {
         "accountId": 0,
         "query": "SELECT uniques(source) FROM Log WHERE `confluent.log.source` = 'confluent-audit' SINCE 1 week ago"
       },
-      "options": {
-        "ignoreTimeRange": true
-      },
+      "options": { "ignoreTimeRange": true },
       "title": "Audit Source (cluster / SR)",
       "type": "NRQL",
       "isMultiSelection": false,
@@ -560,20 +93,12 @@
     {
       "name": "connector_id",
       "items": null,
-      "defaultValues": [
-        {
-          "value": {
-            "string": "%"
-          }
-        }
-      ],
+      "defaultValues": [{ "value": { "string": "all" } }],
       "nrqlQuery": {
         "accountId": 0,
         "query": "SELECT uniques(`data.context.connectorId`) FROM Log WHERE `confluent.log.source` = 'confluent-connector' SINCE 1 week ago"
       },
-      "options": {
-        "ignoreTimeRange": true
-      },
+      "options": { "ignoreTimeRange": true },
       "title": "Connector ID",
       "type": "NRQL",
       "isMultiSelection": false,
