@@ -37,7 +37,7 @@
           }
         },
         {
-          "title": "AuthZ DENY",
+          "title": "Schema Registry Authorizations Denied",
           "description": "Schema Registry-specific RBAC rejection (sg.server/authorization). The SR evaluated the principal's role binding (e.g. SchemaRegistryDeveloperRead) against the requested subject/schema resource and denied it. Only fires for SR API calls — not Kafka broker operations. Field: data.authorizationInfo.result = 'DENY'.",
           "layout": {
             "column": 4,
@@ -52,7 +52,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT count(*) AS 'AuthZ DENY' FROM Log WHERE confluent.log.source = 'confluent-audit' AND data.authorizationInfo.result = 'DENY' AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all')"
+                "query": "SELECT count(*) AS 'SR Authz Denied' FROM Log WHERE confluent.log.source = 'confluent-audit' AND data.authorizationInfo.result = 'DENY' AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all')"
               }
             ],
             "platformOptions": {
