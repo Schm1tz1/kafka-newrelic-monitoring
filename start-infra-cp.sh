@@ -18,6 +18,15 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ENV_FILE="$SCRIPT_DIR/.env"
+
+# ── Load .env if present ──────────────────────────────────────────────────────
+if [[ -f "$ENV_FILE" ]]; then
+  set -a
+  # shellcheck disable=SC1090
+  . "$ENV_FILE"
+  set +a
+fi
 
 # ── 1. Guard: NEW_RELIC_LICENSE_KEY must be set ──────────────────────────────
 if [[ -z "${NEW_RELIC_LICENSE_KEY:-}" ]]; then

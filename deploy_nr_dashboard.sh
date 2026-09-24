@@ -19,15 +19,6 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DASHBOARDS_DIR="$SCRIPT_DIR/dashboards"
-ENV_FILE="$SCRIPT_DIR/.env"
-
-# ── Load .env if present ──────────────────────────────────────────────────────
-if [[ -f "$ENV_FILE" ]]; then
-  set -a
-  # shellcheck disable=SC1090
-  . "$ENV_FILE"
-  set +a
-fi
 
 # ── Prerequisites ─────────────────────────────────────────────────────────────
 command -v jq >/dev/null || { echo "ERROR: jq is required." >&2; exit 1; }
@@ -111,10 +102,22 @@ DASHBOARD=$(jq --argjson acct "$NEW_RELIC_ACCOUNT_ID" '
   )
 ' "$DASHBOARD_FILE")
 
-DASHBOARD_NAME=$(echo "$DASHBOARD" | jq -r '.name')
+BASE_NAME=$(echo "$DASHBOARD" | jq -r '.name')
+
+# Append team name as a suffix so dashboard names are unique across teams.
+if [[ -n "${NEW_RELIC_TEAM_NAME:-}" ]]; then
+  DASHBOARD_NAME="${BASE_NAME} [${NEW_RELIC_TEAM_NAME}]"
+  DASHBOARD=$(echo "$DASHBOARD" | jq --arg name "$DASHBOARD_NAME" '.name = $name')
+else
+  DASHBOARD_NAME="$BASE_NAME"
+fi
+
 echo "==> Deploying: \"$DASHBOARD_NAME\" (account $NEW_RELIC_ACCOUNT_ID)"
 
 # ── Search for an existing dashboard with the same name ───────────────────────
+# When NEW_RELIC_TEAM_NAME is set we search for BOTH the suffixed name and the
+# bare base name. This handles migration: a dashboard previously deployed without
+# a team suffix is found and updated (renamed) rather than duplicated.
 echo "    Checking for existing dashboard..."
 # entitySearch is the correct API for finding dashboards by name.
 # domainType = 'VIZ-DASHBOARD' scopes results to dashboards only.
@@ -137,6 +140,23 @@ EXISTING_GUID=$(echo "$SEARCH_RESPONSE" | jq -r '
   .data.actor.entitySearch.results.entities[]
   | select(.name == "'"$DASHBOARD_NAME"'")
   | .guid' 2>/dev/null | head -1)
+
+# If not found by suffixed name, try the bare base name (migration from un-suffixed deploy).
+if [[ -z "$EXISTING_GUID" ]] && [[ "$DASHBOARD_NAME" != "$BASE_NAME" ]]; then
+  SEARCH_PAYLOAD_BASE=$(jq -n \
+    --arg query "domainType IN ('VIZ-DASHBOARD') AND name = '${BASE_NAME//\'/\'\'}' AND accountId = ${NEW_RELIC_ACCOUNT_ID}" '{
+    query: "query($q: String!) { actor { entitySearch(query: $q) { results { entities { guid name } } } } }",
+    variables: { q: $query }
+  }')
+  SEARCH_RESPONSE_BASE=$(nerdgraph "$SEARCH_PAYLOAD_BASE")
+  EXISTING_GUID=$(echo "$SEARCH_RESPONSE_BASE" | jq -r '
+    .data.actor.entitySearch.results.entities[]
+    | select(.name == "'"$BASE_NAME"'")
+    | .guid' 2>/dev/null | head -1)
+  if [[ -n "$EXISTING_GUID" ]]; then
+    echo "    Found existing dashboard under base name \"$BASE_NAME\" (guid=$EXISTING_GUID) — will rename to \"$DASHBOARD_NAME\"."
+  fi
+fi
 
 # ── Create or update ──────────────────────────────────────────────────────────
 if [[ -n "$EXISTING_GUID" ]]; then
@@ -185,4 +205,71 @@ else
     echo "ERROR: No entityResult returned — check the response above." >&2; exit 1
   fi
   echo "Dashboard created: guid=$GUID"
+  # Newly created entities are not immediately visible to entityManagement —
+  # wait briefly for the entity index to catch up before attempting team assignment.
+  DASHBOARD_JUST_CREATED=true
+fi
+
+# ── Assign to New Relic team (optional) ──────────────────────────────────────
+# If NEW_RELIC_TEAM_NAME is set, find the team's ownership collection and add
+# the dashboard entity to it. This causes the nr.team tag to appear on the entity.
+if [[ -n "${NEW_RELIC_TEAM_NAME:-}" ]]; then
+  echo "==> Assigning dashboard to team \"$NEW_RELIC_TEAM_NAME\"..."
+
+  if [[ "${DASHBOARD_JUST_CREATED:-false}" == "true" ]]; then
+    echo "    Waiting for entity index to catch up after create..."
+    sleep 10
+  fi
+
+  TEAMS_PAYLOAD=$(jq -n '{
+    query: "{ actor { entityManagement { entitySearch(query: \"type = '"'"'TEAM'"'"'\") { entities { id name ... on EntityManagementTeamEntity { ownership { id } } } } } } }"
+  }')
+
+  TEAMS_RESPONSE=$(nerdgraph "$TEAMS_PAYLOAD")
+
+  if echo "$TEAMS_RESPONSE" | jq -e '.errors // [] | length > 0' >/dev/null 2>&1; then
+    echo "WARNING: Team search failed — skipping team assignment:" >&2
+    echo "$TEAMS_RESPONSE" | jq . >&2
+  else
+    OWNERSHIP_COLLECTION_ID=$(echo "$TEAMS_RESPONSE" | jq -r \
+      --arg name "$NEW_RELIC_TEAM_NAME" \
+      '.data.actor.entityManagement.entitySearch.entities[]
+       | select(.name == $name)
+       | .ownership.id // empty' | head -1)
+
+    if [[ -z "$OWNERSHIP_COLLECTION_ID" ]]; then
+      echo "WARNING: Team \"$NEW_RELIC_TEAM_NAME\" not found or has no ownership collection — skipping." >&2
+    else
+      echo "    Found ownership collection: $OWNERSHIP_COLLECTION_ID"
+      ASSIGN_PAYLOAD=$(jq -n \
+        --arg collectionId "$OWNERSHIP_COLLECTION_ID" \
+        --arg entityId "$GUID" '{
+          query: "mutation($collectionId: ID!, $ids: [ID!]!) { entityManagementAddCollectionMembers(collectionId: $collectionId, ids: $ids) }",
+          variables: { collectionId: $collectionId, ids: [$entityId] }
+        }')
+
+      ASSIGN_RESPONSE=$(nerdgraph "$ASSIGN_PAYLOAD")
+
+      # NOT_FOUND on a freshly created dashboard means the entity index still hasn't
+      # caught up — retry once after a further wait.
+      if echo "$ASSIGN_RESPONSE" | jq -e '
+          [.errors // [] | .[] | select(.extensions.errorClass == "NOT_FOUND")] | length > 0
+        ' >/dev/null 2>&1; then
+        echo "    Entity not yet indexed — retrying in 15 s..."
+        sleep 15
+        ASSIGN_RESPONSE=$(nerdgraph "$ASSIGN_PAYLOAD")
+      fi
+
+      # COLLECTION_DUPLICATE_MEMBER means the entity is already in the team — idempotent, not an error.
+      NON_DUPE_ERRORS=$(echo "$ASSIGN_RESPONSE" | jq '
+        [.errors // [] | .[] | select(.extensions.errorClass != "COLLECTION_DUPLICATE_MEMBER")]
+      ')
+      if echo "$NON_DUPE_ERRORS" | jq -e 'length > 0' >/dev/null 2>&1; then
+        echo "WARNING: Team assignment request failed:" >&2
+        echo "$ASSIGN_RESPONSE" | jq . >&2
+      else
+        echo "Dashboard assigned to team \"$NEW_RELIC_TEAM_NAME\"."
+      fi
+    fi
+  fi
 fi

@@ -17,3 +17,6 @@ CLAUDE.md
 .bob/
 # Test data (may contain sensitive sampled records)
 testdata/
+
+# Generated collector config (cluster IDs expanded from CONFLUENT_CLUSTER_ID by start-infra-ccloud.sh)
+collector/otel-collector-ccloud.resolved.yaml
