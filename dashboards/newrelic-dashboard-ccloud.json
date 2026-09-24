@@ -19,7 +19,7 @@
             "id": "viz.markdown"
           },
           "rawConfiguration": {
-            "text": "![ConfluentLogo](https://cdn.confluent.io/wp-content/uploads/seo-logo-meadow.png)\n# Confluent Cloud Kafka\n#### [Confluent API docs](https://api.telemetry.confluent.cloud/docs/descriptors/datasets/cloud?_ga=2.214885143.1264186867.1705940186-6520871.1686857317&_gl=1*xevtc5*_ga*NjUyMDg3MS4xNjg2ODU3MzE3*_ga_D2D3EGKSGD*MTcwNTk0MDA5MC41My4xLjE3MDU5NDAxODUuNjAuMC4w)"
+            "text": "![ConfluentLogo](https://cdn.confluent.io/wp-content/uploads/seo-logo-meadow.png)\n# Confluent Cloud Kafka\n#### [Confluent API docs](https://api.telemetry.confluent.cloud/docs/descriptors/datasets/cloud)"
           }
         },
         {
