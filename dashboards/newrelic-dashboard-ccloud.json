@@ -589,6 +589,174 @@
       ]
     },
     {
+      "name": "Consumer Lag",
+      "description": null,
+      "widgets": [
+        {
+          "title": "Consumer Lag Over Time (Group × Topic)",
+          "layout": {
+            "column": 1,
+            "row": 1,
+            "width": 12,
+            "height": 3
+          },
+          "linkedEntityGuids": null,
+          "visualization": {
+            "id": "viz.line"
+          },
+          "rawConfiguration": {
+            "facet": {
+              "showOtherSeries": false
+            },
+            "legend": {
+              "enabled": true
+            },
+            "nrqlQueries": [
+              {
+                "accountId": 0,
+                "query": "SELECT max(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) AS 'Consumer Lag' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) FACET (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`), (`topic` or `confluent.kafka.server.metric.topic`) LIMIT MAX TIMESERIES"
+              }
+            ],
+            "platformOptions": {
+              "ignoreTimeRange": false
+            },
+            "yAxisLeft": {
+              "zero": false,
+              "scale": "log"
+            }
+          }
+        },
+        {
+          "title": "Lag by Consumer Group",
+          "layout": {
+            "column": 1,
+            "row": 4,
+            "width": 6,
+            "height": 3
+          },
+          "linkedEntityGuids": null,
+          "visualization": {
+            "id": "viz.line"
+          },
+          "rawConfiguration": {
+            "facet": {
+              "showOtherSeries": false
+            },
+            "legend": {
+              "enabled": true
+            },
+            "nrqlQueries": [
+              {
+                "accountId": 0,
+                "query": "SELECT max(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) AS 'Consumer Lag' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) FACET (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`) LIMIT MAX TIMESERIES"
+              }
+            ],
+            "platformOptions": {
+              "ignoreTimeRange": false
+            },
+            "yAxisLeft": {
+              "zero": false,
+              "scale": "log"
+            }
+          }
+        },
+        {
+          "title": "Lag by Topic",
+          "layout": {
+            "column": 7,
+            "row": 4,
+            "width": 6,
+            "height": 3
+          },
+          "linkedEntityGuids": null,
+          "visualization": {
+            "id": "viz.line"
+          },
+          "rawConfiguration": {
+            "facet": {
+              "showOtherSeries": false
+            },
+            "legend": {
+              "enabled": true
+            },
+            "nrqlQueries": [
+              {
+                "accountId": 0,
+                "query": "SELECT max(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) AS 'Consumer Lag' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) FACET (`topic` or `confluent.kafka.server.metric.topic`) LIMIT MAX TIMESERIES"
+              }
+            ],
+            "platformOptions": {
+              "ignoreTimeRange": false
+            },
+            "yAxisLeft": {
+              "zero": false,
+              "scale": "log"
+            }
+          }
+        },
+        {
+          "title": "Lag Summary — Consumer Group / Topic (lag > 0)",
+          "layout": {
+            "column": 1,
+            "row": 11,
+            "width": 12,
+            "height": 4
+          },
+          "linkedEntityGuids": null,
+          "visualization": {
+            "id": "viz.table"
+          },
+          "rawConfiguration": {
+            "facet": {
+              "showOtherSeries": false
+            },
+            "nrqlQueries": [
+              {
+                "accountId": 0,
+                "query": "SELECT latest(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) AS 'Current Lag', average(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) AS 'Avg Lag', latest(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) - average(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) AS 'Trend (positive=stuck/growing, negative=recovering)' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) FACET (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`), (`topic` or `confluent.kafka.server.metric.topic`) LIMIT MAX"
+              }
+            ],
+            "platformOptions": {
+              "ignoreTimeRange": false
+            }
+          }
+        },
+        {
+          "title": "Lag Derivative (rate of change per minute) — by Group & Topic",
+          "layout": {
+            "column": 1,
+            "row": 7,
+            "width": 12,
+            "height": 4
+          },
+          "linkedEntityGuids": null,
+          "visualization": {
+            "id": "viz.line"
+          },
+          "rawConfiguration": {
+            "facet": {
+              "showOtherSeries": false
+            },
+            "legend": {
+              "enabled": true
+            },
+            "nrqlQueries": [
+              {
+                "accountId": 0,
+                "query": "SELECT rate(sum(confluent_kafka_server_consumer_lag_offsets), 1 minute) AS 'Lag/min (legacy)', rate(sum(confluent.kafka.server.consumer_lag_offsets), 1 minute) AS 'Lag/min' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) FACET (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`), (`topic` or `confluent.kafka.server.metric.topic`) LIMIT MAX TIMESERIES"
+              }
+            ],
+            "platformOptions": {
+              "ignoreTimeRange": false
+            },
+            "yAxisLeft": {
+              "zero": true
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "Connector",
       "description": null,
       "widgets": [
