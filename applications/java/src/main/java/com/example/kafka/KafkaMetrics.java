@@ -95,7 +95,7 @@ public class KafkaMetrics implements AutoCloseable {
         lagGauge = meter.gaugeBuilder("kafka_app.consumer_lag_records")
                 .ofLongs()
                 .setUnit("{record}").setDescription("Estimated consumer lag by topic and partition")
-                .buildWithCallback(measurement -> lagValues.forEach(measurement::record));
+                .buildWithCallback(measurement -> lagValues.forEach((attrs, value) -> measurement.record(value, attrs)));
     }
 
     public void setLag(long lag, Attributes attrs) {
