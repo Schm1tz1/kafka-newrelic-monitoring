@@ -1,15 +1,20 @@
 # docker-compose.apps.yml — application services (Python + Java producers/consumers).
 #
 # All services use Docker profiles so they never start automatically.
-# Start individual services with --profile:
+# Can be used standalone or overlaid on an infra compose file.
 #
-#   # CP mode (local Kafka) — use with docker-compose.cp.yml:
-#   docker compose -f infra/docker-compose.cp.yml -f infra/docker-compose.apps.yml \
-#     --profile python-confluent up -d
+# Standalone (infra already running separately):
+#   docker compose -f infra/docker-compose.apps.yml --profile python-confluent up -d
 #
-#   # CCloud mode — use with docker-compose.ccloud.yml:
-#   docker compose -f infra/docker-compose.ccloud.yml -f infra/docker-compose.apps.yml \
-#     --profile java-consumer up -d
+# Overlaid (infra + apps in one command):
+#   docker compose -f infra/docker-compose.cp.yml \
+#                  -f infra/docker-compose.apps.yml \
+#                  --profile python-confluent up -d
+#
+# Either way, all containers join the shared 'kafka-monitoring' network so they
+# can reach each other by service name (kafka:9092, otel-collector:4317).
+# The network must already exist when running standalone — it is created by the
+# infra compose files. Run infra first, then apps.
 #
 # Available profiles:
 #   python-confluent    confluent-kafka producer + consumer
@@ -19,22 +24,23 @@
 #   java-nr-agent       Java producer + consumer with New Relic -javaagent
 #
 # Prerequisites:
-#   Python images: docker compose -f infra/docker-compose.apps.yml build python-base
-#   Java image:    cd applications/java && mvn package -q
-#                  docker compose -f infra/docker-compose.apps.yml build java-base
+#   Build images: docker compose -f infra/docker-compose.apps.yml build
+#   Java fat jar: cd applications/java && mvn package -q
 #
-# Env vars — all read from .env at the repo root (loaded by the start-infra-*.sh scripts).
-# For CP mode KAFKA_BOOTSTRAP_SERVERS defaults to kafka:9092 (Docker-internal).
-# For CCloud mode set it to your cluster bootstrap endpoint.
+# Env vars — read from .env at the repo root.
+# KAFKA_BOOTSTRAP_SERVERS defaults to kafka:9092 (Docker-internal CP name).
+# For CCloud set KAFKA_BOOTSTRAP_SERVERS to your cluster bootstrap endpoint in .env.
 
 x-python-common: &python-common
   build:
     context: ..
     dockerfile: applications/python/Dockerfile
   env_file: ../.env
-  environment:
-    KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}
-    OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4317}
+  # OTEL_EXPORTER_OTLP_ENDPOINT is a literal value to override the localhost
+  # default in .env — Docker Compose :-defaults only fire when the variable is
+  # completely unset, not when it is set to a different value in env_file.
+  networks:
+    - kafka-monitoring
   restart: "no"
 
 x-java-common: &java-common
@@ -42,9 +48,8 @@ x-java-common: &java-common
     context: ..
     dockerfile: applications/java/Dockerfile
   env_file: ../.env
-  environment:
-    KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}
-    OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4317}
+  networks:
+    - kafka-monitoring
   restart: "no"
 
 services:
@@ -55,7 +60,7 @@ services:
     profiles: [python-confluent]
     environment:
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}
-      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4317}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       MODULE: applications.python.confluent_kafka.producer
       OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-python-confluent-producer}
 
@@ -64,7 +69,7 @@ services:
     profiles: [python-confluent]
     environment:
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}
-      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4317}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       MODULE: applications.python.confluent_kafka.consumer
       OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-python-confluent-consumer}
 
@@ -74,7 +79,7 @@ services:
     profiles: [python-faststream]
     environment:
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}
-      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4317}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       MODULE: applications.python.faststream_confluent.producer
       OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-python-faststream-confluent-producer}
 
@@ -83,7 +88,7 @@ services:
     profiles: [python-faststream]
     environment:
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}
-      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4317}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       MODULE: applications.python.faststream_confluent.consumer
       OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-python-faststream-confluent-consumer}
 
@@ -93,7 +98,7 @@ services:
     profiles: [python-aiokafka]
     environment:
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}
-      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4317}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       MODULE: applications.python.faststream_aiokafka.producer
       OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-python-aiokafka-producer}
 
@@ -102,7 +107,7 @@ services:
     profiles: [python-aiokafka]
     environment:
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}
-      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4317}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       MODULE: applications.python.faststream_aiokafka.consumer
       OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-python-aiokafka-consumer}
 
@@ -112,7 +117,7 @@ services:
     profiles: [java]
     environment:
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}
-      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4317}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       MAIN_CLASS: com.example.kafka.Producer
       OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-java-kafka-producer}
 
@@ -121,7 +126,7 @@ services:
     profiles: [java]
     environment:
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}
-      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4317}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       MAIN_CLASS: com.example.kafka.Consumer
       OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-java-kafka-consumer}
 
@@ -132,7 +137,7 @@ services:
     profiles: [java-nr-agent]
     environment:
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}
-      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4317}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       MAIN_CLASS: com.example.kafka.Producer
       OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-java-kafka-producer}
       NEW_RELIC_LICENSE_KEY: ${NEW_RELIC_LICENSE_KEY}
@@ -149,7 +154,7 @@ services:
     profiles: [java-nr-agent]
     environment:
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}
-      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4317}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       MAIN_CLASS: com.example.kafka.Consumer
       OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-java-kafka-consumer}
       NEW_RELIC_LICENSE_KEY: ${NEW_RELIC_LICENSE_KEY}
@@ -160,3 +165,8 @@ services:
     volumes:
       - ../applications/java/newrelic/newrelic.jar:/app/newrelic.jar:ro
       - ../applications/java/newrelic/newrelic.yml:/app/newrelic.yml:ro
+
+networks:
+  kafka-monitoring:
+    external: true
+    name: kafka-monitoring

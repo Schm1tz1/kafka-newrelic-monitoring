@@ -1,4 +1,4 @@
-FROM registry.redhat.io/ubi9/python-311-minimal:latest
+FROM python:3.11-slim
 
 WORKDIR /app
 

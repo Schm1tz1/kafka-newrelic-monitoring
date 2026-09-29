@@ -254,7 +254,8 @@ Attributes: `service.name`, `deployment.environment`, `client.id`, `topic`, `con
 
 | File | Description |
 |---|---|
-| `infra/dashboards/newrelic-dashboard-python.json` | Python/Java app metrics |
+| `infra/dashboards/newrelic-dashboard-python.json` | Python app metrics (confluent-kafka, FastStream) |
+| `infra/dashboards/newrelic-dashboard-java.json` | Java app metrics + JVM health (OTel SDK + JMX) |
 | `infra/dashboards/newrelic-dashboard-cp.json` | Confluent Platform broker (JMX) |
 | `infra/dashboards/newrelic-dashboard-ccloud.json` | Confluent Cloud cluster + consumer lag |
 | `infra/dashboards/newrelic-dashboard-ccloud-logs.json` | Confluent Cloud audit + connector logs |

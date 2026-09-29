@@ -1,4 +1,4 @@
-FROM registry.redhat.io/ubi9/openjdk-17-runtime:latest
+FROM eclipse-temurin:17-jre-jammy
 
 WORKDIR /app
 
@@ -10,8 +10,9 @@ COPY applications/java/target/kafka-monitoring-1.0-SNAPSHOT.jar app.jar
 #   -v ./applications/java/newrelic/newrelic.yml:/app/newrelic.yml:ro
 # and set JAVA_OPTS=-javaagent:/app/newrelic.jar -Dnewrelic.config.file=/app/newrelic.yml
 
-# Non-root user provided by the base image
-USER 185
+# Run as non-root
+RUN useradd -m -u 1001 appuser
+USER 1001
 
 # MAIN_CLASS is set by the compose service
 ENV MAIN_CLASS="com.example.kafka.Producer"

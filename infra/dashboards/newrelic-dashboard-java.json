@@ -1,0 +1,464 @@
+{
+  "name": "Java Kafka Application Monitoring",
+  "description": "Producer/consumer throughput, errors, latency, lag, rebalances, and JVM health for the Java kafka-clients example. Covers OTel SDK metrics (kafka_app.*) and JVM metrics via the New Relic Java agent or OTel JMX receiver.",
+  "permissions": "PUBLIC_READ_WRITE",
+  "pages": [
+    {
+      "name": "Overview",
+      "description": null,
+      "widgets": [
+        {
+          "title": "Java Kafka Monitoring",
+          "layout": { "column": 1, "row": 1, "width": 2, "height": 5 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.markdown" },
+          "rawConfiguration": {
+            "text": "# Java Kafka App\n\n**Metrics sources**\n\n`kafka_app.*` — OTel SDK (built-in)\n\n`jvm.*` — OTel JMX receiver\n\n`newrelic.timeslice` — NR Java agent (APM)\n\n---\n\n**Key signals**\n- Delivery errors → Producer page\n- Consumer lag → Consumer page\n- Heap / GC → JVM page"
+          }
+        },
+        {
+          "title": "Producer Delivery Errors",
+          "layout": { "column": 3, "row": 1, "width": 2, "height": 2 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.billboard" },
+          "rawConfiguration": {
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT sum(kafka_app.producer_delivery_errors) AS 'Delivery Errors'" }],
+            "thresholds": [{ "alertSeverity": "CRITICAL", "value": 1 }]
+          }
+        },
+        {
+          "title": "Consumer Processing Errors",
+          "layout": { "column": 5, "row": 1, "width": 2, "height": 2 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.billboard" },
+          "rawConfiguration": {
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT sum(kafka_app.consumer_processing_errors) AS 'Processing Errors'" }],
+            "thresholds": [{ "alertSeverity": "CRITICAL", "value": 1 }]
+          }
+        },
+        {
+          "title": "Max Consumer Lag",
+          "layout": { "column": 7, "row": 1, "width": 2, "height": 2 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.billboard" },
+          "rawConfiguration": {
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT max(kafka_app.consumer_lag_records) AS 'Max Lag (records)'" }],
+            "thresholds": [
+              { "alertSeverity": "WARNING", "value": 100 },
+              { "alertSeverity": "CRITICAL", "value": 1000 }
+            ]
+          }
+        },
+        {
+          "title": "Consumer Rebalances",
+          "layout": { "column": 9, "row": 1, "width": 2, "height": 2 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.billboard" },
+          "rawConfiguration": {
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT sum(kafka_app.consumer_rebalances) AS 'Rebalances'" }],
+            "thresholds": [{ "alertSeverity": "WARNING", "value": 5 }]
+          }
+        },
+        {
+          "title": "Services Active",
+          "layout": { "column": 11, "row": 1, "width": 2, "height": 2 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.billboard" },
+          "rawConfiguration": {
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT uniqueCount(service.name) AS 'Active Services' WHERE metricName LIKE 'kafka_app.%'" }]
+          }
+        },
+        {
+          "title": "Producer Delivery Latency p95 (ms)",
+          "layout": { "column": 3, "row": 3, "width": 2, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.billboard" },
+          "rawConfiguration": {
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT percentile(kafka_app.producer_delivery_latency_ms, 95) AS 'p95 Latency (ms)'" }],
+            "thresholds": [
+              { "alertSeverity": "WARNING", "value": 500 },
+              { "alertSeverity": "CRITICAL", "value": 2000 }
+            ]
+          }
+        },
+        {
+          "title": "Consumer Processing Latency p95 (ms)",
+          "layout": { "column": 5, "row": 3, "width": 2, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.billboard" },
+          "rawConfiguration": {
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT percentile(kafka_app.consumer_processing_latency_ms, 95) AS 'p95 Latency (ms)'" }],
+            "thresholds": [
+              { "alertSeverity": "WARNING", "value": 500 },
+              { "alertSeverity": "CRITICAL", "value": 2000 }
+            ]
+          }
+        },
+        {
+          "title": "Produced vs Consumed (records/min)",
+          "layout": { "column": 7, "row": 3, "width": 6, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "legend": { "enabled": true },
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT rate(sum(kafka_app.produced_records), 1 minute) AS 'Produced/min', rate(sum(kafka_app.consumed_records), 1 minute) AS 'Consumed/min' FACET service.name TIMESERIES" }],
+            "yAxisLeft": { "zero": true }
+          }
+        },
+        {
+          "title": "Consumer Lag by Topic & Group",
+          "layout": { "column": 1, "row": 6, "width": 6, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "legend": { "enabled": true },
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT max(kafka_app.consumer_lag_records) AS 'Lag' FACET topic, `consumer.group` TIMESERIES" }],
+            "yAxisLeft": { "zero": true }
+          }
+        },
+        {
+          "title": "Error Rate Over Time",
+          "layout": { "column": 7, "row": 6, "width": 6, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "legend": { "enabled": true },
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT rate(sum(kafka_app.producer_delivery_errors), 1 minute) AS 'Delivery Errors/min', rate(sum(kafka_app.consumer_processing_errors), 1 minute) AS 'Processing Errors/min' FACET service.name TIMESERIES" }],
+            "yAxisLeft": { "zero": true }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Producer",
+      "description": null,
+      "widgets": [
+        {
+          "title": "Records Produced (per minute)",
+          "layout": { "column": 1, "row": 1, "width": 4, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "legend": { "enabled": true },
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT rate(sum(kafka_app.produced_records), 1 minute) AS 'Records/min' FACET service.name, topic TIMESERIES" }],
+            "yAxisLeft": { "zero": true }
+          }
+        },
+        {
+          "title": "Delivery Errors (per minute)",
+          "layout": { "column": 5, "row": 1, "width": 4, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "legend": { "enabled": true },
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT rate(sum(kafka_app.producer_delivery_errors), 1 minute) AS 'Errors/min' FACET service.name TIMESERIES" }],
+            "yAxisLeft": { "zero": true }
+          }
+        },
+        {
+          "title": "Error Ratio (%)",
+          "layout": { "column": 9, "row": 1, "width": 4, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "legend": { "enabled": true },
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT sum(kafka_app.producer_delivery_errors) / sum(kafka_app.produced_records) * 100 AS 'Error %' FACET service.name TIMESERIES" }],
+            "yAxisLeft": { "zero": true }
+          }
+        },
+        {
+          "title": "Delivery Latency — Avg, p95, p99 (ms)",
+          "layout": { "column": 1, "row": 4, "width": 6, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "legend": { "enabled": true },
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT average(kafka_app.producer_delivery_latency_ms) AS 'Avg', percentile(kafka_app.producer_delivery_latency_ms, 95) AS 'p95', percentile(kafka_app.producer_delivery_latency_ms, 99) AS 'p99' FACET service.name TIMESERIES" }],
+            "yAxisLeft": { "zero": true },
+            "units": { "unit": "MS" }
+          }
+        },
+        {
+          "title": "Delivery Latency Distribution",
+          "layout": { "column": 7, "row": 4, "width": 6, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.histogram" },
+          "rawConfiguration": {
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT histogram(kafka_app.producer_delivery_latency_ms, 50, 20) FACET service.name" }]
+          }
+        },
+        {
+          "title": "Total Produced Records",
+          "layout": { "column": 1, "row": 7, "width": 3, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.billboard" },
+          "rawConfiguration": {
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT sum(kafka_app.produced_records) AS 'Total Produced'" }]
+          }
+        },
+        {
+          "title": "Total Delivery Errors",
+          "layout": { "column": 4, "row": 7, "width": 3, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.billboard" },
+          "rawConfiguration": {
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT sum(kafka_app.producer_delivery_errors) AS 'Delivery Errors'" }],
+            "thresholds": [{ "alertSeverity": "CRITICAL", "value": 1 }]
+          }
+        },
+        {
+          "title": "Throughput by Topic",
+          "layout": { "column": 7, "row": 7, "width": 6, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.pie" },
+          "rawConfiguration": {
+            "legend": { "enabled": true },
+            "facet": { "showOtherSeries": false },
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT sum(kafka_app.produced_records) FACET topic LIMIT MAX" }]
+          }
+        },
+        {
+          "title": "Producer Summary by Service",
+          "layout": { "column": 1, "row": 10, "width": 12, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.table" },
+          "rawConfiguration": {
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT sum(kafka_app.produced_records) AS 'Records', sum(kafka_app.producer_delivery_errors) AS 'Errors', average(kafka_app.producer_delivery_latency_ms) AS 'Avg Latency (ms)', percentile(kafka_app.producer_delivery_latency_ms, 95) AS 'p95 (ms)', percentile(kafka_app.producer_delivery_latency_ms, 99) AS 'p99 (ms)' FACET service.name, topic LIMIT MAX" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consumer",
+      "description": null,
+      "widgets": [
+        {
+          "title": "Records Consumed (per minute)",
+          "layout": { "column": 1, "row": 1, "width": 4, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "legend": { "enabled": true },
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT rate(sum(kafka_app.consumed_records), 1 minute) AS 'Records/min' FACET service.name, topic TIMESERIES" }],
+            "yAxisLeft": { "zero": true }
+          }
+        },
+        {
+          "title": "Processing Errors (per minute)",
+          "layout": { "column": 5, "row": 1, "width": 4, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "legend": { "enabled": true },
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT rate(sum(kafka_app.consumer_processing_errors), 1 minute) AS 'Errors/min' FACET service.name TIMESERIES" }],
+            "yAxisLeft": { "zero": true }
+          }
+        },
+        {
+          "title": "Consumer Rebalances Over Time",
+          "layout": { "column": 9, "row": 1, "width": 4, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "legend": { "enabled": true },
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT sum(kafka_app.consumer_rebalances) AS 'Rebalances' FACET service.name TIMESERIES" }],
+            "yAxisLeft": { "zero": true }
+          }
+        },
+        {
+          "title": "Consumer Lag Over Time (by Group & Topic)",
+          "layout": { "column": 1, "row": 4, "width": 12, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "legend": { "enabled": true },
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT max(kafka_app.consumer_lag_records) AS 'Lag (records)' FACET `consumer.group`, topic TIMESERIES" }],
+            "yAxisLeft": { "zero": true, "scale": "log" }
+          }
+        },
+        {
+          "title": "Processing Latency — Avg, p95, p99 (ms)",
+          "layout": { "column": 1, "row": 7, "width": 6, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "legend": { "enabled": true },
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT average(kafka_app.consumer_processing_latency_ms) AS 'Avg', percentile(kafka_app.consumer_processing_latency_ms, 95) AS 'p95', percentile(kafka_app.consumer_processing_latency_ms, 99) AS 'p99' FACET service.name TIMESERIES" }],
+            "yAxisLeft": { "zero": true },
+            "units": { "unit": "MS" }
+          }
+        },
+        {
+          "title": "Processing Latency Distribution",
+          "layout": { "column": 7, "row": 7, "width": 6, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.histogram" },
+          "rawConfiguration": {
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT histogram(kafka_app.consumer_processing_latency_ms, 50, 20) FACET service.name" }]
+          }
+        },
+        {
+          "title": "Lag Trend — Stuck / Recovering (current vs avg)",
+          "layout": { "column": 1, "row": 10, "width": 12, "height": 4 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.table" },
+          "rawConfiguration": {
+            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT latest(kafka_app.consumer_lag_records) AS 'Current Lag', average(kafka_app.consumer_lag_records) AS 'Avg Lag', latest(kafka_app.consumer_lag_records) - average(kafka_app.consumer_lag_records) AS 'Trend (+ = stuck/growing)' FACET `consumer.group`, topic, service.name LIMIT MAX" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "JVM",
+      "description": null,
+      "widgets": [
+        {
+          "title": "Heap Used (bytes)",
+          "layout": { "column": 1, "row": 1, "width": 4, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "legend": { "enabled": true },
+            "nrqlQueries": [
+              {
+                "accountId": 0,
+                "query": "FROM Metric SELECT average(jvm.memory.heap.used) AS 'Heap Used' FACET service.name TIMESERIES"
+              }
+            ],
+            "units": { "unit": "BYTES" },
+            "yAxisLeft": { "zero": true }
+          }
+        },
+        {
+          "title": "Heap Utilisation (%)",
+          "layout": { "column": 5, "row": 1, "width": 4, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "legend": { "enabled": true },
+            "nrqlQueries": [
+              {
+                "accountId": 0,
+                "query": "FROM Metric SELECT average(jvm.memory.heap.used) / average(jvm.memory.heap.max) * 100 AS 'Heap %' FACET service.name TIMESERIES"
+              }
+            ],
+            "yAxisLeft": { "zero": true }
+          }
+        },
+        {
+          "title": "Non-Heap Memory Used (bytes)",
+          "layout": { "column": 9, "row": 1, "width": 4, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "legend": { "enabled": true },
+            "nrqlQueries": [
+              {
+                "accountId": 0,
+                "query": "FROM Metric SELECT average(jvm.memory.nonheap.used) AS 'Non-Heap Used' FACET service.name TIMESERIES"
+              }
+            ],
+            "units": { "unit": "BYTES" },
+            "yAxisLeft": { "zero": true }
+          }
+        },
+        {
+          "title": "GC Time (ms/min)",
+          "layout": { "column": 1, "row": 4, "width": 4, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "legend": { "enabled": true },
+            "nrqlQueries": [
+              {
+                "accountId": 0,
+                "query": "FROM Metric SELECT rate(sum(jvm.gc.duration), 1 minute) AS 'GC ms/min' FACET service.name, jvm.gc.name TIMESERIES"
+              }
+            ],
+            "yAxisLeft": { "zero": true },
+            "units": { "unit": "MS" }
+          }
+        },
+        {
+          "title": "GC Collections (per minute)",
+          "layout": { "column": 5, "row": 4, "width": 4, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "legend": { "enabled": true },
+            "nrqlQueries": [
+              {
+                "accountId": 0,
+                "query": "FROM Metric SELECT rate(sum(jvm.gc.collections), 1 minute) AS 'GC/min' FACET service.name, jvm.gc.name TIMESERIES"
+              }
+            ],
+            "yAxisLeft": { "zero": true }
+          }
+        },
+        {
+          "title": "Live Threads",
+          "layout": { "column": 9, "row": 4, "width": 4, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "legend": { "enabled": true },
+            "nrqlQueries": [
+              {
+                "accountId": 0,
+                "query": "FROM Metric SELECT average(jvm.threads.count) AS 'Threads' FACET service.name, state TIMESERIES"
+              }
+            ],
+            "yAxisLeft": { "zero": true }
+          }
+        },
+        {
+          "title": "Memory Pools",
+          "layout": { "column": 1, "row": 7, "width": 6, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "legend": { "enabled": true },
+            "nrqlQueries": [
+              {
+                "accountId": 0,
+                "query": "FROM Metric SELECT average(jvm.memory.pool.used) AS 'Pool Used' FACET service.name, pool TIMESERIES"
+              }
+            ],
+            "units": { "unit": "BYTES" },
+            "yAxisLeft": { "zero": true }
+          }
+        },
+        {
+          "title": "CPU Process Usage (%)",
+          "layout": { "column": 7, "row": 7, "width": 6, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.line" },
+          "rawConfiguration": {
+            "legend": { "enabled": true },
+            "nrqlQueries": [
+              {
+                "accountId": 0,
+                "query": "FROM Metric SELECT average(jvm.cpu.recent_utilization) * 100 AS 'CPU %' FACET service.name TIMESERIES"
+              }
+            ],
+            "yAxisLeft": { "zero": true }
+          }
+        },
+        {
+          "title": "JVM Snapshot by Service",
+          "layout": { "column": 1, "row": 10, "width": 12, "height": 3 },
+          "linkedEntityGuids": null,
+          "visualization": { "id": "viz.table" },
+          "rawConfiguration": {
+            "nrqlQueries": [
+              {
+                "accountId": 0,
+                "query": "FROM Metric SELECT latest(jvm.memory.heap.used) AS 'Heap Used', latest(jvm.memory.heap.max) AS 'Heap Max', latest(jvm.memory.heap.used) / latest(jvm.memory.heap.max) * 100 AS 'Heap %', latest(jvm.threads.count) AS 'Threads', latest(jvm.cpu.recent_utilization) * 100 AS 'CPU %' FACET service.name LIMIT MAX"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

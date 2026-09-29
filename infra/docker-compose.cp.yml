@@ -40,6 +40,8 @@ services:
       # Attach JMX exporter on port 1234 — rules from confluentinc/jmx-monitoring-stacks
       EXTRA_ARGS: >-
         -javaagent:/usr/share/jmx-exporter/jmx_prometheus_javaagent-1.0.1.jar=1234:/usr/share/jmx-exporter/kafka_broker.yml
+    networks:
+      - kafka-monitoring
 
   # ── OTel Collector — OTLP push metrics + Kafka broker log ingestion ──────────
   otel-collector:
@@ -57,6 +59,8 @@ services:
     ports:
       - "4317:4317"
       - "4318:4318"
+    networks:
+      - kafka-monitoring
 
   # ── nri-prometheus — scrapes Kafka JMX endpoint → New Relic directly ─────────
   nri-prometheus:
@@ -69,6 +73,12 @@ services:
       - ./jmx-exporter/nri-prometheus-config.yaml:/config.yaml:ro
     depends_on:
       - kafka
+    networks:
+      - kafka-monitoring
+
+networks:
+  kafka-monitoring:
+    name: kafka-monitoring
 
   # ── Option A: nri-jmx — scrapes application JMX MBeans → New Relic directly ──
   # Uncomment to monitor the Java app's own JVM/JMX metrics (heap, GC, threads,

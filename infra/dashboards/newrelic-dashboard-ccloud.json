@@ -614,7 +614,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT max(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) AS 'Consumer Lag' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) FACET (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`), (`topic` or `confluent.kafka.server.metric.topic`) LIMIT MAX TIMESERIES"
+                "query": "SELECT max(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) AS 'Consumer Lag' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) and (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`) in ({{consumer_group_id}}) and (`topic` or `confluent.kafka.server.metric.topic`) in ({{topic}}) FACET (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`), (`topic` or `confluent.kafka.server.metric.topic`) LIMIT MAX TIMESERIES"
               }
             ],
             "platformOptions": {
@@ -648,7 +648,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT max(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) AS 'Consumer Lag' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) FACET (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`) LIMIT MAX TIMESERIES"
+                "query": "SELECT max(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) AS 'Consumer Lag' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) and (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`) in ({{consumer_group_id}}) and (`topic` or `confluent.kafka.server.metric.topic`) in ({{topic}}) FACET (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`) LIMIT MAX TIMESERIES"
               }
             ],
             "platformOptions": {
@@ -682,7 +682,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT max(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) AS 'Consumer Lag' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) FACET (`topic` or `confluent.kafka.server.metric.topic`) LIMIT MAX TIMESERIES"
+                "query": "SELECT max(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) AS 'Consumer Lag' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) and (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`) in ({{consumer_group_id}}) and (`topic` or `confluent.kafka.server.metric.topic`) in ({{topic}}) FACET (`topic` or `confluent.kafka.server.metric.topic`) LIMIT MAX TIMESERIES"
               }
             ],
             "platformOptions": {
@@ -713,7 +713,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT latest(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) AS 'Current Lag', average(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) AS 'Avg Lag', latest(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) - average(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) AS 'Trend (positive=stuck/growing, negative=recovering)' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) FACET (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`), (`topic` or `confluent.kafka.server.metric.topic`) LIMIT MAX"
+                "query": "SELECT latest(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) AS 'Current Lag', average(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) AS 'Avg Lag', latest(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) - average(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) AS 'Trend (positive=stuck/growing, negative=recovering)' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) and (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`) in ({{consumer_group_id}}) and (`topic` or `confluent.kafka.server.metric.topic`) in ({{topic}}) FACET (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`), (`topic` or `confluent.kafka.server.metric.topic`) LIMIT MAX"
               }
             ],
             "platformOptions": {
@@ -743,7 +743,7 @@
             "nrqlQueries": [
               {
                 "accountId": 0,
-                "query": "SELECT rate(sum(confluent_kafka_server_consumer_lag_offsets), 1 minute) AS 'Lag/min (legacy)', rate(sum(confluent.kafka.server.consumer_lag_offsets), 1 minute) AS 'Lag/min' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) FACET (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`), (`topic` or `confluent.kafka.server.metric.topic`) LIMIT MAX TIMESERIES"
+                "query": "SELECT rate(sum(confluent_kafka_server_consumer_lag_offsets), 1 minute) AS 'Lag/min (legacy)', rate(sum(confluent.kafka.server.consumer_lag_offsets), 1 minute) AS 'Lag/min' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) and (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`) in ({{consumer_group_id}}) and (`topic` or `confluent.kafka.server.metric.topic`) in ({{topic}}) FACET (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`), (`topic` or `confluent.kafka.server.metric.topic`) LIMIT MAX TIMESERIES"
               }
             ],
             "platformOptions": {
@@ -1790,6 +1790,50 @@
         "ignoreTimeRange": true
       },
       "title": "Compute Pool Id",
+      "type": "NRQL",
+      "isMultiSelection": true,
+      "replacementStrategy": "STRING"
+    },
+    {
+      "name": "consumer_group_id",
+      "items": null,
+      "defaultValues": [
+        {
+          "value": {
+            "string": "*"
+          }
+        }
+      ],
+      "nrqlQuery": {
+        "accountId": 0,
+        "query": "SELECT uniques(`consumer_group_id` OR `confluent.kafka.server.metric.consumer_group_id`) FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%')"
+      },
+      "options": {
+        "ignoreTimeRange": false
+      },
+      "title": "Consumer Group",
+      "type": "NRQL",
+      "isMultiSelection": true,
+      "replacementStrategy": "STRING"
+    },
+    {
+      "name": "topic",
+      "items": null,
+      "defaultValues": [
+        {
+          "value": {
+            "string": "*"
+          }
+        }
+      ],
+      "nrqlQuery": {
+        "accountId": 0,
+        "query": "SELECT uniques(`topic` OR `confluent.kafka.server.metric.topic`) FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%')"
+      },
+      "options": {
+        "ignoreTimeRange": false
+      },
+      "title": "Topic",
       "type": "NRQL",
       "isMultiSelection": true,
       "replacementStrategy": "STRING"
