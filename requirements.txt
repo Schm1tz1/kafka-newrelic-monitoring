@@ -4,3 +4,9 @@ opentelemetry-sdk>=1.36,<2
 opentelemetry-exporter-otlp-proto-grpc>=1.36,<2
 faststream[confluent,kafka]>=0.7,<0.8
 pydantic>=2,<3
+
+# Optional: New Relic Python agent (APM + auto-instrumentation of Kafka calls).
+# Install with: pip install newrelic
+# Run with:     newrelic-admin run-program python -m applications.python.confluent_kafka.consumer
+# Configure via newrelic.ini (generate with: newrelic-admin generate-config <LICENSE_KEY> newrelic.ini)
+# newrelic>=10,<11

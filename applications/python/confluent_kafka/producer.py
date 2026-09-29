@@ -5,8 +5,8 @@ import time
 
 from confluent_kafka import Producer
 
-from python.confluent_kafka.kafka_config import kafka_config
-from python.confluent_kafka.metrics import KafkaMetrics
+from applications.python.confluent_kafka.kafka_config import kafka_config
+from applications.python.confluent_kafka.metrics import KafkaMetrics
 
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"), format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger("kafka-producer")

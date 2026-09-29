@@ -13,7 +13,7 @@ from faststream.kafka.annotations import Consumer, KafkaMessage
 from faststream.security import BaseSecurity, SASLPlaintext
 from pydantic import BaseModel
 
-from python.confluent_kafka.metrics import KafkaMetrics
+from applications.python.confluent_kafka.metrics import KafkaMetrics
 
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"), format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger("faststream-aiokafka-consumer")

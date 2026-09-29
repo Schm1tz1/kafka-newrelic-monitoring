@@ -18,7 +18,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ENV_FILE="$SCRIPT_DIR/.env"
+ENV_FILE="$SCRIPT_DIR/../.env"
 
 # ── Load .env if present ──────────────────────────────────────────────────────
 if [[ -f "$ENV_FILE" ]]; then
@@ -92,10 +92,10 @@ Metrics pipelines:
   • Kafka broker JMX :1234        --> nri-prometheus  --> New Relic
 
 Next steps:
-  set -a; . ./.env; set +a
-  python -m python.confluent_kafka.consumer   # terminal 1
-  python -m python.confluent_kafka.producer   # terminal 2
+  set -a; . ../.env; set +a
+  python -m applications.python.confluent_kafka.consumer   # terminal 1
+  python -m applications.python.confluent_kafka.producer   # terminal 2
 
 To stop:
-  docker compose -f docker-compose.cp.yml down
+  docker compose -f infra/docker-compose.cp.yml down
 EOF

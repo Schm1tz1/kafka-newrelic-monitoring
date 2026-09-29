@@ -1,0 +1,44 @@
+# New Relic Java Agent configuration template.
+# Copy this file next to newrelic.jar and set NEW_RELIC_LICENSE_KEY in the environment,
+# or override any value via the corresponding environment variable (NEW_RELIC_APP_NAME, etc.).
+#
+# Run with:
+#   java -javaagent:applications/java/newrelic/newrelic.jar \
+#        -cp target/kafka-monitoring-1.0-SNAPSHOT.jar \
+#        com.example.kafka.Producer
+#
+# The agent auto-instruments:
+#   - Kafka producer/consumer calls (transaction tracing + spans)
+#   - JVM metrics (heap, GC, thread counts) — no code changes required
+#   - Distributed tracing across services that also run the agent
+
+common: &default_settings
+
+  # Your New Relic license key (ingest key, not User API key).
+  # Prefer setting via environment variable: NEW_RELIC_LICENSE_KEY
+  license_key: <%= ENV["NEW_RELIC_LICENSE_KEY"] %>
+
+  # Application name shown in the New Relic UI.
+  # Prefer setting via environment variable: NEW_RELIC_APP_NAME
+  app_name: java-kafka-app
+
+  # Log level for the agent's own log file (finest, finer, fine, info, warning, off).
+  log_level: info
+
+  # Distributed tracing — required for cross-service trace propagation.
+  distributed_tracing:
+    enabled: true
+
+  # JVM metrics (heap, GC, thread count, class loading) — enabled by default.
+  jmx:
+    enabled: true
+
+# Environment-specific overrides. The active environment is selected by the
+# NEW_RELIC_ENVIRONMENT variable (defaults to "production").
+production:
+  <<: *default_settings
+
+development:
+  <<: *default_settings
+  app_name: java-kafka-app (dev)
+  log_level: fine

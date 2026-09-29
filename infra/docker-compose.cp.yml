@@ -18,6 +18,9 @@ services:
     hostname: kafka
     ports:
       - "29092:29092"
+      # Expose broker JMX port for nri-jmx / OTel JMX receiver scraping from the host.
+      # The jmx_prometheus_javaagent already exposes Prometheus metrics on :1234.
+      - "1234:1234"
     volumes:
       - ./jmx-exporter:/usr/share/jmx-exporter:ro
     environment:
@@ -66,3 +69,43 @@ services:
       - ./jmx-exporter/nri-prometheus-config.yaml:/config.yaml:ro
     depends_on:
       - kafka
+
+  # ── Option A: nri-jmx — scrapes application JMX MBeans → New Relic directly ──
+  # Uncomment to monitor the Java app's own JVM/JMX metrics (heap, GC, threads,
+  # Kafka client MBeans) via New Relic's native JMX integration.
+  #
+  # Prerequisites:
+  #   1. Start the Java app with JMX enabled and no auth (local dev only):
+  #        java -Dcom.sun.management.jmxremote \
+  #             -Dcom.sun.management.jmxremote.port=9999 \
+  #             -Dcom.sun.management.jmxremote.authenticate=false \
+  #             -Dcom.sun.management.jmxremote.ssl=false \
+  #             -cp applications/java/target/kafka-monitoring-1.0-SNAPSHOT.jar \
+  #             com.example.kafka.Consumer
+  #   2. Uncomment the service below and run docker compose up.
+  #
+  # nri-jmx:
+  #   image: newrelic/nri-jmx:3.7.0
+  #   network_mode: host          # reach jmxremote port on the host
+  #   environment:
+  #     NRI_JMX_HOST: localhost
+  #     NRI_JMX_PORT: "9999"
+  #     NRIA_LICENSE_KEY: ${NEW_RELIC_LICENSE_KEY}
+  #   volumes:
+  #     - ./jmx-exporter/nri-jmx-app-config.yml:/etc/newrelic-infra/integrations.d/jmx-config.yml:ro
+
+  # ── Option B: New Relic Java Agent — attach to the Java app process ───────────
+  # No Docker service needed. Run the Java app directly with:
+  #
+  #   # 1. Download the agent once:
+  #   ./applications/java/newrelic/download-nr-agent.sh
+  #
+  #   # 2. Run with agent attached:
+  #   java -javaagent:applications/java/newrelic/newrelic.jar \
+  #        -Dnewrelic.config.file=applications/java/newrelic/newrelic.yml \
+  #        -cp applications/java/target/kafka-monitoring-1.0-SNAPSHOT.jar \
+  #        com.example.kafka.Consumer
+  #
+  # The agent auto-instruments Kafka client calls (producer.send, consumer.poll),
+  # adds JVM metrics (heap, GC, threads), and enables distributed tracing.
+  # See applications/java/newrelic/newrelic.yml for configuration.

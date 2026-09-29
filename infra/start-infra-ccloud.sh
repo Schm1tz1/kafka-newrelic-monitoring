@@ -158,10 +158,10 @@ The Collector is:
   • Listening on :4317 (gRPC) / :4318 (HTTP) for app OTLP push metrics
 
 Next steps — run producer/consumer against Confluent Cloud:
-  set -a; . ./.env; set +a
-  python -m python.confluent_kafka.consumer   # terminal 1
-  python -m python.confluent_kafka.producer   # terminal 2
+  set -a; . ../.env; set +a
+  python -m applications.python.confluent_kafka.consumer   # terminal 1
+  python -m applications.python.confluent_kafka.producer   # terminal 2
 
 To stop:
-  docker compose -f docker-compose.ccloud.yml down
+  docker compose -f infra/docker-compose.ccloud.yml down
 EOF

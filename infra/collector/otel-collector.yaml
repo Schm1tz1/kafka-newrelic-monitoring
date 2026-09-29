@@ -1,0 +1,102 @@
+# OTel Collector config for Confluent Platform (local Docker) mode.
+#
+# Active pipelines:
+#   metrics      — OTLP push from the Python/Java app → New Relic
+#   logs/kafka   — Kafka broker Docker JSON logs → New Relic
+#
+# Optional pipeline (commented out):
+#   metrics/jmx  — JMX MBean scraping from the Java app → New Relic
+#                  Requires the Java app to expose a jmxremote port (see below).
+#
+# The filelog receiver reads from the Docker JSON log driver files mounted at
+# /var/log/containers inside the Collector container (see docker-compose.cp.yml).
+
+receivers:
+
+  # ── App metrics (OTLP push from Python/Java app) ─────────────────────────────
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+  # ── Kafka broker logs (Docker JSON log driver) ───────────────────────────────
+  filelog/kafka:
+    include:
+      - /var/log/containers/kafka*.log
+    # Docker JSON log driver writes one JSON object per line:
+    # {"log":"...","stream":"stdout","time":"..."}
+    operators:
+      - type: json_parser
+        timestamp:
+          parse_from: attributes.time
+          layout: "%Y-%m-%dT%H:%M:%S.%fZ"
+      - type: move
+        from: attributes.log
+        to: body
+      - type: move
+        from: attributes.stream
+        to: attributes["log.iostream"]
+      - type: remove
+        field: attributes.time
+    resource:
+      service.name: kafka-broker
+      deployment.environment: ${env:DEPLOYMENT_ENVIRONMENT}
+
+  # ── Option: JMX receiver — scrape Java app JMX MBeans via OTel ───────────────
+  # Uncomment this receiver block and the metrics/jmx pipeline below to collect
+  # JVM and Kafka client MBean metrics from the running Java app.
+  #
+  # Prerequisites: start the Java app with jmxremote enabled (no auth, local dev):
+  #   java -Dcom.sun.management.jmxremote \
+  #        -Dcom.sun.management.jmxremote.port=9999 \
+  #        -Dcom.sun.management.jmxremote.authenticate=false \
+  #        -Dcom.sun.management.jmxremote.ssl=false \
+  #        -cp applications/java/target/kafka-monitoring-1.0-SNAPSHOT.jar \
+  #        com.example.kafka.Consumer
+  #
+  # jmx:
+  #   jar_path: /opt/opentelemetry-jmx-metrics.jar   # mounted into the collector container
+  #   endpoint: localhost:9999
+  #   target_system: jvm                              # built-in JVM metric set
+  #   collection_interval: 30s
+  #   resource_attributes:
+  #     service.name: java-kafka-app
+  #     deployment.environment: ${env:DEPLOYMENT_ENVIRONMENT}
+
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 256
+  batch:
+    send_batch_size: 1024
+    timeout: 10s
+
+exporters:
+  debug:
+    verbosity: basic
+  otlp_http/newrelic:
+    endpoint: ${env:NEW_RELIC_OTLP_ENDPOINT}
+    headers:
+      api-key: ${env:NEW_RELIC_LICENSE_KEY}
+
+service:
+  pipelines:
+    # Python/Java app OTLP push → New Relic
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [debug, otlp_http/newrelic]
+
+    # Kafka broker Docker logs → New Relic
+    logs/kafka:
+      receivers: [filelog/kafka]
+      processors: [memory_limiter, batch]
+      exporters: [debug, otlp_http/newrelic]
+
+    # Optional: Java app JMX metrics → New Relic (uncomment jmx receiver above first)
+    # metrics/jmx:
+    #   receivers: [jmx]
+    #   processors: [memory_limiter, batch]
+    #   exporters: [debug, otlp_http/newrelic]
