@@ -18,8 +18,8 @@ CLAUDE.md
 # Test data (may contain sensitive sampled records)
 testdata/
 
-# Generated collector config (cluster IDs expanded from CONFLUENT_CLUSTER_ID by start-infra-ccloud.sh)
-collector/otel-collector-ccloud.resolved.yaml
+# Generated collector configs (cluster IDs expanded from CONFLUENT_CLUSTER_ID by start-infra-ccloud.sh)
+infra/collector/*.resolved.yaml
 
 # New Relic Java agent jar (downloaded by applications/java/newrelic/download-nr-agent.sh)
 applications/java/newrelic/newrelic.jar

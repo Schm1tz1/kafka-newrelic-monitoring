@@ -1,15 +1,36 @@
 # docker-compose.ccloud.yml — Confluent Cloud mode.
 #
-# Self-contained: no local Kafka. Starts one service:
-#   otel-collector-ccloud — scrapes Confluent Metrics API (prometheus receiver)
-#                           and receives OTLP push metrics from the Python app,
-#                           both forwarded to New Relic.
+# Self-contained: no local Kafka. Always starts:
+#   otel-collector-ccloud — scrapes Confluent Metrics API + receives OTLP push metrics
 #
-# Usage (via start-infra-ccloud.sh, or manually):
-#   docker compose -f docker-compose.ccloud.yml up -d
+# Plan-B connector log ingestion (profile: connector-logs-cli)
+# ─────────────────────────────────────────────────────────────
+# Use when the cluster does NOT have access to the Confluent Cloud audit log
+# cluster. Two additional services run under the 'connector-logs-cli' profile:
+#
+#   connector-logs-cli        — runs confluent-connector-logs.sh, which calls
+#                               `confluent connect event consume` and writes
+#                               NDJSON to a shared named pipe at /fifo/connector-logs.fifo
+#
+#   connector-logs-collector  — a second OTel Collector instance that reads the
+#                               FIFO via filelog receiver and applies the same
+#                               transform/connector processor as the audit-cluster
+#                               path, producing identical attributes in New Relic.
+#
+# Usage:
+#   # Metrics + app OTLP only (no connector logs):
+#   docker compose -f infra/docker-compose.ccloud.yml up -d
+#
+#   # Add CLI-based connector log ingestion:
+#   docker compose -f infra/docker-compose.ccloud.yml \
+#     --profile connector-logs-cli up -d
 #
 # Required env vars: NEW_RELIC_LICENSE_KEY, NEW_RELIC_OTLP_ENDPOINT,
 #                    CONFLUENT_API_KEY, CONFLUENT_API_SECRET, CONFLUENT_CLUSTER_ID
+# Additional vars for connector-logs-cli profile:
+#   CONFLUENT_ENVIRONMENT_ID   — env-...
+#   CONFLUENT_CONNECTOR_ID     — lcc-...
+#
 # Note: do not start this directly with "docker compose up" — use start-infra-ccloud.sh
 # which generates collector/otel-collector-ccloud.resolved.yaml from the template first.
 
@@ -25,10 +46,12 @@ services:
       CONFLUENT_API_SECRET: ${CONFLUENT_API_SECRET:?Set CONFLUENT_API_SECRET before starting the Collector}
       # CONFLUENT_CLUSTER_ID is expanded into the collector config by start-infra-ccloud.sh;
       # the container does not need it as an env var (list expansion happens at config gen time).
-      # Audit log cluster (separate from the main cluster — see env.example)
-      CONFLUENT_AUDIT_BOOTSTRAP_SERVERS: ${CONFLUENT_AUDIT_BOOTSTRAP_SERVERS:?Set CONFLUENT_AUDIT_BOOTSTRAP_SERVERS before starting the Collector}
-      CONFLUENT_AUDIT_SASL_USERNAME: ${CONFLUENT_AUDIT_SASL_USERNAME:?Set CONFLUENT_AUDIT_SASL_USERNAME before starting the Collector}
-      CONFLUENT_AUDIT_SASL_PASSWORD: ${CONFLUENT_AUDIT_SASL_PASSWORD:?Set CONFLUENT_AUDIT_SASL_PASSWORD before starting the Collector}
+      # Audit log cluster — optional. When all three are set, start-infra-ccloud.sh
+      # enables the audit_logs and connector_logs pipelines in the resolved config.
+      # Leave blank to run metrics-only mode (no audit cluster access required).
+      CONFLUENT_AUDIT_BOOTSTRAP_SERVERS: ${CONFLUENT_AUDIT_BOOTSTRAP_SERVERS:-}
+      CONFLUENT_AUDIT_SASL_USERNAME: ${CONFLUENT_AUDIT_SASL_USERNAME:-}
+      CONFLUENT_AUDIT_SASL_PASSWORD: ${CONFLUENT_AUDIT_SASL_PASSWORD:-}
       # Optional — uncomment if you want to scrape Schema Registry or Connector metrics
       # and have uncommented the matching params blocks in collector/otel-collector-ccloud.yaml:
       # CONFLUENT_SCHEMA_REGISTRY_ID: ${CONFLUENT_SCHEMA_REGISTRY_ID:-}
@@ -42,6 +65,92 @@ services:
       - "4318:4318"
     networks:
       - kafka-monitoring
+
+  # ── Plan-B: CLI-based connector log ingestion ────────────────────────────────
+  # Profile: connector-logs-cli
+  # Requires: CONFLUENT_ENVIRONMENT_ID
+  # (plus the same CONFLUENT_API_KEY/SECRET and CONFLUENT_CLUSTER_ID as above)
+  #
+  # Three services work together:
+  #   connector-logs-init      — runs once as root, creates the FIFO with 0666
+  #                              permissions so both other containers can access it,
+  #                              then exits.
+  #   connector-logs-cli       — streams events from the Confluent CLI into the FIFO.
+  #   connector-logs-collector — OTel Collector reads the FIFO and ships to New Relic.
+  #
+  # A named volume (connector-logs-fifo) is shared by all three at /fifo.
+  # The init container creates /fifo/connector-logs.fifo with world-writable
+  # permissions before the other two start.
+
+  connector-logs-init:
+    image: busybox:latest
+    profiles: [connector-logs-cli]
+    # Create the FIFO with 0666 so the non-root CLI user can write to it
+    # and the OTel Collector user can read from it.
+    command: ["/bin/sh", "-c", "[ -p /fifo/connector-logs.fifo ] || mkfifo -m 0666 /fifo/connector-logs.fifo && echo 'FIFO ready at /fifo/connector-logs.fifo' && sleep infinity"]
+    volumes:
+      - connector-logs-fifo:/fifo
+    restart: "no"
+
+  connector-logs-cli:
+    image: confluentinc/confluent-cli:latest
+    profiles: [connector-logs-cli]
+    entrypoint: ["/bin/bash", "/scripts/confluent-connector-logs.sh"]
+    environment:
+      # Authentication — two options (the script picks whichever applies):
+      #
+      # Option 1 — mount your existing host credentials (no password in env):
+      #   The script detects /root/.confluent/config.json and skips login entirely.
+      #   Ensure you have run `confluent login --save` on the host first.
+      #
+      # Option 2 — supply credentials here for `confluent login --save`:
+      #   The script logs in non-interactively and saves the token for auto-refresh.
+      #   Leave blank when using Option 1.
+      CONFLUENT_CLOUD_EMAIL: ${CONFLUENT_CLOUD_EMAIL:-}
+      CONFLUENT_CLOUD_PASSWORD: ${CONFLUENT_CLOUD_PASSWORD:-}
+      CONFLUENT_CLUSTER_ID: ${CONFLUENT_CLUSTER_ID:?Set CONFLUENT_CLUSTER_ID}
+      CONFLUENT_ENVIRONMENT_ID: ${CONFLUENT_ENVIRONMENT_ID:?Set CONFLUENT_ENVIRONMENT_ID (env-...) for connector-logs-cli profile}
+      # * = auto-discover all connectors on the cluster (default).
+      # Set to a comma-separated list to restrict to specific connectors: lcc-a,lcc-b
+      CONFLUENT_CONNECTOR_IDS: ${CONFLUENT_CONNECTOR_IDS:-*}
+      CONNECTOR_LOGS_FIFO: /fifo/connector-logs.fifo
+      CONNECTOR_POLL_SECS: ${CONNECTOR_POLL_SECS:-60}
+      CONNECTOR_LOG_LEVEL: ${CONNECTOR_LOG_LEVEL:-ERROR|WARN|INFO}
+      CONNECTOR_REDISCOVER_SECS: ${CONNECTOR_REDISCOVER_SECS:-300}
+    volumes:
+      - ./scripts/confluent-connector-logs.sh:/scripts/confluent-connector-logs.sh:ro
+      - connector-logs-fifo:/fifo
+      # Optional: mount your host Confluent CLI credentials so the container
+      # starts already authenticated — no password needed in the environment.
+      # Run `confluent login --save` on the host first, then uncomment:
+      # - ${HOME}/.confluent/config.json:/home/confluent/.confluent/config.json:ro
+    depends_on:
+      connector-logs-init:
+        condition: service_started
+    restart: on-failure
+
+  connector-logs-collector:
+    image: otel/opentelemetry-collector-contrib:0.160.0
+    profiles: [connector-logs-cli]
+    command: ["--config=/etc/otelcol-contrib/otel-collector.yaml"]
+    environment:
+      NEW_RELIC_LICENSE_KEY: ${NEW_RELIC_LICENSE_KEY:?Set NEW_RELIC_LICENSE_KEY}
+      NEW_RELIC_OTLP_ENDPOINT: ${NEW_RELIC_OTLP_ENDPOINT:-https://otlp.eu01.nr-data.net}
+    volumes:
+      # Same resolved config as the main collector — the CLI_CONNECTOR_LOGS block
+      # is included by start-infra-ccloud.sh when CONFLUENT_ENVIRONMENT_ID is set.
+      - ./collector/otel-collector-ccloud.resolved.yaml:/etc/otelcol-contrib/otel-collector.yaml:ro
+      - connector-logs-fifo:/fifo
+    depends_on:
+      connector-logs-init:
+        condition: service_started
+    restart: on-failure
+
+volumes:
+  # Named volume shared between connector-logs-init, connector-logs-cli, and
+  # connector-logs-collector. The init container creates the FIFO inside it
+  # with 0666 permissions on startup.
+  connector-logs-fifo:
 
 networks:
   kafka-monitoring:
