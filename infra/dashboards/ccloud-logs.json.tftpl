@@ -1,5 +1,6 @@
 {
   "name": "Confluent Cloud Logs",
+  "permissions": "PUBLIC_READ_ONLY",
   "description": null,
   "pages": [
     {
@@ -21,7 +22,7 @@
           "rawConfiguration": {
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT count(*) AS 'Failed Operations' FROM Log WHERE confluent.log.source = 'confluent-audit' AND data.result.status = 'FAILURE' AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all')"
               }
             ],
@@ -51,7 +52,7 @@
           "rawConfiguration": {
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT count(*) AS 'SR Authz Denied' FROM Log WHERE confluent.log.source = 'confluent-audit' AND data.authorizationInfo.result = 'DENY' AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all')"
               }
             ],
@@ -81,7 +82,7 @@
           "rawConfiguration": {
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT count(*) AS 'RBAC Denied' FROM Log WHERE confluent.log.source = 'confluent-audit' AND data.authorizationInfo.granted = 'False' AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all')"
               }
             ],
@@ -111,7 +112,7 @@
           "rawConfiguration": {
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT count(*) AS 'Token Errors' FROM Log WHERE confluent.log.source = 'confluent-audit' AND data.authenticationInfo.errorMessage IS NOT NULL AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all')"
               }
             ],
@@ -143,7 +144,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT count(*) FROM Log WHERE confluent.log.source = 'confluent-audit' AND (data.authorizationInfo.result = 'DENY' OR data.authorizationInfo.granted = 'False' OR data.authenticationInfo.errorMessage IS NOT NULL) AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all') TIMESERIES AUTO FACET cases(WHERE data.authorizationInfo.result = 'DENY' AS 'AuthZ DENY', WHERE data.authorizationInfo.granted = 'False' AS 'RBAC Denied', WHERE data.authenticationInfo.errorMessage IS NOT NULL AS 'Token Error') LIMIT 3"
               }
             ],
@@ -172,7 +173,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT count(*) FROM Log WHERE confluent.log.source = 'confluent-audit' AND (data.result.status = {{result_status}} OR {{result_status}} = 'all') AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all') TIMESERIES AUTO FACET type LIMIT 20"
               }
             ],
@@ -198,7 +199,7 @@
           "rawConfiguration": {
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT timestamp, type, `data.methodName`, `data.result.status`, `data.result.data.errorType`, `data.result.data.message`, `data.authenticationInfo.principal`, `data.authenticationInfo.errorMessage`, `data.authorizationInfo.granted`, `data.authorizationInfo.result`, `data.authorizationInfo.operation`, `data.authorizationInfo.resourceType`, source FROM Log WHERE confluent.log.source = 'confluent-audit' AND (data.result.status = {{result_status}} OR {{result_status}} = 'all') AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all') LIMIT 100"
               }
             ],
@@ -230,7 +231,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT count(*) FROM Log WHERE confluent.log.source = 'confluent-connector' AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.connector = {{crn_connector}} OR {{crn_connector}} = 'all') TIMESERIES AUTO FACET `data.context.connectorId` LIMIT 10"
               }
             ],
@@ -256,7 +257,7 @@
           "rawConfiguration": {
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT timestamp, `data.context.connectorId`, `data.summary.connectorErrorSummary.message`, `data.summary.connectorErrorSummary.rootCause`, source FROM Log WHERE confluent.log.source = 'confluent-connector' AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.connector = {{crn_connector}} OR {{crn_connector}} = 'all') LIMIT 100"
               }
             ],
@@ -280,7 +281,7 @@
         }
       ],
       "nrqlQuery": {
-        "accountId": 0,
+        "accountIds": [${account_id}],
         "query": "SELECT uniques(data.result.status) FROM Log WHERE confluent.log.source = 'confluent-audit' SINCE 1 week ago"
       },
       "options": {
@@ -302,7 +303,7 @@
         }
       ],
       "nrqlQuery": {
-        "accountId": 0,
+        "accountIds": [${account_id}],
         "query": "SELECT uniques(crn.environment) FROM Log WHERE confluent.log.source IN ('confluent-audit', 'confluent-connector') SINCE 1 week ago"
       },
       "options": {
@@ -324,7 +325,7 @@
         }
       ],
       "nrqlQuery": {
-        "accountId": 0,
+        "accountIds": [${account_id}],
         "query": "SELECT uniques(crn.cloud_cluster) FROM Log WHERE confluent.log.source = 'confluent-audit' SINCE 1 week ago"
       },
       "options": {
@@ -346,7 +347,7 @@
         }
       ],
       "nrqlQuery": {
-        "accountId": 0,
+        "accountIds": [${account_id}],
         "query": "SELECT uniques(crn.schema_registry) FROM Log WHERE confluent.log.source = 'confluent-audit' SINCE 1 week ago"
       },
       "options": {
@@ -368,7 +369,7 @@
         }
       ],
       "nrqlQuery": {
-        "accountId": 0,
+        "accountIds": [${account_id}],
         "query": "SELECT uniques(crn.connector) FROM Log WHERE confluent.log.source = 'confluent-connector' SINCE 1 week ago"
       },
       "options": {

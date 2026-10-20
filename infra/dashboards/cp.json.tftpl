@@ -1,7 +1,7 @@
 {
   "name": "Confluent Platform Overview",
   "description": null,
-  "permissions": "PUBLIC_READ_WRITE",
+  "permissions": "PUBLIC_READ_ONLY",
   "pages": [
     {
       "name": "Confluent Platform Overview",
@@ -41,7 +41,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT cardinality(zookeeper_status_quorumsize) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
             ],
@@ -78,7 +78,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(zookeeper_inmemorydatatree_nodecount) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
             ],
@@ -111,7 +111,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT (average(zookeeper_numaliveconnections) * cardinality(zookeeper_numaliveconnections)) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
             ],
@@ -144,7 +144,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT (average(zookeeper_inmemorydatatree_watchcount) * cardinality(zookeeper_inmemorydatatree_watchcount)) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
             ],
@@ -177,7 +177,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT (average(zookeeper_outstandingrequests) * cardinality(zookeeper_outstandingrequests)) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
             ],
@@ -227,7 +227,7 @@
             "nrqlQueries": [
               {
                 "accountIds": [
-                  0
+                  ${account_id}
                 ],
                 "query": "SELECT ifthen((latest(kafka_controller_kafkacontroller_activecontrollercount) > 0), latest(kafka_controller_kafkacontroller_activecontrollercount)) FROM Metric WHERE (getfield(kafka_controller_kafkacontroller_activecontrollercount, latest) > 0) SINCE 1 MINUTES AGO UNTIL NOW FACET targetName LIMIT 100"
               }
@@ -265,7 +265,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT cardinality(kafka_server_replicamanager_leadercount) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
             ],
@@ -303,7 +303,7 @@
             "nrqlQueries": [
               {
                 "accountIds": [
-                  0
+                  ${account_id}
                 ],
                 "query": "SELECT average(kafka_server_replicamanager_partitioncount) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
@@ -342,7 +342,7 @@
             "nrqlQueries": [
               {
                 "accountIds": [
-                  0
+                  ${account_id}
                 ],
                 "query": "SELECT average(kafka_server_replicamanager_underreplicatedpartitions) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
@@ -381,7 +381,7 @@
             "nrqlQueries": [
               {
                 "accountIds": [
-                  0
+                  ${account_id}
                 ],
                 "query": "SELECT average(kafka_cluster_partition_underminisr) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
@@ -420,7 +420,7 @@
             "nrqlQueries": [
               {
                 "accountIds": [
-                  0
+                  ${account_id}
                 ],
                 "query": "SELECT average(kafka_controller_kafkacontroller_offlinepartitionscount) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
@@ -474,7 +474,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT cardinality(kafka_schema_registry_registered_count) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW "
               }
             ],
@@ -507,7 +507,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT (average(kafka_schema_registry_registered_count) * cardinality(kafka_schema_registry_registered_count)) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
             ],
@@ -540,7 +540,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT (average(kafka_schema_registry_schemas_deleted) * cardinality(kafka_schema_registry_schemas_deleted)) as ''FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
             ],
@@ -589,7 +589,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT cardinality(kafka_connect_connect_worker_metrics_connector_count) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
             ],
@@ -622,7 +622,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT (average(kafka_connect_connect_worker_metrics_connector_total_task_count) * cardinality(kafka_connect_connect_worker_metrics_connector_total_task_count)) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
             ],
@@ -655,7 +655,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT (average(kafka_connect_connect_worker_metrics_connector_running_task_count) * cardinality(kafka_connect_connect_worker_metrics_connector_running_task_count)) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
             ],
@@ -688,7 +688,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT (average(kafka_connect_connect_worker_metrics_connector_paused_task_count) * cardinality(kafka_connect_connect_worker_metrics_connector_paused_task_count)) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
             ],
@@ -721,7 +721,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT (average(kafka_connect_connect_worker_metrics_connector_failed_task_count) * cardinality(kafka_connect_connect_worker_metrics_connector_failed_task_count)) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
             ],
@@ -754,7 +754,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT latest(kafka_connect_connect_worker_rebalance_metrics_time_since_last_rebalance_ms) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW LIMIT 100"
               }
             ],
@@ -807,7 +807,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT cardinality(ksql_ksql_engine_query_stats_num_active_queries) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
             ],
@@ -840,7 +840,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(ksql_ksql_engine_query_stats_num_active_queries) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
             ],
@@ -873,7 +873,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(ksql_ksql_engine_query_stats_running_queries) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
             ],
@@ -906,7 +906,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT (average(ksql_ksql_engine_query_stats_rebalancing_queries) * cardinality(ksql_ksql_engine_query_stats_rebalancing_queries)) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
             ],
@@ -939,7 +939,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(ksql_ksql_engine_query_stats_error_queries) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
             ],
@@ -972,7 +972,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT (average(ksql_ksql_engine_query_stats_not_running_queries) * cardinality(ksql_ksql_engine_query_stats_not_running_queries)) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
             ],
@@ -1011,7 +1011,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT ifthen((latest(kafka_controller_kafkacontroller_activecontrollercount) > 0), latest(kafka_controller_kafkacontroller_activecontrollercount)) FROM Metric WHERE (getfield(kafka_controller_kafkacontroller_activecontrollercount, latest) > 0) SINCE 1 MINUTES AGO UNTIL NOW FACET targetName LIMIT 100"
               }
             ],
@@ -1048,7 +1048,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT cardinality(kafka_server_replicamanager_leadercount) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
             ],
@@ -1085,7 +1085,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT (average(kafka_server_replicamanager_partitioncount) * cardinality(kafka_server_replicamanager_partitioncount)) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
             ],
@@ -1122,7 +1122,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT (average(kafka_server_replicamanager_underreplicatedpartitions) * cardinality(kafka_server_replicamanager_underreplicatedpartitions)) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
             ],
@@ -1159,7 +1159,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT (average(kafka_controller_kafkacontroller_offlinepartitionscount) * cardinality(kafka_controller_kafkacontroller_offlinepartitionscount)) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
             ],
@@ -1197,7 +1197,7 @@
             "nrqlQueries": [
               {
                 "accountIds": [
-                  0
+                  ${account_id}
                 ],
                 "query": "SELECT average(kafka_cluster_partition_underminisr) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
@@ -1236,7 +1236,7 @@
             "nrqlQueries": [
               {
                 "accountIds": [
-                  0
+                  ${account_id}
                 ],
                 "query": "SELECT average(kafka_controller_kafkacontroller_preferredreplicaimbalancecount) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
@@ -1270,7 +1270,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT (average(kafka_controller_controllerstats_uncleanleaderelectionspersec) * cardinality(kafka_controller_controllerstats_uncleanleaderelectionspersec)) as '' FROM Metric SINCE 1 MINUTES AGO UNTIL NOW"
               }
             ],
@@ -1307,7 +1307,7 @@
             "nrqlQueries": [
               {
                 "accountIds": [
-                  0
+                  ${account_id}
                 ],
                 "query": "SELECT latest(kafka_server_brokertopicmetrics_bytesinpersec),latest(kafka_server_brokertopicmetrics_bytesoutpersec) FROM Metric SINCE 30 minutes ago TIMESERIES "
               }
@@ -1342,7 +1342,7 @@
             "nrqlQueries": [
               {
                 "accountIds": [
-                  0
+                  ${account_id}
                 ],
                 "query": "SELECT latest(kafka_network_requestmetrics_requestspersec) FROM Metric SINCE 30 minutes ago TIMESERIES facet request"
               }
@@ -1373,7 +1373,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT latest(kafka_network_requestmetrics_errors_total) FROM Metric SINCE 30 minutes ago TIMESERIES "
               }
             ],
@@ -1406,7 +1406,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT (irate(process_cpu_seconds_total, 1 SECONDS) * 100) FROM Metric SINCE 60 MINUTES AGO UNTIL NOW LIMIT 100 TIMESERIES 300000 SLIDE BY 30000 where scrapedTargetName like 'kafka%' facet targetName"
               }
             ],
@@ -1439,11 +1439,11 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT (average(jvm_memory_bytes_used) * cardinality(jvm_memory_bytes_used)) FROM Metric SINCE 60 MINUTES AGO UNTIL NOW FACET dimensions(exclude: {'area'}) LIMIT 100 TIMESERIES 30000 where scrapedTargetName like 'kafka%'"
               },
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(jvm_memory_bytes_max) FROM Metric SINCE 60 MINUTES AGO UNTIL NOW FACET dimensions(exclude: {'area'}) LIMIT 100 TIMESERIES 30000 where scrapedTargetName like 'kafka%'"
               }
             ],
@@ -1476,7 +1476,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT latest(jvm_gc_collection_seconds_sum) FROM Metric SINCE 60 MINUTES AGO UNTIL NOW FACET dimensions() LIMIT 100 TIMESERIES 30000"
               }
             ],
@@ -1516,7 +1516,7 @@
             "nrqlQueries": [
               {
                 "accountIds": [
-                  0
+                  ${account_id}
                 ],
                 "query": "SELECT sum(kafka_server_brokertopicmetrics_messagesinpersec) FROM Metric SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName LIMIT 100 TIMESERIES 300000 SLIDE BY 30000"
               }
@@ -1551,7 +1551,7 @@
             "nrqlQueries": [
               {
                 "accountIds": [
-                  0
+                  ${account_id}
                 ],
                 "query": "SELECT rate(sum(kafka_server_brokertopicmetrics_bytesinpersec), 1 SECONDS) FROM Metric SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName LIMIT 100 TIMESERIES 300000 SLIDE BY 30000"
               }
@@ -1586,7 +1586,7 @@
             "nrqlQueries": [
               {
                 "accountIds": [
-                  0
+                  ${account_id}
                 ],
                 "query": "SELECT rate(sum(kafka_server_brokertopicmetrics_bytesoutpersec), 1 SECONDS) FROM Metric SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName LIMIT 100 TIMESERIES 300000 SLIDE BY 30000"
               }
@@ -1620,7 +1620,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT (1 - latest(kafka_network_socketserver_networkprocessoravgidlepercent)) FROM Metric SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName LIMIT 100 TIMESERIES 30000"
               }
             ],
@@ -1653,7 +1653,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT (1 - latest(kafka_server_kafkarequesthandlerpool_requesthandleravgidlepercent_total)) FROM Metric SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName LIMIT 100 TIMESERIES 30000"
               }
             ],
@@ -1692,7 +1692,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT latest(kafka_server_zookeeperclientmetrics_zookeeperrequestlatencyms) FROM Metric SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName  LIMIT 100 TIMESERIES 30000"
               }
             ],
@@ -1726,7 +1726,7 @@
             "nrqlQueries": [
               {
                 "accountIds": [
-                  0
+                  ${account_id}
                 ],
                 "query": "SELECT latest(kafka_server_sessionexpirelistener_zookeepersyncconnectspersec) FROM Metric SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName LIMIT 100 TIMESERIES 30000"
               }
@@ -1761,7 +1761,7 @@
             "nrqlQueries": [
               {
                 "accountIds": [
-                  0
+                  ${account_id}
                 ],
                 "query": "SELECT latest(kafka_server_sessionexpirelistener_zookeeperexpirespersec) FROM Metric SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName LIMIT 100 TIMESERIES 30000"
               }
@@ -1796,7 +1796,7 @@
             "nrqlQueries": [
               {
                 "accountIds": [
-                  0
+                  ${account_id}
                 ],
                 "query": "SELECT latest(kafka_server_sessionexpirelistener_zookeeperdisconnectspersec) FROM Metric SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName LIMIT 100 TIMESERIES 30000"
               }
@@ -1831,7 +1831,7 @@
             "nrqlQueries": [
               {
                 "accountIds": [
-                  0
+                  ${account_id}
                 ],
                 "query": "SELECT latest(kafka_server_sessionexpirelistener_zookeeperauthfailurespersec) FROM Metric SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName LIMIT 100 TIMESERIES 30000"
               }
@@ -1865,7 +1865,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT (average(kafka_log_log_size) * cardinality(kafka_log_log_size)) FROM Metric SINCE 60 MINUTES AGO UNTIL NOW TIMESERIES 30000 facet scrapedTargetName"
               }
             ],
@@ -1898,7 +1898,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT (average(kafka_log_log_size) * cardinality(kafka_log_log_size)) FROM Metric SINCE 60 MINUTES AGO UNTIL NOW FACET topic LIMIT 100 TIMESERIES 30000"
               }
             ],
@@ -1932,7 +1932,7 @@
             "nrqlQueries": [
               {
                 "accountIds": [
-                  0
+                  ${account_id}
                 ],
                 "query": "SELECT latest(kafka_server_replicamanager_isrshrinkspersec) FROM Metric SINCE 60 MINUTES AGO UNTIL NOW FACET dimensions() LIMIT 100 TIMESERIES 30000"
               }
@@ -1967,7 +1967,7 @@
             "nrqlQueries": [
               {
                 "accountIds": [
-                  0
+                  ${account_id}
                 ],
                 "query": "SELECT latest(kafka_server_replicamanager_isrexpandspersec) FROM Metric SINCE 60 MINUTES AGO UNTIL NOW FACET dimensions() LIMIT 100 TIMESERIES 30000"
               }
@@ -2007,7 +2007,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT latest(kafka_network_requestmetrics_requestqueuetimems) FROM Metric WHERE (request = 'Produce') SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName LIMIT 100 TIMESERIES 30000"
               }
             ],
@@ -2040,7 +2040,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT latest(kafka_network_requestmetrics_localtimems) FROM Metric WHERE (request = 'Produce') SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName LIMIT 100 TIMESERIES 30000"
               }
             ],
@@ -2073,7 +2073,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT latest(kafka_network_requestmetrics_remotetimems) FROM Metric WHERE (request = 'Produce') SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName LIMIT 100 TIMESERIES 30000"
               }
             ],
@@ -2106,7 +2106,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT latest(kafka_network_requestmetrics_responsequeuetimems) FROM Metric WHERE (request = 'Produce') SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName LIMIT 100 TIMESERIES 30000"
               }
             ],
@@ -2139,7 +2139,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT latest(kafka_network_requestmetrics_responsesendtimems) FROM Metric WHERE (request = 'Produce') SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName LIMIT 100 TIMESERIES 30000"
               }
             ],
@@ -2178,7 +2178,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT latest(kafka_network_requestmetrics_requestqueuetimems) FROM Metric WHERE (request = 'Fetch') SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName LIMIT 100 TIMESERIES 30000"
               }
             ],
@@ -2211,7 +2211,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT latest(kafka_network_requestmetrics_localtimems) FROM Metric WHERE (request = 'Fetch') SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName LIMIT 100 TIMESERIES 30000"
               }
             ],
@@ -2244,7 +2244,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT latest(kafka_network_requestmetrics_remotetimems) FROM Metric WHERE (request = 'Fetch') SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName LIMIT 100 TIMESERIES 30000"
               }
             ],
@@ -2277,7 +2277,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT latest(kafka_network_requestmetrics_responsequeuetimems) FROM Metric WHERE (request = 'Fetch') SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName LIMIT 100 TIMESERIES 30000"
               }
             ],
@@ -2310,7 +2310,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT latest(kafka_network_requestmetrics_responsesendtimems) FROM Metric WHERE (request = 'Fetch') SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName LIMIT 100 TIMESERIES 30000"
               }
             ],
@@ -2349,7 +2349,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT latest(kafka_network_requestmetrics_requestqueuetimems) FROM Metric WHERE (request = 'FetchFollower') SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName LIMIT 100 TIMESERIES 30000"
               }
             ],
@@ -2382,7 +2382,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT latest(kafka_network_requestmetrics_localtimems) FROM Metric WHERE (request = 'FetchFollower') SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName LIMIT 100 TIMESERIES 30000"
               }
             ],
@@ -2415,7 +2415,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT latest(kafka_network_requestmetrics_remotetimems) FROM Metric WHERE (request = 'FetchFollower') SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName LIMIT 100 TIMESERIES 30000"
               }
             ],
@@ -2448,7 +2448,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT latest(kafka_network_requestmetrics_responsequeuetimems) FROM Metric WHERE (request = 'FetchFollower') SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName LIMIT 100 TIMESERIES 30000"
               }
             ],
@@ -2481,7 +2481,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT latest(kafka_network_requestmetrics_responsesendtimems) FROM Metric WHERE (request = 'FetchFollower') SINCE 60 MINUTES AGO UNTIL NOW FACET scrapedTargetName LIMIT 100 TIMESERIES 30000"
               }
             ],

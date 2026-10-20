@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # start-infra-cp.sh — spin up local Confluent Platform Kafka + OpenTelemetry Collector
-# + nri-prometheus (JMX broker metrics), create the demo topic, and deploy the
-# New Relic dashboard.
+# + nri-prometheus (JMX broker metrics) and create the demo topic. Dashboards are
+# deployed manually afterwards (see the hints printed at the end).
 #
 # Metrics pipelines:
 #   • Python app  --OTLP/gRPC--> OTel Collector --OTLP/HTTP--> New Relic
@@ -69,20 +69,7 @@ docker compose -f "$SCRIPT_DIR/docker-compose.cp.yml" \
     --replication-factor 1
 echo "   Topic '${TOPIC}' is ready."
 
-# ── 5. Deploy New Relic dashboard ────────────────────────────────────────────
-DASHBOARD_FILE="$SCRIPT_DIR/dashboards/newrelic-dashboard-cp.json"
-if [[ -f "$DASHBOARD_FILE" ]] && command -v jq &>/dev/null \
-   && [[ -n "${NEW_RELIC_API_KEY:-}" ]] && [[ -n "${NEW_RELIC_ACCOUNT_ID:-}" ]]; then
-  echo "==> Deploying New Relic dashboard..."
-  "$SCRIPT_DIR/deploy_nr_dashboard.sh" "$DASHBOARD_FILE" && \
-    echo "   Dashboard deployed." || \
-    echo "   Dashboard deploy failed — check credentials, continuing anyway."
-else
-  echo "==> Skipping dashboard deploy (missing: jq, NEW_RELIC_API_KEY, NEW_RELIC_ACCOUNT_ID,"
-  echo "    or dashboards/newrelic-dashboard-python.json). Run deploy_nr_dashboard.sh manually later."
-fi
-
-# ── 6. Done ───────────────────────────────────────────────────────────────────
+# ── 5. Done ───────────────────────────────────────────────────────────────────
 cat <<EOF
 
 Infrastructure is up (Confluent Platform local mode).
@@ -90,6 +77,11 @@ Infrastructure is up (Confluent Platform local mode).
 Metrics pipelines:
   • Python app OTLP  :4317/:4318  --> OTel Collector --> New Relic
   • Kafka broker JMX :1234        --> nri-prometheus  --> New Relic
+
+Dashboards (not deployed automatically — pick one method, needs NEW_RELIC_API_KEY + NEW_RELIC_ACCOUNT_ID):
+  • Script:    ./infra/deploy_nr_dashboard.sh infra/dashboards/cp.json.tftpl
+  • Terraform: cd infra/terraform && cp terraform.tfvars.example terraform.tfvars   # once
+               export TF_VAR_api_key=\$NEW_RELIC_API_KEY && tofu init && tofu apply
 
 Next steps:
   set -a; . ../.env; set +a

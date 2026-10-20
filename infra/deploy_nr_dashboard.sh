@@ -5,11 +5,15 @@
 # If found, updates it in place (dashboardUpdate). If not, creates a new one
 # (dashboardCreate). Re-running the script never produces duplicates.
 #
-# When called with no arguments the script lists every JSON file in dashboards/
+# Dashboards are templates (dashboards/*.json.tftpl, shared with the Terraform setup in
+# terraform/). The script renders them to dashboards/generated/<name>.json by
+# substituting ${account_id}, then deploys the result.
+#
+# When called with no arguments the script lists every template in dashboards/
 # and prompts you to pick one. Pass a path directly to skip the prompt:
 #
 #   ./deploy_nr_dashboard.sh                              # interactive picker
-#   ./deploy_nr_dashboard.sh dashboards/newrelic-dashboard-python.json
+#   ./deploy_nr_dashboard.sh dashboards/python.json.tftpl
 #
 # Prerequisites:
 #   jq, NEW_RELIC_API_KEY (User API key, starts with NRAK-...), NEW_RELIC_ACCOUNT_ID
@@ -34,10 +38,10 @@ else
     exit 1
   fi
 
-  mapfile -t FILES < <(find "$DASHBOARDS_DIR" -maxdepth 1 -name "*.json" | sort)
+  mapfile -t FILES < <(find "$DASHBOARDS_DIR" -maxdepth 1 -name "*.json.tftpl" | sort)
 
   if [[ ${#FILES[@]} -eq 0 ]]; then
-    echo "ERROR: No JSON files found in $DASHBOARDS_DIR" >&2
+    echo "ERROR: No *.json.tftpl files found in $DASHBOARDS_DIR" >&2
     exit 1
   fi
 
@@ -59,6 +63,14 @@ else
 fi
 
 [[ -f "$DASHBOARD_FILE" ]] || { echo "ERROR: Dashboard file not found: $DASHBOARD_FILE" >&2; exit 1; }
+
+# ── Render template ───────────────────────────────────────────────────────────
+if [[ "$DASHBOARD_FILE" == *.tftpl ]]; then
+  mkdir -p "$DASHBOARDS_DIR/generated"
+  RENDERED="$DASHBOARDS_DIR/generated/$(basename "${DASHBOARD_FILE%.json.tftpl}").json"
+  sed "s/\${account_id}/${NEW_RELIC_ACCOUNT_ID:-0}/g" "$DASHBOARD_FILE" > "$RENDERED"
+  DASHBOARD_FILE="$RENDERED"
+fi
 
 # ── NerdGraph endpoint (US vs EU) ─────────────────────────────────────────────
 NERDGRAPH_URL="https://api.newrelic.com/graphql"

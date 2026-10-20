@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # start-infra-ccloud.sh — spin up the OTel Collector for Confluent Cloud, create the
-# demo topic on the remote cluster, and deploy the Confluent Cloud New Relic dashboard.
+# demo topic on the remote cluster. Dashboards are deployed manually afterwards.
 #
 # No local Kafka is started; the Python app connects directly to Confluent Cloud.
 # The Collector always runs:
@@ -21,7 +21,7 @@
 #   KAFKA_SASL_USERNAME         — Confluent Cloud Cluster API key
 #   KAFKA_SASL_PASSWORD         — Confluent Cloud Cluster API secret
 #
-# Required for dashboard deploy:
+# Required for the (manual) dashboard deploy:
 #   NEW_RELIC_API_KEY           — User API key (starts with NRAK-...)
 #   NEW_RELIC_ACCOUNT_ID        — Your New Relic account ID
 #
@@ -161,31 +161,18 @@ docker run --rm \
     --replication-factor 3
 echo "   Topic '${TOPIC}' is ready."
 
-# ── 5. Deploy New Relic dashboards ───────────────────────────────────────────
-if command -v jq &>/dev/null \
-   && [[ -n "${NEW_RELIC_API_KEY:-}" ]] && [[ -n "${NEW_RELIC_ACCOUNT_ID:-}" ]]; then
-  for DASHBOARD_FILE in \
-    "$SCRIPT_DIR/dashboards/newrelic-dashboard-ccloud.json" \
-    "$SCRIPT_DIR/dashboards/newrelic-dashboard-ccloud-logs.json"; do
-    if [[ -f "$DASHBOARD_FILE" ]]; then
-      echo "==> Deploying $(basename "$DASHBOARD_FILE")..."
-      "$SCRIPT_DIR/deploy_nr_dashboard.sh" "$DASHBOARD_FILE" && \
-        echo "   Deployed." || \
-        echo "   Deploy failed — check credentials, continuing anyway."
-    fi
-  done
-else
-  echo "==> Skipping dashboard deploy (missing: jq, NEW_RELIC_API_KEY, or NEW_RELIC_ACCOUNT_ID)."
-  echo "    Run deploy_nr_dashboard.sh manually later."
-fi
-
-# ── 6. Done ───────────────────────────────────────────────────────────────────
+# ── 5. Done ───────────────────────────────────────────────────────────────────
 echo ""
 echo "Infrastructure is up (Confluent Cloud mode)."
 echo ""
 echo "The Collector is:"
 echo "  • Scraping the Confluent Metrics API every 60 s → New Relic"
 echo "  • Listening on :4317 (gRPC) / :4318 (HTTP) for app OTLP push metrics"
+echo ""
+echo "Dashboards (not deployed automatically — pick one method, needs NEW_RELIC_API_KEY + NEW_RELIC_ACCOUNT_ID):"
+echo "  • Script:    ./infra/deploy_nr_dashboard.sh infra/dashboards/ccloud.json.tftpl   # and ccloud-logs.json.tftpl"
+echo "  • Terraform: cd infra/terraform && cp terraform.tfvars.example terraform.tfvars   # once"
+echo "               export TF_VAR_api_key=\$NEW_RELIC_API_KEY && tofu init && tofu apply"
 echo ""
 echo "Next steps — run producer/consumer against Confluent Cloud:"
 echo "  set -a; . ../.env; set +a"

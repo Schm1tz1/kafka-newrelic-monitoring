@@ -1,6 +1,6 @@
 # Kafka Monitoring with New Relic
 
-Runnable producer and consumer examples for monitoring Kafka applications and exporting metrics to New Relic via an OpenTelemetry Collector. The bundle covers Python (`confluent-kafka`, FastStream/confluent, FastStream/aiokafka) and Java (`kafka-clients`) and includes ready-to-import dashboards for both local Confluent Platform and Confluent Cloud.
+Runnable producer and consumer examples for monitoring Kafka applications and exporting metrics to New Relic via an OpenTelemetry Collector. The bundle covers Python (`confluent-kafka`, FastStream/confluent, FastStream/aiokafka) and Java (`kafka-clients`) and includes ready-to-deploy dashboards (via script or OpenTofu/Terraform) for both local Confluent Platform and Confluent Cloud.
 
 > See [MONITORING.md](MONITORING.md) for a full guide to all available monitoring options — OTel SDK, New Relic Java/Python agent, nri-jmx, and OTel JMX receiver.
 
@@ -22,7 +22,8 @@ applications/
 
 infra/
   collector/            OTel Collector configs
-  dashboards/           New Relic dashboard JSON files
+  dashboards/           New Relic dashboard templates (*.json.tftpl)
+  terraform/            OpenTofu/Terraform deploy of the same dashboards
   jmx-exporter/         JMX Prometheus agent + rules (Confluent Platform)
   docker-compose.ccloud.yml
   docker-compose.cp.yml
@@ -30,7 +31,7 @@ infra/
   start-infra-cp.sh
   stop-infra-ccloud.sh
   stop-infra-cp.sh
-  deploy_nr_dashboard.sh
+  deploy_nr_dashboard.sh, delete_nr_dashboards.sh
 
 env.example             Configuration template (copy to .env)
 requirements.txt        Python dependencies
@@ -120,7 +121,7 @@ For optional APM tracing and JVM metrics see [MONITORING.md](MONITORING.md) (das
 
 * Docker and Docker Compose
 * New Relic ingest key (`NEW_RELIC_LICENSE_KEY`)
-* `jq` (only needed for `infra/deploy_nr_dashboard.sh`)
+* Dashboards (optional, deployed manually): New Relic User API key (`NEW_RELIC_API_KEY`, `NRAK-...`) and `NEW_RELIC_ACCOUNT_ID`, plus either `jq` (for `infra/deploy_nr_dashboard.sh`) or OpenTofu/Terraform (`infra/terraform`)
 * **Host-only Python**: Python 3.9+, `pip install -r requirements.txt`
 * **Host-only Java**: Java 17+, Maven 3.8+
 
@@ -134,7 +135,7 @@ cp env.example .env
 set -a; . ./.env; set +a
 
 # 1. Start infrastructure (Kafka broker + OTel Collector + nri-prometheus)
-./infra/start-infra-cp.sh
+./infra/start-infra-cp.sh   # prints dashboard deploy options at the end (see Dashboards)
 
 # 2. Build application images (once, or after code changes)
 docker compose -f infra/docker-compose.apps.yml build
@@ -198,7 +199,7 @@ cp env.example .env
 # Fill in CONFLUENT_* and KAFKA_* variables in .env
 
 set -a; . ./.env; set +a
-./infra/start-infra-ccloud.sh
+./infra/start-infra-ccloud.sh   # prints dashboard deploy options at the end (see Dashboards)
 
 # Start apps (bootstrap server is the CCloud endpoint from .env)
 docker compose -f infra/docker-compose.ccloud.yml \
@@ -252,20 +253,36 @@ Attributes: `service.name`, `deployment.environment`, `client.id`, `topic`, `con
 
 ## Dashboards
 
-| File | Description |
+| Template | Description |
 |---|---|
-| `infra/dashboards/newrelic-dashboard-python.json` | Python app metrics (confluent-kafka, FastStream) |
-| `infra/dashboards/newrelic-dashboard-java.json` | Java app metrics + JVM health (OTel SDK + JMX) |
-| `infra/dashboards/newrelic-dashboard-cp.json` | Confluent Platform broker (JMX) |
-| `infra/dashboards/newrelic-dashboard-ccloud.json` | Confluent Cloud cluster + consumer lag |
-| `infra/dashboards/newrelic-dashboard-ccloud-logs.json` | Confluent Cloud audit + connector logs |
+| `infra/dashboards/python.json.tftpl` | Python app metrics (confluent-kafka, FastStream) |
+| `infra/dashboards/java.json.tftpl` | Java app metrics + JVM health (OTel SDK + JMX) |
+| `infra/dashboards/cp.json.tftpl` | Confluent Platform broker (JMX) |
+| `infra/dashboards/ccloud.json.tftpl` | Confluent Cloud cluster + consumer lag |
+| `infra/dashboards/ccloud-logs.json.tftpl` | Confluent Cloud audit + connector logs |
 
-Deploy via script (requires `NEW_RELIC_API_KEY` and `NEW_RELIC_ACCOUNT_ID` in `.env`):
+The templates are the single source for both deploy options; `${account_id}` is the only placeholder. Dashboards are **never deployed automatically** — `start-infra-cp.sh` / `start-infra-ccloud.sh` only print the two options below; run whichever you prefer.
+
+Deploy via script (requires `NEW_RELIC_API_KEY` and `NEW_RELIC_ACCOUNT_ID` in `.env`; renders to the gitignored
+`infra/dashboards/generated/`, idempotent create-or-update by name; optional `NEW_RELIC_TEAM_NAME` adds a team suffix/tag):
 
 ```bash
 ./infra/deploy_nr_dashboard.sh   # interactive picker
-./infra/deploy_nr_dashboard.sh infra/dashboards/newrelic-dashboard-ccloud.json
+./infra/deploy_nr_dashboard.sh infra/dashboards/ccloud.json.tftpl
+./infra/delete_nr_dashboards.sh   # delete the dashboards this bundle deploys (-y skips prompt)
+./infra/delete_nr_dashboards.sh -r "^Kafka .*"   # delete any dashboards whose name matches a regexp
 ```
+
+Or deploy all dashboards with OpenTofu/Terraform:
+
+```bash
+cd infra/terraform
+cp terraform.tfvars.example terraform.tfvars   # set account_id and region (US|EU)
+export TF_VAR_api_key=NRAK-...                 # keep the key out of tfvars
+tofu init && tofu apply
+```
+
+This deploys all five dashboards. `terraform.tfvars` and state files are gitignored; never commit them. To add a dashboard, drop a `*.json.tftpl` in `infra/dashboards/` and add its name to `local.dashboards` in `infra/terraform/main.tf`.
 
 ## Troubleshooting
 

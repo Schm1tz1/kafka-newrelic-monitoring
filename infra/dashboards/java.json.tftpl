@@ -1,7 +1,7 @@
 {
   "name": "Java Kafka Application Monitoring",
   "description": "Producer/consumer throughput, errors, latency, lag, rebalances, and JVM health for the Java kafka-clients example. Covers OTel SDK metrics (kafka_app.*) and JVM metrics via the New Relic Java agent or OTel JMX receiver.",
-  "permissions": "PUBLIC_READ_WRITE",
+  "permissions": "PUBLIC_READ_ONLY",
   "pages": [
     {
       "name": "Overview",
@@ -22,7 +22,7 @@
           "linkedEntityGuids": null,
           "visualization": { "id": "viz.billboard" },
           "rawConfiguration": {
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT sum(kafka_app.producer_delivery_errors) AS 'Delivery Errors'" }],
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT sum(kafka_app.producer_delivery_errors) AS 'Delivery Errors'" }],
             "thresholds": [{ "alertSeverity": "CRITICAL", "value": 1 }]
           }
         },
@@ -32,7 +32,7 @@
           "linkedEntityGuids": null,
           "visualization": { "id": "viz.billboard" },
           "rawConfiguration": {
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT sum(kafka_app.consumer_processing_errors) AS 'Processing Errors'" }],
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT sum(kafka_app.consumer_processing_errors) AS 'Processing Errors'" }],
             "thresholds": [{ "alertSeverity": "CRITICAL", "value": 1 }]
           }
         },
@@ -42,7 +42,7 @@
           "linkedEntityGuids": null,
           "visualization": { "id": "viz.billboard" },
           "rawConfiguration": {
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT max(kafka_app.consumer_lag_records) AS 'Max Lag (records)'" }],
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT max(kafka_app.consumer_lag_records) AS 'Max Lag (records)'" }],
             "thresholds": [
               { "alertSeverity": "WARNING", "value": 100 },
               { "alertSeverity": "CRITICAL", "value": 1000 }
@@ -55,7 +55,7 @@
           "linkedEntityGuids": null,
           "visualization": { "id": "viz.billboard" },
           "rawConfiguration": {
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT sum(kafka_app.consumer_rebalances) AS 'Rebalances'" }],
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT sum(kafka_app.consumer_rebalances) AS 'Rebalances'" }],
             "thresholds": [{ "alertSeverity": "WARNING", "value": 5 }]
           }
         },
@@ -65,7 +65,7 @@
           "linkedEntityGuids": null,
           "visualization": { "id": "viz.billboard" },
           "rawConfiguration": {
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT uniqueCount(service.name) AS 'Active Services' WHERE metricName LIKE 'kafka_app.%'" }]
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT uniqueCount(service.name) AS 'Active Services' WHERE metricName LIKE 'kafka_app.%'" }]
           }
         },
         {
@@ -74,7 +74,7 @@
           "linkedEntityGuids": null,
           "visualization": { "id": "viz.billboard" },
           "rawConfiguration": {
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT percentile(kafka_app.producer_delivery_latency_ms, 95) AS 'p95 Latency (ms)'" }],
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT percentile(kafka_app.producer_delivery_latency_ms, 95) AS 'p95 Latency (ms)'" }],
             "thresholds": [
               { "alertSeverity": "WARNING", "value": 500 },
               { "alertSeverity": "CRITICAL", "value": 2000 }
@@ -87,7 +87,7 @@
           "linkedEntityGuids": null,
           "visualization": { "id": "viz.billboard" },
           "rawConfiguration": {
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT percentile(kafka_app.consumer_processing_latency_ms, 95) AS 'p95 Latency (ms)'" }],
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT percentile(kafka_app.consumer_processing_latency_ms, 95) AS 'p95 Latency (ms)'" }],
             "thresholds": [
               { "alertSeverity": "WARNING", "value": 500 },
               { "alertSeverity": "CRITICAL", "value": 2000 }
@@ -101,7 +101,7 @@
           "visualization": { "id": "viz.line" },
           "rawConfiguration": {
             "legend": { "enabled": true },
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT rate(sum(kafka_app.produced_records), 1 minute) AS 'Produced/min', rate(sum(kafka_app.consumed_records), 1 minute) AS 'Consumed/min' FACET service.name TIMESERIES" }],
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT rate(sum(kafka_app.produced_records), 1 minute) AS 'Produced/min', rate(sum(kafka_app.consumed_records), 1 minute) AS 'Consumed/min' FACET service.name TIMESERIES" }],
             "yAxisLeft": { "zero": true }
           }
         },
@@ -112,7 +112,7 @@
           "visualization": { "id": "viz.line" },
           "rawConfiguration": {
             "legend": { "enabled": true },
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT max(kafka_app.consumer_lag_records) AS 'Lag' FACET topic, `consumer.group` TIMESERIES" }],
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT max(kafka_app.consumer_lag_records) AS 'Lag' FACET topic, `consumer.group` TIMESERIES" }],
             "yAxisLeft": { "zero": true }
           }
         },
@@ -123,7 +123,7 @@
           "visualization": { "id": "viz.line" },
           "rawConfiguration": {
             "legend": { "enabled": true },
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT rate(sum(kafka_app.producer_delivery_errors), 1 minute) AS 'Delivery Errors/min', rate(sum(kafka_app.consumer_processing_errors), 1 minute) AS 'Processing Errors/min' FACET service.name TIMESERIES" }],
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT rate(sum(kafka_app.producer_delivery_errors), 1 minute) AS 'Delivery Errors/min', rate(sum(kafka_app.consumer_processing_errors), 1 minute) AS 'Processing Errors/min' FACET service.name TIMESERIES" }],
             "yAxisLeft": { "zero": true }
           }
         }
@@ -140,7 +140,7 @@
           "visualization": { "id": "viz.line" },
           "rawConfiguration": {
             "legend": { "enabled": true },
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT rate(sum(kafka_app.produced_records), 1 minute) AS 'Records/min' FACET service.name, topic TIMESERIES" }],
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT rate(sum(kafka_app.produced_records), 1 minute) AS 'Records/min' FACET service.name, topic TIMESERIES" }],
             "yAxisLeft": { "zero": true }
           }
         },
@@ -151,7 +151,7 @@
           "visualization": { "id": "viz.line" },
           "rawConfiguration": {
             "legend": { "enabled": true },
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT rate(sum(kafka_app.producer_delivery_errors), 1 minute) AS 'Errors/min' FACET service.name TIMESERIES" }],
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT rate(sum(kafka_app.producer_delivery_errors), 1 minute) AS 'Errors/min' FACET service.name TIMESERIES" }],
             "yAxisLeft": { "zero": true }
           }
         },
@@ -162,7 +162,7 @@
           "visualization": { "id": "viz.line" },
           "rawConfiguration": {
             "legend": { "enabled": true },
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT sum(kafka_app.producer_delivery_errors) / sum(kafka_app.produced_records) * 100 AS 'Error %' FACET service.name TIMESERIES" }],
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT sum(kafka_app.producer_delivery_errors) / sum(kafka_app.produced_records) * 100 AS 'Error %' FACET service.name TIMESERIES" }],
             "yAxisLeft": { "zero": true }
           }
         },
@@ -173,7 +173,7 @@
           "visualization": { "id": "viz.line" },
           "rawConfiguration": {
             "legend": { "enabled": true },
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT average(kafka_app.producer_delivery_latency_ms) AS 'Avg', percentile(kafka_app.producer_delivery_latency_ms, 95) AS 'p95', percentile(kafka_app.producer_delivery_latency_ms, 99) AS 'p99' FACET service.name TIMESERIES" }],
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT average(kafka_app.producer_delivery_latency_ms) AS 'Avg', percentile(kafka_app.producer_delivery_latency_ms, 95) AS 'p95', percentile(kafka_app.producer_delivery_latency_ms, 99) AS 'p99' FACET service.name TIMESERIES" }],
             "yAxisLeft": { "zero": true },
             "units": { "unit": "MS" }
           }
@@ -184,7 +184,7 @@
           "linkedEntityGuids": null,
           "visualization": { "id": "viz.histogram" },
           "rawConfiguration": {
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT histogram(kafka_app.producer_delivery_latency_ms, 50, 20) FACET service.name" }]
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT histogram(kafka_app.producer_delivery_latency_ms, 50, 20) FACET service.name" }]
           }
         },
         {
@@ -193,7 +193,7 @@
           "linkedEntityGuids": null,
           "visualization": { "id": "viz.billboard" },
           "rawConfiguration": {
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT sum(kafka_app.produced_records) AS 'Total Produced'" }]
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT sum(kafka_app.produced_records) AS 'Total Produced'" }]
           }
         },
         {
@@ -202,7 +202,7 @@
           "linkedEntityGuids": null,
           "visualization": { "id": "viz.billboard" },
           "rawConfiguration": {
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT sum(kafka_app.producer_delivery_errors) AS 'Delivery Errors'" }],
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT sum(kafka_app.producer_delivery_errors) AS 'Delivery Errors'" }],
             "thresholds": [{ "alertSeverity": "CRITICAL", "value": 1 }]
           }
         },
@@ -214,7 +214,7 @@
           "rawConfiguration": {
             "legend": { "enabled": true },
             "facet": { "showOtherSeries": false },
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT sum(kafka_app.produced_records) FACET topic LIMIT MAX" }]
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT sum(kafka_app.produced_records) FACET topic LIMIT MAX" }]
           }
         },
         {
@@ -223,7 +223,7 @@
           "linkedEntityGuids": null,
           "visualization": { "id": "viz.table" },
           "rawConfiguration": {
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT sum(kafka_app.produced_records) AS 'Records', sum(kafka_app.producer_delivery_errors) AS 'Errors', average(kafka_app.producer_delivery_latency_ms) AS 'Avg Latency (ms)', percentile(kafka_app.producer_delivery_latency_ms, 95) AS 'p95 (ms)', percentile(kafka_app.producer_delivery_latency_ms, 99) AS 'p99 (ms)' FACET service.name, topic LIMIT MAX" }]
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT sum(kafka_app.produced_records) AS 'Records', sum(kafka_app.producer_delivery_errors) AS 'Errors', average(kafka_app.producer_delivery_latency_ms) AS 'Avg Latency (ms)', percentile(kafka_app.producer_delivery_latency_ms, 95) AS 'p95 (ms)', percentile(kafka_app.producer_delivery_latency_ms, 99) AS 'p99 (ms)' FACET service.name, topic LIMIT MAX" }]
           }
         }
       ]
@@ -239,7 +239,7 @@
           "visualization": { "id": "viz.line" },
           "rawConfiguration": {
             "legend": { "enabled": true },
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT rate(sum(kafka_app.consumed_records), 1 minute) AS 'Records/min' FACET service.name, topic TIMESERIES" }],
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT rate(sum(kafka_app.consumed_records), 1 minute) AS 'Records/min' FACET service.name, topic TIMESERIES" }],
             "yAxisLeft": { "zero": true }
           }
         },
@@ -250,7 +250,7 @@
           "visualization": { "id": "viz.line" },
           "rawConfiguration": {
             "legend": { "enabled": true },
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT rate(sum(kafka_app.consumer_processing_errors), 1 minute) AS 'Errors/min' FACET service.name TIMESERIES" }],
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT rate(sum(kafka_app.consumer_processing_errors), 1 minute) AS 'Errors/min' FACET service.name TIMESERIES" }],
             "yAxisLeft": { "zero": true }
           }
         },
@@ -261,7 +261,7 @@
           "visualization": { "id": "viz.line" },
           "rawConfiguration": {
             "legend": { "enabled": true },
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT sum(kafka_app.consumer_rebalances) AS 'Rebalances' FACET service.name TIMESERIES" }],
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT sum(kafka_app.consumer_rebalances) AS 'Rebalances' FACET service.name TIMESERIES" }],
             "yAxisLeft": { "zero": true }
           }
         },
@@ -272,7 +272,7 @@
           "visualization": { "id": "viz.line" },
           "rawConfiguration": {
             "legend": { "enabled": true },
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT max(kafka_app.consumer_lag_records) AS 'Lag (records)' FACET `consumer.group`, topic TIMESERIES" }],
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT max(kafka_app.consumer_lag_records) AS 'Lag (records)' FACET `consumer.group`, topic TIMESERIES" }],
             "yAxisLeft": { "zero": true, "scale": "log" }
           }
         },
@@ -283,7 +283,7 @@
           "visualization": { "id": "viz.line" },
           "rawConfiguration": {
             "legend": { "enabled": true },
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT average(kafka_app.consumer_processing_latency_ms) AS 'Avg', percentile(kafka_app.consumer_processing_latency_ms, 95) AS 'p95', percentile(kafka_app.consumer_processing_latency_ms, 99) AS 'p99' FACET service.name TIMESERIES" }],
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT average(kafka_app.consumer_processing_latency_ms) AS 'Avg', percentile(kafka_app.consumer_processing_latency_ms, 95) AS 'p95', percentile(kafka_app.consumer_processing_latency_ms, 99) AS 'p99' FACET service.name TIMESERIES" }],
             "yAxisLeft": { "zero": true },
             "units": { "unit": "MS" }
           }
@@ -294,7 +294,7 @@
           "linkedEntityGuids": null,
           "visualization": { "id": "viz.histogram" },
           "rawConfiguration": {
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT histogram(kafka_app.consumer_processing_latency_ms, 50, 20) FACET service.name" }]
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT histogram(kafka_app.consumer_processing_latency_ms, 50, 20) FACET service.name" }]
           }
         },
         {
@@ -303,7 +303,7 @@
           "linkedEntityGuids": null,
           "visualization": { "id": "viz.table" },
           "rawConfiguration": {
-            "nrqlQueries": [{ "accountId": 0, "query": "FROM Metric SELECT latest(kafka_app.consumer_lag_records) AS 'Current Lag', average(kafka_app.consumer_lag_records) AS 'Avg Lag', latest(kafka_app.consumer_lag_records) - average(kafka_app.consumer_lag_records) AS 'Trend (+ = stuck/growing)' FACET `consumer.group`, topic, service.name LIMIT MAX" }]
+            "nrqlQueries": [{ "accountId": ${account_id}, "query": "FROM Metric SELECT latest(kafka_app.consumer_lag_records) AS 'Current Lag', average(kafka_app.consumer_lag_records) AS 'Avg Lag', latest(kafka_app.consumer_lag_records) - average(kafka_app.consumer_lag_records) AS 'Trend (+ = stuck/growing)' FACET `consumer.group`, topic, service.name LIMIT MAX" }]
           }
         }
       ]
@@ -321,7 +321,7 @@
             "legend": { "enabled": true },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "FROM Metric SELECT average(jvm.memory.heap.used) AS 'Heap Used' FACET service.name TIMESERIES"
               }
             ],
@@ -338,7 +338,7 @@
             "legend": { "enabled": true },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "FROM Metric SELECT average(jvm.memory.heap.used) / average(jvm.memory.heap.max) * 100 AS 'Heap %' FACET service.name TIMESERIES"
               }
             ],
@@ -354,7 +354,7 @@
             "legend": { "enabled": true },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "FROM Metric SELECT average(jvm.memory.nonheap.used) AS 'Non-Heap Used' FACET service.name TIMESERIES"
               }
             ],
@@ -371,7 +371,7 @@
             "legend": { "enabled": true },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "FROM Metric SELECT rate(sum(jvm.gc.duration), 1 minute) AS 'GC ms/min' FACET service.name, jvm.gc.name TIMESERIES"
               }
             ],
@@ -388,7 +388,7 @@
             "legend": { "enabled": true },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "FROM Metric SELECT rate(sum(jvm.gc.collections), 1 minute) AS 'GC/min' FACET service.name, jvm.gc.name TIMESERIES"
               }
             ],
@@ -404,7 +404,7 @@
             "legend": { "enabled": true },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "FROM Metric SELECT average(jvm.threads.count) AS 'Threads' FACET service.name, state TIMESERIES"
               }
             ],
@@ -420,7 +420,7 @@
             "legend": { "enabled": true },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "FROM Metric SELECT average(jvm.memory.pool.used) AS 'Pool Used' FACET service.name, pool TIMESERIES"
               }
             ],
@@ -437,7 +437,7 @@
             "legend": { "enabled": true },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "FROM Metric SELECT average(jvm.cpu.recent_utilization) * 100 AS 'CPU %' FACET service.name TIMESERIES"
               }
             ],
@@ -452,7 +452,7 @@
           "rawConfiguration": {
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "FROM Metric SELECT latest(jvm.memory.heap.used) AS 'Heap Used', latest(jvm.memory.heap.max) AS 'Heap Max', latest(jvm.memory.heap.used) / latest(jvm.memory.heap.max) * 100 AS 'Heap %', latest(jvm.threads.count) AS 'Threads', latest(jvm.cpu.recent_utilization) * 100 AS 'CPU %' FACET service.name LIMIT MAX"
               }
             ]

@@ -1,5 +1,6 @@
 {
   "name": "Confluent Cloud",
+  "permissions": "PUBLIC_READ_ONLY",
   "description": null,
   "pages": [
     {
@@ -40,7 +41,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT uniqueCount(`topic` OR `confluent.kafka.server.metric.topic`) AS 'Topics', latest(confluent_kafka_server_partition_count OR confluent.kafka.server.partition_count) AS 'Partitions', uniqueCount(`consumer_group_id` OR `confluent.kafka.server.metric.consumer_group_id`) AS 'Consumer Groups', latest(confluent_kafka_server_active_connection_count OR confluent.kafka.server.active_connection_count) AS 'Active Connections', latest(confluent_kafka_server_retained_bytes OR confluent.kafka.server.retained_bytes) / 1e9 AS 'Retained (GB)' FROM Metric WHERE (metricName LIKE '%confluent.kafka.server%' OR metricName LIKE '%confluent_kafka_server%') AND (`kafka_id` OR `confluent.clusterId`) IN ({{kafka_id}})"
               }
             ],
@@ -67,7 +68,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT max(confluent_kafka_server_cluster_load_percent OR confluent.kafka.server.cluster_load_percent) * 100 AS 'Cluster Load %' FROM Metric WHERE (metricName LIKE '%confluent.kafka.server%' OR metricName LIKE '%confluent_kafka_server%') AND (`kafka_id` OR `confluent.clusterId`) IN ({{kafka_id}})"
               }
             ],
@@ -104,7 +105,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT max(confluent_kafka_server_consumer_lag_offsets OR confluent.kafka.server.consumer_lag_offsets) AS 'Max Consumer Lag' FROM Metric WHERE (metricName LIKE '%confluent.kafka.server%' OR metricName LIKE '%confluent_kafka_server%') AND (`kafka_id` OR `confluent.clusterId`) IN ({{kafka_id}})"
               }
             ],
@@ -141,7 +142,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT sum(confluent_kafka_server_successful_authentication_count OR confluent.kafka.server.successful_authentication_count) AS 'Auths', sum(confluent_kafka_connect_connector_task_status OR confluent.kafka.connect.connector_task_status) AS 'Connector Tasks', sum(confluent_kafka_ksql_processing_errors_total OR confluent.kafka.ksql.processing_errors_total) AS 'ksqlDB Errors' FROM Metric WHERE (metricName LIKE '%confluent.kafka.server%' OR metricName LIKE '%confluent_kafka_server%' OR metricName LIKE '%confluent_kafka_connect%' OR metricName LIKE '%confluent.kafka.connect%' OR metricName LIKE '%confluent.kafka.ksql%' OR metricName LIKE '%confluent_kafka_ksql%') AND (`kafka_id` OR `confluent.clusterId` OR `connector_id` OR `confluent.resourceId` OR `ksql_id`) IN ({{kafka_id}})"
               }
             ],
@@ -171,7 +172,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT max(confluent_kafka_server_cluster_load_percent OR confluent.kafka.server.cluster_load_percent) * 100 AS 'Cluster Load %' FROM Metric WHERE (metricName LIKE '%confluent.kafka.server%' OR metricName LIKE '%confluent_kafka_server%') AND (`kafka_id` OR `confluent.clusterId`) IN ({{kafka_id}}) TIMESERIES"
               }
             ],
@@ -215,7 +216,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT max(confluent_kafka_server_active_connection_count OR confluent.kafka.server.active_connection_count) AS 'Active Connections' FROM Metric WHERE (metricName LIKE '%confluent.kafka.server%' OR metricName LIKE '%confluent_kafka_server%') AND (`kafka_id` OR `confluent.clusterId`) IN ({{kafka_id}}) TIMESERIES"
               }
             ],
@@ -248,7 +249,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT rate(sum(confluent_kafka_server_received_bytes OR confluent.kafka.server.received_bytes), 1 minute) / 6e7 AS 'MB In/s', rate(sum(confluent_kafka_server_sent_bytes OR confluent.kafka.server.sent_bytes), 1 minute) / 6e7 AS 'MB Out/s' FROM Metric WHERE (metricName LIKE '%confluent.kafka.server%' OR metricName LIKE '%confluent_kafka_server%') AND (`kafka_id` OR `confluent.clusterId`) IN ({{kafka_id}}) TIMESERIES"
               }
             ],
@@ -281,7 +282,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT rate(sum(confluent_kafka_server_received_records OR confluent.kafka.server.received_records), 1 minute) AS 'Records In/min', rate(sum(confluent_kafka_server_sent_records OR confluent.kafka.server.sent_records), 1 minute) AS 'Records Out/min' FROM Metric WHERE (metricName LIKE '%confluent.kafka.server%' OR metricName LIKE '%confluent_kafka_server%') AND (`kafka_id` OR `confluent.clusterId`) IN ({{kafka_id}}) TIMESERIES"
               }
             ],
@@ -314,7 +315,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT max(confluent_kafka_server_consumer_lag_offsets OR confluent.kafka.server.consumer_lag_offsets) AS 'Consumer Lag' FROM Metric WHERE (metricName LIKE '%confluent.kafka.server%' OR metricName LIKE '%confluent_kafka_server%') AND (`kafka_id` OR `confluent.clusterId`) IN ({{kafka_id}}) FACET (`consumer_group_id` OR `confluent.kafka.server.metric.consumer_group_id`) LIMIT 10 TIMESERIES"
               }
             ],
@@ -348,7 +349,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT rate(sum(confluent_kafka_server_request_count OR confluent.kafka.server.request_count), 1 minute) AS 'Requests/min' FROM Metric WHERE (metricName LIKE '%confluent.kafka.server%' OR metricName LIKE '%confluent_kafka_server%') AND (`kafka_id` OR `confluent.clusterId`) IN ({{kafka_id}}) FACET (`type` OR `confluent.kafka.server.metric.type`) LIMIT 10 TIMESERIES"
               }
             ],
@@ -381,7 +382,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT rate(sum(confluent_kafka_server_successful_authentication_count OR confluent.kafka.server.successful_authentication_count), 1 minute) AS 'Auths/min' FROM Metric WHERE (metricName LIKE '%confluent.kafka.server%' OR metricName LIKE '%confluent_kafka_server%') AND (`kafka_id` OR `confluent.clusterId`) IN ({{kafka_id}}) TIMESERIES"
               }
             ],
@@ -414,7 +415,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT max(confluent_kafka_server_retained_bytes OR confluent.kafka.server.retained_bytes) / 1e9 AS 'Retained (GB)' FROM Metric WHERE (metricName LIKE '%confluent.kafka.server%' OR metricName LIKE '%confluent_kafka_server%') AND (`kafka_id` OR `confluent.clusterId`) IN ({{kafka_id}}) FACET (`topic` OR `confluent.kafka.server.metric.topic`) LIMIT 10 TIMESERIES"
               }
             ],
@@ -472,7 +473,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT uniqueCount(topic or confluent.kafka.server.metric.topic) as 'Topics',\nlatest(confluent_kafka_server_partition_count or confluent.kafka.server.partition_count) as 'Partitions', uniqueCount(consumer_group_id or confluent.kafka.server.metric.consumer_group_id) as 'Consumer Groups' FROM Metric where (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}})"
               }
             ],
@@ -502,7 +503,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT sum(confluent_kafka_server_request_bytes or confluent.kafka.server.request_bytes) / 6e7 AS 'Request (MB/s)' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and \n(`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) FACET (type or confluent.kafka.server.metric.type) LIMIT MAX"
               }
             ],
@@ -532,7 +533,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_server_retained_bytes or confluent.kafka.server.retained_bytes) / 1e9 AS 'Retained (GB)' FROM Metric TIMESERIES WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) FACET (`topic` or `confluent.kafka.server.metric.topic`) LIMIT MAX"
               }
             ],
@@ -568,7 +569,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_server_sent_records or confluent.kafka.server.sent_records) FROM Metric TIMESERIES FACET (`topic` or `confluent.kafka.server.metric.topic`) where (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) LIMIT MAX"
               }
             ],
@@ -601,7 +602,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT max(confluent_kafka_server_active_connection_count or confluent.kafka.server.active_connection_count) AS 'Active Connections' FROM Metric facet (`kafka_id` or `confluent.clusterId`) WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) IN ({{kafka_id}}) LIMIT MAX TIMESERIES"
               }
             ],
@@ -637,7 +638,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_server_partition_count or confluent.kafka.server.partition_count) AS partitions FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) LIMIT MAX TIMESERIES"
               }
             ],
@@ -670,7 +671,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_server_received_bytes or confluent.kafka.server.received_bytes) / 6e7 AS 'Received (MB/s)' FROM Metric TIMESERIES FACET (`topic` or `confluent.kafka.server.metric.topic`) where (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) LIMIT MAX"
               }
             ],
@@ -703,7 +704,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_server_received_records or confluent.kafka.server.received_records) FROM Metric TIMESERIES FACET (`topic` or `confluent.kafka.server.metric.topic`) where (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) LIMIT MAX"
               }
             ],
@@ -736,7 +737,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_server_successful_authentication_count or confluent.kafka.server.successful_authentication_count) AS 'Auths Per Minute' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) LIMIT MAX TIMESERIES"
               }
             ],
@@ -772,7 +773,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_server_response_bytes or confluent.kafka.server.response_bytes) / 6e7 AS 'Egress (MB/s)' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) IN ({{kafka_id}}) LIMIT MAX TIMESERIES"
               }
             ],
@@ -808,7 +809,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_server_sent_bytes or confluent.kafka.server.sent_bytes) / 6e7 AS 'Sent (MB/s)' FROM Metric TIMESERIES FACET (`topic` or `confluent.kafka.server.metric.topic`) where (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) LIMIT MAX"
               }
             ],
@@ -841,7 +842,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_server_response_bytes or confluent.kafka.server.response_bytes) / 6e7 AS 'Response (MB/s)' FROM Metric WHERE\n(metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) FACET (type or confluent.kafka.server.metric.type) LIMIT MAX TIMESERIES"
               }
             ],
@@ -874,7 +875,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_server_request_count or confluent.kafka.server.request_count) as 'Requests Per Minute' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) LIMIT MAX TIMESERIES"
               }
             ],
@@ -910,7 +911,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_server_request_bytes or confluent.kafka.server.request_bytes) / 6e7 AS 'Ingress (MB/s)' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) IN ({{kafka_id}}) LIMIT MAX TIMESERIES"
               }
             ],
@@ -946,7 +947,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_server_request_bytes or confluent.kafka.server.request_bytes) / 6e7 AS 'Request (MB/s)' FROM Metric WHERE\n(metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) FACET (type or confluent.kafka.server.metric.type) LIMIT MAX TIMESERIES"
               }
             ],
@@ -979,7 +980,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_server_response_bytes or confluent.kafka.server.response_bytes) / 6e7 AS 'Response (MB/s)' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) FACET (`kafka_id` or `confluent.clusterId`) LIMIT MAX TIMESERIES"
               }
             ],
@@ -1024,7 +1025,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT max(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) AS 'Consumer Lag' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) and (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`) in ({{consumer_group_id}}) and (`topic` or `confluent.kafka.server.metric.topic`) in ({{topic}}) FACET (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`), (`topic` or `confluent.kafka.server.metric.topic`) LIMIT MAX TIMESERIES"
               }
             ],
@@ -1058,7 +1059,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT max(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) AS 'Consumer Lag' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) and (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`) in ({{consumer_group_id}}) and (`topic` or `confluent.kafka.server.metric.topic`) in ({{topic}}) FACET (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`) LIMIT MAX TIMESERIES"
               }
             ],
@@ -1092,7 +1093,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT max(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) AS 'Consumer Lag' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) and (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`) in ({{consumer_group_id}}) and (`topic` or `confluent.kafka.server.metric.topic`) in ({{topic}}) FACET (`topic` or `confluent.kafka.server.metric.topic`) LIMIT MAX TIMESERIES"
               }
             ],
@@ -1123,7 +1124,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT latest(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) AS 'Current Lag', average(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) AS 'Avg Lag', latest(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) - average(confluent_kafka_server_consumer_lag_offsets or confluent.kafka.server.consumer_lag_offsets) AS 'Trend (positive=stuck/growing, negative=recovering)' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) and (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`) in ({{consumer_group_id}}) and (`topic` or `confluent.kafka.server.metric.topic`) in ({{topic}}) FACET (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`), (`topic` or `confluent.kafka.server.metric.topic`) LIMIT MAX"
               }
             ],
@@ -1153,7 +1154,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT rate(sum(confluent_kafka_server_consumer_lag_offsets), 1 minute) AS 'Lag/min (legacy)', rate(sum(confluent.kafka.server.consumer_lag_offsets), 1 minute) AS 'Lag/min' FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%') and (`kafka_id` or `confluent.clusterId`) in ({{kafka_id}}) and (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`) in ({{consumer_group_id}}) and (`topic` or `confluent.kafka.server.metric.topic`) in ({{topic}}) FACET (`consumer_group_id` or `confluent.kafka.server.metric.consumer_group_id`), (`topic` or `confluent.kafka.server.metric.topic`) LIMIT MAX TIMESERIES"
               }
             ],
@@ -1192,7 +1193,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_connect_sent_records or confluent.kafka.connect.sent_records) as 'Sent records' FROM Metric where (metricName like '%confluent_kafka_connect%' or metricName like '%confluent.kafka.connect%') and (`connector_id` or `confluent.resourceId`) in ({{connector_id}}) LIMIT MAX TIMESERIES "
               }
             ],
@@ -1222,7 +1223,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_connect_connector_status or confluent.kafka.connect.connector_status) as 'Connector status' FROM Metric where (metricName like '%confluent_kafka_connect%' or metricName like '%confluent.kafka.connect%') and (`connector_id` or `confluent.resourceId`) in ({{connector_id}}) LIMIT MAX FACET (status or confluent.kafka.connect.metric.status), (plugin_type or confluent.kafka.connect.metric.plugin_type) TIMESERIES "
               }
             ],
@@ -1252,7 +1253,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_connect_connector_task_status or confluent.kafka.connect.connector_task_status) as 'Connector task status' FROM Metric where (metricName like '%confluent_kafka_connect%' or metricName like '%confluent.kafka.connect%') and (`connector_id` or `confluent.resourceId`) in ({{connector_id}}) LIMIT MAX FACET (task or confluent.kafka.connect.metric.task), (status or confluent.kafka.connect.metric.status), (plugin_type or confluent.kafka.connect.metric.plugin_type) TIMESERIES"
               }
             ],
@@ -1282,7 +1283,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_connect_connector_task_batch_size_avg or confluent.kafka.connect.connector_task_batch_size_avg) FROM Metric where (metricName like '%confluent_kafka_connect%' or metricName like '%confluent.kafka.connect%') and (`connector_id` or `confluent.resourceId`) in ({{connector_id}}) LIMIT MAX FACET (task or confluent.kafka.connect.metric.task) TIMESERIES "
               }
             ],
@@ -1312,7 +1313,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_connect_connector_task_batch_size_max or confluent.kafka.connect.connector_task_batch_size_max) FROM Metric where (metricName like '%confluent_kafka_connect%' or metricName like '%confluent.kafka.connect%') and (`connector_id` or `confluent.resourceId`) in ({{connector_id}}) LIMIT MAX FACET (task or confluent.kafka.connect.metric.task) TIMESERIES "
               }
             ],
@@ -1342,7 +1343,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_connect_received_records or confluent.kafka.connect.received_records) as 'Received records' FROM Metric where (metricName like '%confluent_kafka_connect%' or metricName like '%confluent.kafka.connect%') and (`connector_id` or `confluent.resourceId`) in ({{connector_id}}) LIMIT MAX TIMESERIES "
               }
             ],
@@ -1372,7 +1373,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_connect_sent_bytes or confluent.kafka.connect.sent_bytes) / 6e7 AS 'Sent (MB/s)' FROM Metric where (metricName like '%confluent_kafka_connect%' or metricName like '%confluent.kafka.connect%') and (`connector_id` or `confluent.resourceId`) in ({{connector_id}}) LIMIT MAX TIMESERIES "
               }
             ],
@@ -1402,7 +1403,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_connect_received_bytes or confluent.kafka.connect.received_bytes) / 6e7 AS 'Received (MB/s)' FROM Metric where (metricName like '%confluent_kafka_connect%' or metricName like '%confluent.kafka.connect%') and (`connector_id` or `confluent.resourceId`) in ({{connector_id}}) LIMIT MAX TIMESERIES "
               }
             ],
@@ -1432,7 +1433,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_connect_dead_letter_queue_records or confluent.kafka.connect.dead_letter_queue_records) as 'Dead letter queue records' FROM Metric where (metricName like '%confluent_kafka_connect%' or metricName like '%confluent.kafka.connect%') and (`connector_id` or `confluent.resourceId`) in ({{connector_id}}) LIMIT MAX TIMESERIES "
               }
             ],
@@ -1468,7 +1469,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_ksql_streaming_unit_count or confluent.kafka.ksql.streaming_unit_count) as 'Streaming unit count' FROM Metric where (metricName like '%confluent.kafka.ksql%' or metricName like '%confluent_kafka_ksql%') and (`ksql_id` or `confluent.resourceId`) in ({{ksql_id}}) LIMIT MAX TIMESERIES "
               }
             ],
@@ -1498,7 +1499,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_ksql_query_saturation or confluent.kafka.ksql.query_saturation) as 'Query saturation' FROM Metric where (metricName like '%confluent.kafka.ksql%' or metricName like '%confluent_kafka_ksql%') and (`ksql_id` or `confluent.resourceId`) in ({{ksql_id}}) LIMIT MAX FACET (query_id or confluent.kafka.ksql.metric.query_id) TIMESERIES"
               }
             ],
@@ -1528,7 +1529,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_ksql_task_stored_bytes or confluent.kafka.ksql.task_stored_bytes) / 1e6 AS 'Stored (MB)' FROM Metric where (metricName like '%confluent.kafka.ksql%' or metricName like '%confluent_kafka_ksql%') and (`ksql_id` or `confluent.resourceId`) in ({{ksql_id}}) LIMIT MAX FACET (ksql_node_id or confluent.kafka.ksql.metric.ksql_node_id), (task_id or confluent.kafka.ksql.metric.task_id), (query_id or confluent.kafka.ksql.metric.query_id) TIMESERIES"
               }
             ],
@@ -1558,7 +1559,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_ksql_storage_utilization or confluent.kafka.ksql.storage_utilization) as 'Storage utilization' FROM Metric where (metricName like '%confluent.kafka.ksql%' or metricName like '%confluent_kafka_ksql%') and (`ksql_id` or `confluent.resourceId`) in ({{ksql_id}}) LIMIT MAX TIMESERIES"
               }
             ],
@@ -1588,7 +1589,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_ksql_consumed_total_bytes or confluent.kafka.ksql.consumed_total_bytes) / 1e6 AS 'Consumed (MB)' FROM Metric where (metricName like '%confluent.kafka.ksql%' or metricName like '%confluent_kafka_ksql%') and (`ksql_id` or `confluent.resourceId`) in ({{ksql_id}}) LIMIT MAX FACET (query_id or confluent.kafka.ksql.metric.query_id) TIMESERIES "
               }
             ],
@@ -1618,7 +1619,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_ksql_produced_total_bytes or confluent.kafka.ksql.produced_total_bytes) / 1e6 AS 'Produced (MB)' FROM Metric where (metricName like '%confluent.kafka.ksql%' or metricName like '%confluent_kafka_ksql%') and (`ksql_id` or `confluent.resourceId`) in ({{ksql_id}}) LIMIT MAX FACET (query_id or confluent.kafka.ksql.metric.query_id) TIMESERIES "
               }
             ],
@@ -1648,7 +1649,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_ksql_offsets_processed_total or confluent.kafka.ksql.offsets_processed_total) FROM Metric where (metricName like '%confluent.kafka.ksql%' or metricName like '%confluent_kafka_ksql%') and (`ksql_id` or `confluent.resourceId`) in ({{ksql_id}}) LIMIT MAX FACET (task_id or confluent.kafka.ksql.metric.task_id), (query_id or confluent.kafka.ksql.metric.query_id), (topic or confluent.kafka.ksql.metric.topic), (partition or confluent.kafka.ksql.metric.partition) TIMESERIES "
               }
             ],
@@ -1678,7 +1679,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_ksql_committed_offset_lag or confluent.kafka.ksql.committed_offset_lag) as 'Consumer offset lag' FROM Metric where (metricName like '%confluent.kafka.ksql%' or metricName like '%confluent_kafka_ksql%') and (`ksql_id` or `confluent.resourceId`) in ({{ksql_id}}) LIMIT MAX FACET (task_id or confluent.kafka.ksql.metric.task_id), (query_id or confluent.kafka.ksql.metric.query_id), (topic or confluent.kafka.ksql.metric.topic), (partition or confluent.kafka.ksql.metric.partition) TIMESERIES "
               }
             ],
@@ -1708,7 +1709,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_ksql_processing_errors_total or confluent.kafka.ksql.processing_errors_total) FROM Metric where (metricName like '%confluent.kafka.ksql%' or metricName like '%confluent_kafka_ksql%') and (`ksql_id` or `confluent.resourceId`) in ({{ksql_id}}) LIMIT MAX FACET (query_id or confluent.kafka.ksql.metric.query_id) TIMESERIES "
               }
             ],
@@ -1738,7 +1739,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_ksql_query_restarts or confluent.kafka.ksql.query_restarts) FROM Metric where (metricName like '%confluent.kafka.ksql%' or metricName like '%confluent_kafka_ksql%') and (`ksql_id` or `confluent.resourceId`) in ({{ksql_id}}) LIMIT MAX FACET (query_id or confluent.kafka.ksql.metric.query_id) TIMESERIES "
               }
             ],
@@ -1774,7 +1775,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_flink_pending_records or confluent.kafka.flink.pending_records) FROM Metric TIMESERIES where (metricName like '%confluent.kafka.flink%' or metricName like '%confluent_kafka_flink%') and (`compute_pool_id` or `confluent.clusterId`) in ({{compute_pool_id}}) LIMIT MAX"
               }
             ],
@@ -1810,7 +1811,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_flink_num_records_in or confluent.kafka.flink.num_records_in) FROM Metric TIMESERIES where (metricName like '%confluent.kafka.flink%' or metricName like '%confluent_kafka_flink%') and (`compute_pool_id` or `confluent.clusterId`) in ({{compute_pool_id}}) FACET confluent.kafka.flink.metric.table_name, confluent.kafka.flink.metric.table_name_v2 LIMIT MAX"
               }
             ],
@@ -1846,7 +1847,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_flink_compute_pool_utilization_cfu_limit or confluent.kafka.flink.compute_pool_utilization.cfu_limit) FROM Metric TIMESERIES where (metricName like '%confluent.kafka.flink%' or metricName like '%confluent_kafka_flink%') and (`compute_pool_id` or `confluent.clusterId`) in ({{compute_pool_id}}) LIMIT MAX"
               }
             ],
@@ -1882,7 +1883,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_flink_statement_utilization or confluent.kafka.flink.statement_utilization) FROM Metric TIMESERIES where (metricName like '%confluent.kafka.flink%' or metricName like '%confluent_kafka_flink%') and (`compute_pool_id` or `confluent.clusterId`) in ({{compute_pool_id}}) LIMIT MAX"
               }
             ],
@@ -1918,7 +1919,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_flink_statement_utilization_current_cfus or confluent.kafka.flink.statement_utilization.current_cfus) FROM Metric TIMESERIES where (metricName like '%confluent.kafka.flink%' or metricName like '%confluent_kafka_flink%') and (`compute_pool_id` or `confluent.clusterId`) in ({{compute_pool_id}}) LIMIT MAX"
               }
             ],
@@ -1954,7 +1955,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_flink_statement_utilization_cfu_minutes_consumed or confluent.kafka.flink.statement_utilization.cfu_minutes_consumed) FROM Metric TIMESERIES where (metricName like '%confluent.kafka.flink%' or metricName like '%confluent_kafka_flink%') and (`compute_pool_id` or `confluent.clusterId`) in ({{compute_pool_id}}) LIMIT MAX"
               }
             ],
@@ -1990,7 +1991,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_flink_compute_pool_utilization or confluent.kafka.flink.compute_pool_utilization) FROM Metric TIMESERIES where (metricName like '%confluent.kafka.flink%' or metricName like '%confluent_kafka_flink%') and (`compute_pool_id` or `confluent.clusterId`) in ({{compute_pool_id}}) LIMIT MAX"
               }
             ],
@@ -2026,7 +2027,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_flink_compute_pool_utilization_current_cfus or confluent.kafka.flink.compute_pool_utilization.current_cfus) FROM Metric TIMESERIES where (metricName like '%confluent.kafka.flink%' or metricName like '%confluent_kafka_flink%') and (`compute_pool_id` or `confluent.clusterId`) in ({{compute_pool_id}}) LIMIT MAX"
               }
             ],
@@ -2062,7 +2063,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent_kafka_flink_compute_pool_utilization_cfu_minutes_consumed or confluent.kafka.flink.compute_pool_utilization.cfu_minutes_consumed) FROM Metric TIMESERIES where (metricName like '%confluent.kafka.flink%' or metricName like '%confluent_kafka_flink%') and (`compute_pool_id` or `confluent.clusterId`) in ({{compute_pool_id}}) LIMIT MAX"
               }
             ],
@@ -2098,7 +2099,7 @@
             },
             "nrqlQueries": [
               {
-                "accountId": 0,
+                "accountId": ${account_id},
                 "query": "SELECT average(confluent.kafka.flink.current_input_watermark_milliseconds or confluent.kafka.flink.current_input_watermark_milliseconds) FROM Metric TIMESERIES where (metricName like '%confluent.kafka.flink%' or metricName like '%confluent_kafka_flink%') and (`compute_pool_id` or `confluent.clusterId`) in ({{compute_pool_id}}) FACET confluent.kafka.flink.metric.table_name, confluent.kafka.flink.metric.table_name_v2 LIMIT MAX SINCE 10 hours ago"
               }
             ],
@@ -2128,7 +2129,7 @@
         }
       ],
       "nrqlQuery": {
-        "accountId": 0,
+        "accountIds": [${account_id}],
         "query": "select uniques(kafka_id OR confluent.clusterId) from Metric where (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%')"
       },
       "options": {
@@ -2150,7 +2151,7 @@
         }
       ],
       "nrqlQuery": {
-        "accountId": 0,
+        "accountIds": [${account_id}],
         "query": "select uniques(connector_id or confluent.resourceId) from Metric where (metricName like '%confluent_kafka_connect%' or metricName like '%confluent.kafka.connect%')"
       },
       "options": {
@@ -2172,7 +2173,7 @@
         }
       ],
       "nrqlQuery": {
-        "accountId": 0,
+        "accountIds": [${account_id}],
         "query": "select uniques(ksql_id or confluent.resourceId) from Metric where (metricName like '%confluent.kafka.ksql%' or metricName like '%confluent_kafka_ksql%')"
       },
       "options": {
@@ -2194,7 +2195,7 @@
         }
       ],
       "nrqlQuery": {
-        "accountId": 0,
+        "accountIds": [${account_id}],
         "query": "select uniques(compute_pool_id or confluent.resourceId) from Metric where (metricName like '%confluent.kafka.flink%' or metricName like '%confluent_kafka_flink%')"
       },
       "options": {
@@ -2216,7 +2217,7 @@
         }
       ],
       "nrqlQuery": {
-        "accountId": 0,
+        "accountIds": [${account_id}],
         "query": "SELECT uniques(`consumer_group_id` OR `confluent.kafka.server.metric.consumer_group_id`) FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%')"
       },
       "options": {
@@ -2238,7 +2239,7 @@
         }
       ],
       "nrqlQuery": {
-        "accountId": 0,
+        "accountIds": [${account_id}],
         "query": "SELECT uniques(`topic` OR `confluent.kafka.server.metric.topic`) FROM Metric WHERE (metricName like '%confluent.kafka.server%' or metricName like '%confluent_kafka_server%')"
       },
       "options": {
