@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="kafka-newrelic-architecture-title kafka-newrelic-architecture-desc" id="kafka-newrelic-architecture-root">
+        <title id="kafka-newrelic-architecture-title">Kafka monitoring with New Relic</title>
+        <desc id="kafka-newrelic-architecture-desc">Architecture diagram showing Kafka applications, a Confluent Platform broker and Confluent Cloud metrics and log topics feeding an OpenTelemetry Collector that exports to New Relic, with an nri-prometheus path for broker JMX metrics and optional direct agent paths.</desc>
+        <defs>
+      <style>#kafka-newrelic-architecture-root { --color-paper: #f5f5f5; --color-paper-2: #ececec;
+      --color-ink: #2d3142; --color-muted: #4f5d75; --color-soft: #5a6580;
+      --color-rule: rgba(45,49,66,0.12);
+      --color-accent: #bf4520; --color-link: #2e5aa8;
+      --font-sans: 'Geist', system-ui, sans-serif;
+      --font-serif: 'Instrument Serif', serif;
+      --font-mono: 'Geist Mono', ui-monospace, monospace; }
+      #kafka-newrelic-architecture-root { font-family: var(--font-sans); color: var(--color-ink); }
+      #kafka-newrelic-architecture-root .container { max-width: 1360px; margin: 0 auto; }
+      #kafka-newrelic-architecture-root .header-eyebrow { font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted); margin-bottom: 0.75rem; }
+      #kafka-newrelic-architecture-root .subtitle { font-size: 1rem; line-height: 1.55; color: var(--color-muted); max-width: 64ch; }
+      #kafka-newrelic-architecture-root .diagram-container { width: 100%; background: var(--color-paper-2); border-radius: 8px; border: 1px solid var(--color-rule); padding: 1.5rem; overflow-x: auto; }
+      #kafka-newrelic-architecture-root .card-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.875rem; padding-bottom: 0.875rem; border-bottom: 1px solid rgba(45,49,66,0.08); }
+      #kafka-newrelic-architecture-root .card-dot { width: 7px; height: 7px; border-radius: 50%; }
+      #kafka-newrelic-architecture-root .card-dot.ink { background: var(--color-ink); }
+      #kafka-newrelic-architecture-root .card-dot.link { background: var(--color-link); }
+      #kafka-newrelic-architecture-root .card-dot.coral { background: var(--color-accent); }
+      @media print {
+#kafka-newrelic-architecture-root .diagram-container { overflow-x: visible; }
+}</style>
+          <marker id="kafka-newrelic-architecture-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+          <marker id="kafka-newrelic-architecture-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#bf4520"/></marker>
+          <marker id="kafka-newrelic-architecture-arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+        </defs>
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+  <rect x="40" y="152" width="232" height="392" rx="8" fill="#2d3142" stroke="#2d3142" stroke-width="0.8" fill-opacity="0.02" stroke-opacity="0.10"/>
+  <rect x="52" y="156" width="52" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="78" y="165" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.14em">SOURCES</text>
+  <rect x="320" y="152" width="576" height="392" rx="8" fill="#2d3142" stroke="#2d3142" stroke-width="0.8" fill-opacity="0.02" stroke-opacity="0.10"/>
+  <rect x="332" y="156" width="88" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="376" y="165" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.14em">OTEL COLLECTOR</text>
+  <rect x="968" y="40" width="272" height="504" rx="8" fill="#2d3142" stroke="#2d3142" stroke-width="0.8" fill-opacity="0.02" stroke-opacity="0.10"/>
+  <rect x="980" y="44" width="60" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="1010" y="53" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.14em">NEW RELIC</text>
+  <path d="M 256,232 H 344" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#kafka-newrelic-architecture-arrow)"/>
+  <path d="M 256,320 H 344" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#kafka-newrelic-architecture-arrow)"/>
+  <path d="M 256,408 H 344" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#kafka-newrelic-architecture-arrow)"/>
+  <path d="M 256,496 H 344" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#kafka-newrelic-architecture-arrow)"/>
+  <path d="M 552,368 H 580" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#kafka-newrelic-architecture-arrow)"/>
+  <path d="M 724,368 H 756" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#kafka-newrelic-architecture-arrow)"/>
+  <path d="M 880,368 H 992" fill="none" stroke="#bf4520" stroke-width="1.4" marker-end="url(#kafka-newrelic-architecture-arrow-accent)"/>
+  <path d="M 156,528 V 576 Q 156,584 164,584 H 560" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#kafka-newrelic-architecture-arrow)"/>
+  <path d="M 720,584 H 1096 Q 1104,584 1104,576 V 528" fill="none" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#kafka-newrelic-architecture-arrow-link)"/>
+  <path d="M 112,200 V 92 Q 112,84 120,84 H 992" fill="none" stroke="#2e5aa8" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#kafka-newrelic-architecture-arrow-link)"/>
+  <path d="M 160,200 V 120 Q 160,112 168,112 H 936 Q 944,112 944,120 V 332 Q 944,340 952,340 H 992" fill="none" stroke="#2e5aa8" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#kafka-newrelic-architecture-arrow-link)"/>
+  <path d="M 208,200 V 148 Q 208,140 216,140 H 912 Q 920,140 920,148 V 360 a 8,8 0 0,1 0,16 V 488 Q 920,496 928,496 H 992" fill="none" stroke="#2e5aa8" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#kafka-newrelic-architecture-arrow-link)"/>
+  <rect x="270" y="212" width="60" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="300" y="221" fill="#5a6580" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">OTLP/GRPC</text>
+  <rect x="278" y="300" width="44" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="300" y="309" fill="#5a6580" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">SCRAPE</text>
+  <rect x="274" y="388" width="52" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="300" y="397" fill="#5a6580" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">CONSUME</text>
+  <rect x="282" y="476" width="36" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="300" y="485" fill="#5a6580" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">LOGS</text>
+  <rect x="930" y="376" width="60" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="960" y="385" fill="#bf4520" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">OTLP/HTTP</text>
+  <rect x="320" y="564" width="80" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="360" y="573" fill="#5a6580" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">SCRAPE :1234</text>
+  <rect x="818" y="564" width="44" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="840" y="573" fill="#2e5aa8" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">INGEST</text>
+  <rect x="450" y="64" width="60" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="480" y="73" fill="#2e5aa8" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">APM AGENT</text>
+  <rect x="604" y="92" width="72" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="640" y="101" fill="#2e5aa8" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">DIRECT OTLP</text>
+  <rect x="766" y="120" width="68" height="12" rx="2" fill="#f5f5f5"/>
+  <text x="800" y="129" fill="#2e5aa8" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">JMX · JAVA</text>
+  <rect x="56" y="200" width="200" height="64" rx="6" fill="#f5f5f5"/>
+  <rect x="56" y="200" width="200" height="64" rx="6" fill="#4f5d75" stroke="#5a6580" stroke-width="1" fill-opacity="0.10"/>
+  <rect x="64" y="206" width="24" height="12" rx="2" fill="none" stroke="#5a6580" stroke-width="0.8" stroke-opacity="0.40"/>
+  <text x="76" y="215" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">APP</text>
+  <text x="156" y="236" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">Kafka applications</text>
+  <text x="156" y="252" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">Python · Java · OTel SDK</text>
+  <rect x="56" y="288" width="200" height="64" rx="6" fill="#f5f5f5"/>
+  <rect x="56" y="288" width="200" height="64" rx="6" fill="#2d3142" stroke="#2d3142" stroke-width="1" fill-opacity="0.03" stroke-opacity="0.30"/>
+  <rect x="64" y="294" width="40" height="12" rx="2" fill="none" stroke="#2d3142" stroke-width="0.8" stroke-opacity="0.22"/>
+  <text x="84" y="303" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">CCLOUD</text>
+  <text x="156" y="324" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">Metrics API</text>
+  <text x="156" y="340" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">api.telemetry.confluent.cloud</text>
+  <rect x="56" y="376" width="200" height="64" rx="6" fill="#f5f5f5"/>
+  <rect x="56" y="376" width="200" height="64" rx="6" fill="#2d3142" stroke="#4f5d75" stroke-width="1" fill-opacity="0.05"/>
+  <rect x="64" y="382" width="40" height="12" rx="2" fill="none" stroke="#4f5d75" stroke-width="0.8" stroke-opacity="0.50"/>
+  <text x="84" y="391" fill="#4f5d75" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">CCLOUD</text>
+  <text x="156" y="412" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">Audit + connector logs</text>
+  <text x="156" y="428" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">confluent-*-log-events</text>
+  <rect x="56" y="464" width="200" height="64" rx="6" fill="#f5f5f5"/>
+  <rect x="56" y="464" width="200" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+  <rect x="64" y="470" width="20" height="12" rx="2" fill="none" stroke="#2d3142" stroke-width="0.8" stroke-opacity="0.40"/>
+  <text x="74" y="479" fill="#2d3142" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">CP</text>
+  <text x="156" y="500" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">Kafka broker</text>
+  <text x="156" y="516" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">KRaft · jmx_prometheus :1234</text>
+  <rect x="344" y="184" width="208" height="344" rx="6" fill="#f5f5f5"/>
+  <rect x="344" y="184" width="208" height="344" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+  <rect x="352" y="190" width="56" height="12" rx="2" fill="none" stroke="#2d3142" stroke-width="0.8" stroke-opacity="0.40"/>
+  <text x="380" y="199" fill="#2d3142" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">RECEIVERS</text>
+  <line x1="356" y1="276" x2="540" y2="276" stroke="#2d3142" stroke-width="0.8" stroke-opacity="0.12"/>
+  <line x1="356" y1="364" x2="540" y2="364" stroke="#2d3142" stroke-width="0.8" stroke-opacity="0.12"/>
+  <line x1="356" y1="452" x2="540" y2="452" stroke="#2d3142" stroke-width="0.8" stroke-opacity="0.12"/>
+  <text x="360" y="230" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif">otlp</text>
+  <text x="360" y="246" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace">:4317 gRPC · :4318 HTTP</text>
+  <text x="360" y="318" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif">prometheus</text>
+  <text x="360" y="334" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace">Metrics API · every 60 s</text>
+  <text x="360" y="406" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif">kafka ×2</text>
+  <text x="360" y="422" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace">audit · connector topics</text>
+  <text x="360" y="494" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif">filelog</text>
+  <text x="360" y="510" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace">broker Docker logs</text>
+  <rect x="580" y="336" width="144" height="64" rx="6" fill="#f5f5f5"/>
+  <rect x="580" y="336" width="144" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+  <rect x="588" y="342" width="32" height="12" rx="2" fill="none" stroke="#2d3142" stroke-width="0.8" stroke-opacity="0.40"/>
+  <text x="604" y="351" fill="#2d3142" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">PROC</text>
+  <text x="652" y="372" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">Processors</text>
+  <text x="652" y="388" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">memory_limiter · batch</text>
+  <rect x="756" y="336" width="124" height="64" rx="6" fill="#f5f5f5"/>
+  <rect x="756" y="336" width="124" height="64" rx="6" fill="#bf4520" stroke="#bf4520" stroke-width="1" fill-opacity="0.08"/>
+  <rect x="764" y="342" width="24" height="12" rx="2" fill="none" stroke="#bf4520" stroke-width="0.8" stroke-opacity="0.50"/>
+  <text x="776" y="351" fill="#bf4520" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">EXP</text>
+  <text x="818" y="372" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">Exporter</text>
+  <text x="818" y="388" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">otlp_http</text>
+  <rect x="560" y="552" width="160" height="64" rx="6" fill="#f5f5f5"/>
+  <rect x="560" y="552" width="160" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+  <rect x="568" y="558" width="36" height="12" rx="2" fill="none" stroke="#2d3142" stroke-width="0.8" stroke-opacity="0.40"/>
+  <text x="586" y="567" fill="#2d3142" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">AGENT</text>
+  <text x="640" y="588" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">nri-prometheus</text>
+  <text x="640" y="604" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">New Relic integration</text>
+  <rect x="992" y="72" width="224" height="64" rx="6" fill="#f5f5f5"/>
+  <rect x="992" y="72" width="224" height="64" rx="6" fill="#2d3142" stroke="#2d3142" stroke-width="1" fill-opacity="0.03" stroke-opacity="0.30"/>
+  <rect x="1000" y="78" width="20" height="12" rx="2" fill="none" stroke="#2d3142" stroke-width="0.8" stroke-opacity="0.22"/>
+  <text x="1010" y="87" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">NR</text>
+  <text x="1104" y="108" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">APM</text>
+  <text x="1104" y="124" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">newrelic-admin · -javaagent</text>
+  <rect x="992" y="320" width="224" height="80" rx="6" fill="#f5f5f5"/>
+  <rect x="992" y="320" width="224" height="80" rx="6" fill="#2d3142" stroke="#2d3142" stroke-width="1" fill-opacity="0.03" stroke-opacity="0.30"/>
+  <rect x="1000" y="326" width="20" height="12" rx="2" fill="none" stroke="#2d3142" stroke-width="0.8" stroke-opacity="0.22"/>
+  <text x="1010" y="335" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">NR</text>
+  <text x="1104" y="364" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">Metrics + Logs</text>
+  <text x="1104" y="380" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">OTLP endpoint</text>
+  <rect x="992" y="464" width="224" height="64" rx="6" fill="#f5f5f5"/>
+  <rect x="992" y="464" width="224" height="64" rx="6" fill="#2d3142" stroke="#2d3142" stroke-width="1" fill-opacity="0.03" stroke-opacity="0.30"/>
+  <rect x="1000" y="470" width="20" height="12" rx="2" fill="none" stroke="#2d3142" stroke-width="0.8" stroke-opacity="0.22"/>
+  <text x="1010" y="479" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">NR</text>
+  <text x="1104" y="500" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">Infrastructure</text>
+  <text x="1104" y="516" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">Prometheus · JMX</text>
+  <line x1="40" y1="648" x2="1240" y2="648" stroke="#2d3142" stroke-width="0.8" stroke-opacity="0.10"/>
+  <text x="40" y="672" fill="#4f5d75" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.18em">LEGEND</text>
+  <rect x="112" y="663" width="14" height="10" rx="2" fill="#bf4520" stroke="#bf4520" stroke-width="1" fill-opacity="0.08"/>
+  <text x="132" y="671" fill="#4f5d75" font-size="8.5" font-family="'Geist', system-ui, sans-serif">Focal · exporter</text>
+  <rect x="236" y="663" width="14" height="10" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+  <text x="256" y="671" fill="#4f5d75" font-size="8.5" font-family="'Geist', system-ui, sans-serif">Component</text>
+  <rect x="328" y="663" width="14" height="10" rx="2" fill="#2d3142" stroke="#4f5d75" stroke-width="1" fill-opacity="0.05"/>
+  <text x="348" y="671" fill="#4f5d75" font-size="8.5" font-family="'Geist', system-ui, sans-serif">Kafka topic</text>
+  <rect x="428" y="663" width="14" height="10" rx="2" fill="#2d3142" stroke="#2d3142" stroke-width="1" fill-opacity="0.03" stroke-opacity="0.30"/>
+  <text x="448" y="671" fill="#4f5d75" font-size="8.5" font-family="'Geist', system-ui, sans-serif">Managed / SaaS</text>
+  <rect x="544" y="663" width="14" height="10" rx="2" fill="#4f5d75" stroke="#5a6580" stroke-width="1" fill-opacity="0.10"/>
+  <text x="564" y="671" fill="#4f5d75" font-size="8.5" font-family="'Geist', system-ui, sans-serif">Application</text>
+  <line x1="644" y1="668" x2="672" y2="668" stroke="#bf4520" stroke-width="1.2" marker-end="url(#kafka-newrelic-architecture-arrow-accent)"/>
+  <text x="680" y="671" fill="#4f5d75" font-size="8.5" font-family="'Geist', system-ui, sans-serif">Primary export</text>
+  <line x1="776" y1="668" x2="804" y2="668" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#kafka-newrelic-architecture-arrow)"/>
+  <text x="812" y="671" fill="#4f5d75" font-size="8.5" font-family="'Geist', system-ui, sans-serif">Internal flow</text>
+  <line x1="904" y1="668" x2="932" y2="668" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#kafka-newrelic-architecture-arrow-link)"/>
+  <text x="940" y="671" fill="#4f5d75" font-size="8.5" font-family="'Geist', system-ui, sans-serif">Push to New Relic</text>
+  <line x1="1048" y1="668" x2="1076" y2="668" stroke="#2e5aa8" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#kafka-newrelic-architecture-arrow-link)"/>
+  <text x="1084" y="671" fill="#4f5d75" font-size="8.5" font-family="'Geist', system-ui, sans-serif">Optional path</text>
+      </svg>
