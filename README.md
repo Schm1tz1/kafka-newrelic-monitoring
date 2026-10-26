@@ -39,6 +39,11 @@ requirements.txt        Python dependencies
 
 ## Architecture
 
+![Architecture: applications, Confluent Platform and Confluent Cloud feed an OpenTelemetry Collector that exports to New Relic](assets/kafka-newrelic-architecture.svg)
+
+<details>
+<summary>Diagram not rendering? Show the Mermaid version</summary>
+
 ```mermaid
 graph TB
 
@@ -108,6 +113,8 @@ graph TB
     PY  -. "direct OTLP — skip Collector"  .-> NR_ML
     JV  -. "direct OTLP — skip Collector"  .-> NR_ML
 ```
+
+</details>
 
 Applications instrument themselves with OpenTelemetry and push metrics over OTLP/gRPC to a local OpenTelemetry Collector. The Collector batches and forwards them to New Relic over OTLP/HTTP. The Collector holds the license key centrally, buffers metrics across many services, and lets you add processors without touching application code.
 
