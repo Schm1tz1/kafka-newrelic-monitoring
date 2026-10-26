@@ -39,7 +39,11 @@ requirements.txt        Python dependencies
 
 ## Architecture
 
-![Architecture: applications, Confluent Platform and Confluent Cloud feed an OpenTelemetry Collector that exports to New Relic](assets/kafka-newrelic-architecture.svg)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/kafka-newrelic-architecture-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="assets/kafka-newrelic-architecture.svg">
+  <img alt="Architecture: applications, Confluent Platform and Confluent Cloud feed an OpenTelemetry Collector that exports to New Relic" src="assets/kafka-newrelic-architecture.svg">
+</picture>
 
 <details>
 <summary>Diagram not rendering? Show the Mermaid version</summary>
