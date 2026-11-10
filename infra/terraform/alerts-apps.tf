@@ -32,7 +32,8 @@ resource "newrelic_alert_policy" "apps" {
 }
 
 resource "newrelic_nrql_alert_condition" "apps" {
-  for_each = var.app_alerts ? local.app_alerts : {}
+  # for-expression, not a ternary: the 3 objects differ in shape (warning is optional), so `? :` has no common type.
+  for_each = { for k, v in local.app_alerts : k => v if var.app_alerts }
 
   policy_id                    = newrelic_alert_policy.apps[0].id
   type                         = "static"
