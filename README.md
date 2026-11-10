@@ -23,7 +23,7 @@ applications/
 infra/
   collector/            OTel Collector configs
   dashboards/           New Relic dashboard templates (*.json.tftpl)
-  terraform/            OpenTofu/Terraform deploy of the same dashboards + CCloud alerts
+  terraform/            OpenTofu/Terraform deploy of the same dashboards + alerts (CCloud, Kafka clients)
   jmx-exporter/         JMX Prometheus agent + rules (Confluent Platform)
   docker-compose.ccloud.yml
   docker-compose.cp.yml
@@ -294,7 +294,12 @@ export TF_VAR_alert_email=you@example.com      # or set TF_VAR_alert_email in .e
 tofu init && tofu apply
 ```
 
-This deploys all five dashboards plus the Confluent Cloud alert policy (`infra/terraform/alerts.tf`, 11 NRQL conditions incl. audit-log based authorization denials, failed authentication (UNAUTHENTICATED) and failed operations, plus an example email destination + workflow, set `alert_email` in `terraform.tfvars`; thresholds are starting points, tune to your SLO and cluster limits). `terraform.tfvars` and state files are gitignored; never commit them. To add a dashboard, drop a `*.json.tftpl` in `infra/dashboards/` and add its name to `local.dashboards` in `infra/terraform/main.tf`.
+This deploys all five dashboards plus one or two alert policies (`Kafka Clients` is opt-in), each with an email workflow (example destination, set `alert_email` in `terraform.tfvars`):
+
+- `Confluent Cloud` (`infra/terraform/alerts.tf`, 17 NRQL conditions): cluster, client and quota metrics; Connect, ksqlDB and Flink; ingest-loss alerts for Confluent metrics and audit logs; audit-log based authorization denials, failed authentication (UNAUTHENTICATED) and failed operations.
+- `Kafka Clients` (`infra/terraform/alerts-apps.tf`, 3 conditions, opt-in: `app_alerts = true` in `terraform.tfvars`): application metrics `kafka_app.*` (producer delivery error ratio, p95 delivery latency, consumer lag). Kept apart from the cluster policy.
+
+Thresholds are starting points, tune to your SLO and cluster limits. `terraform.tfvars` and state files are gitignored; never commit them. To add a dashboard, drop a `*.json.tftpl` in `infra/dashboards/` and add its name to `local.dashboards` in `infra/terraform/main.tf`.
 
 ## Troubleshooting
 

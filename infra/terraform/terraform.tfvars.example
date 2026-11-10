@@ -2,3 +2,6 @@ account_id = 1234567
 region     = "US"
 alert_email = "alerts@example.com" # throwaway example, replace
 # api_key via env: export TF_VAR_api_key=NRAK-...
+
+# Create the Kafka Clients alert policy (application metrics)
+# app_alerts = true

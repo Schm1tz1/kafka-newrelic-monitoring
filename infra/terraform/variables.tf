@@ -25,3 +25,9 @@ variable "alert_email" {
   default     = "alerts@example.com"
   description = "Email address notified by the example alert workflow. Replace the throwaway default."
 }
+
+variable "app_alerts" {
+  type        = bool
+  default     = false
+  description = "Create the Kafka Clients alert policy (application metrics, alerts-apps.tf)."
+}

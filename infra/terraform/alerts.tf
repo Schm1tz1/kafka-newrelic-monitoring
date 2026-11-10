@@ -84,6 +84,48 @@ locals {
       critical    = { threshold = 20, duration = 300 } # placeholder, tune to baseline
       warning     = { threshold = 5, duration = 300 }
     }
+    # Ingest-loss (dead man's switch): no data = no signal, so these use signal-loss expiration.
+    metric_ingest_loss = {
+      name        = "Confluent metric ingest stopped"
+      description = "No Confluent metric arrived for 10 minutes: broken Metrics API integration or Collector."
+      query       = "SELECT count(*) FROM Metric WHERE metricName LIKE 'confluent%kafka%'"
+      timer       = 60
+      expiration  = 600
+      critical    = { operator = "below", threshold = 1, duration = 300 }
+    }
+    audit_ingest_loss = {
+      name        = "Confluent audit log ingest stopped"
+      description = "No confluent-audit log arrived for 30 minutes: broken log pipeline (or an idle cluster, tune for quiet dev clusters)."
+      query       = "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit'"
+      timer       = 60
+      expiration  = 1800
+      critical    = { operator = "below", threshold = 1, duration = 300 }
+    }
+    # Connect, ksqlDB, Flink: only fire if the service is used (no data = no violation).
+    connector_failed = {
+      name        = "Connector failed"
+      description = "Connector in status FAILED."
+      query       = "SELECT sum(confluent_kafka_connect_connector_status OR confluent.kafka.connect.connector_status) FROM Metric WHERE (`status` = 'FAILED' OR `confluent.kafka.connect.metric.status` = 'FAILED') FACET (`connector_id` OR `confluent.resourceId`)"
+      critical    = { threshold = 0, duration = 300 }
+    }
+    connector_task_failed = {
+      name        = "Connector task failed"
+      description = "Connector task in status FAILED."
+      query       = "SELECT sum(confluent_kafka_connect_connector_task_status OR confluent.kafka.connect.connector_task_status) FROM Metric WHERE (`status` = 'FAILED' OR `confluent.kafka.connect.metric.status` = 'FAILED') FACET (`connector_id` OR `confluent.resourceId`), (`task` OR `confluent.kafka.connect.metric.task`)"
+      critical    = { threshold = 0, duration = 300 }
+    }
+    ksql_lag = {
+      name        = "ksqlDB consumer lag high"
+      description = "Committed offset lag per ksqlDB query."
+      query       = "SELECT max(confluent_kafka_ksql_committed_offset_lag OR confluent.kafka.ksql.committed_offset_lag) FROM Metric FACET (`ksql_id` OR `confluent.resourceId`), (`query_id` OR `confluent.kafka.ksql.metric.query_id`)"
+      critical    = { threshold = 10000, duration = 600 } # placeholder, replace with SLO
+    }
+    flink_pending = {
+      name        = "Flink pending records high"
+      description = "Records waiting to be processed per Flink compute pool."
+      query       = "SELECT max(confluent_kafka_flink_pending_records OR confluent.kafka.flink.pending_records) FROM Metric FACET (`compute_pool_id` OR `confluent.clusterId`)"
+      critical    = { threshold = 100000, duration = 600 } # placeholder, replace with SLO
+    }
   }
 }
 
@@ -113,8 +155,12 @@ resource "newrelic_nrql_alert_condition" "ccloud" {
     query = each.value.query
   }
 
+  expiration_duration            = try(each.value.expiration, null)
+  open_violation_on_expiration   = try(each.value.expiration, null) == null ? null : true
+  close_violations_on_expiration = try(each.value.expiration, null) == null ? null : false
+
   critical {
-    operator              = "above"
+    operator              = try(each.value.critical.operator, "above")
     threshold             = each.value.critical.threshold
     threshold_duration    = each.value.critical.duration
     threshold_occurrences = "all"
