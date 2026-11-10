@@ -294,7 +294,7 @@ export TF_VAR_alert_email=you@example.com      # or set TF_VAR_alert_email in .e
 tofu init && tofu apply
 ```
 
-This deploys all five dashboards plus the Confluent Cloud alert policy (`infra/terraform/alerts.tf`, 11 NRQL conditions incl. audit-log based authorization denials, failed authentication and failed operations, plus an example email destination + workflow, set `alert_email` in `terraform.tfvars`; thresholds are starting points, tune to your SLO and cluster limits). `terraform.tfvars` and state files are gitignored; never commit them. To add a dashboard, drop a `*.json.tftpl` in `infra/dashboards/` and add its name to `local.dashboards` in `infra/terraform/main.tf`.
+This deploys all five dashboards plus the Confluent Cloud alert policy (`infra/terraform/alerts.tf`, 11 NRQL conditions incl. audit-log based authorization denials, failed authentication (UNAUTHENTICATED) and failed operations, plus an example email destination + workflow, set `alert_email` in `terraform.tfvars`; thresholds are starting points, tune to your SLO and cluster limits). `terraform.tfvars` and state files are gitignored; never commit them. To add a dashboard, drop a `*.json.tftpl` in `infra/dashboards/` and add its name to `local.dashboards` in `infra/terraform/main.tf`.
 
 ## Troubleshooting
 

@@ -58,24 +58,29 @@ locals {
       critical    = { threshold = 1600, duration = 900 } # placeholder, 80% of cluster limit
     }
     # Audit-log based (needs the audit log pipeline, see ccloud-logs dashboard). Counts per 5m window.
+    # Keep the backticks around dotted attribute names: without them these conditions never
+    # emitted a signal and never fired, even though the same query worked in the query builder.
     authz_denied = {
       name        = "Authorization denials"
       description = "Authorization denials per principal in 5 minutes: Schema Registry DENY or RBAC granted=False."
-      query       = "SELECT count(*) FROM Log WHERE confluent.log.source = 'confluent-audit' AND (data.authorizationInfo.result = 'DENY' OR data.authorizationInfo.granted = 'False') FACET `crn.cloud_cluster`, `data.authenticationInfo.principal`"
+      query       = "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (`data.authorizationInfo.result` = 'DENY' OR `data.authorizationInfo.granted` = 'false') FACET `crn.cloud_cluster`, `data.authenticationInfo.principal`"
+      timer       = 60                                 # sparse log signal, see event_timer note below
       critical    = { threshold = 20, duration = 300 } # placeholder, tune to baseline
       warning     = { threshold = 5, duration = 300 }
     }
     auth_failed = {
       name        = "Failed authentication"
-      description = "Authentication failures per principal in 5 minutes (data.authenticationInfo.errorMessage set, e.g. JWT_EXPIRED)."
-      query       = "SELECT count(*) FROM Log WHERE confluent.log.source = 'confluent-audit' AND data.authenticationInfo.errorMessage IS NOT NULL FACET `crn.cloud_cluster`, `data.authenticationInfo.principal`"
+      description = "Failed authentications in 5 minutes: `data.result.status` = 'UNAUTHENTICATED' (bad API key/secret, principal is None:UNKNOWN_USER) or an authenticationInfo.errorMessage (e.g. JWT_EXPIRED)."
+      query       = "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND (`data.result.status` = 'UNAUTHENTICATED' OR `data.authenticationInfo.errorMessage` IS NOT NULL) FACET `crn.cloud_cluster`"
+      timer       = 60                                 # sparse log signal, see event_timer note below
       critical    = { threshold = 20, duration = 300 } # placeholder, tune to baseline
       warning     = { threshold = 5, duration = 300 }
     }
     operation_failed = {
       name        = "Failed operations"
-      description = "Authorized operations that failed at execution in 5 minutes (data.result.status = 'FAILURE'), e.g. quota exceeded, invalid config."
-      query       = "SELECT count(*) FROM Log WHERE confluent.log.source = 'confluent-audit' AND data.result.status = 'FAILURE' FACET `crn.cloud_cluster`, `data.authenticationInfo.principal`"
+      description = "Authorized operations that failed at execution in 5 minutes (`data.result.status` = 'FAILURE'), e.g. quota exceeded, invalid config."
+      query       = "SELECT count(*) FROM Log WHERE `confluent.log.source` = 'confluent-audit' AND `data.result.status` = 'FAILURE' FACET `crn.cloud_cluster`, `data.authenticationInfo.principal`"
+      timer       = 60                                 # sparse log signal, see event_timer note below
       critical    = { threshold = 20, duration = 300 } # placeholder, tune to baseline
       warning     = { threshold = 5, duration = 300 }
     }
@@ -96,9 +101,12 @@ resource "newrelic_nrql_alert_condition" "ccloud" {
   description = each.value.description
 
   # Metrics API data lands a few minutes late; 5m windows smooth single samples.
+  # Log-count alerts are sparse (no matching event = no data), and event_flow only closes a
+  # window when a later event arrives, so a one-off burst never fires. Those use event_timer.
   aggregation_window           = 300
-  aggregation_method           = "event_flow"
-  aggregation_delay            = 300
+  aggregation_method           = try(each.value.timer, null) == null ? "event_flow" : "event_timer"
+  aggregation_delay            = try(each.value.timer, null) == null ? 300 : null
+  aggregation_timer            = try(each.value.timer, null)
   violation_time_limit_seconds = 86400
 
   nrql {

@@ -69,7 +69,7 @@
         },
         {
           "title": "RBAC Denied",
-          "description": "Confluent RBAC rejection via the MDS (Metadata Service) broker-side check (kafka.server/authorization, method mds.Authorize). Covers all Kafka protocol operations — topics, connectors, compute pools, schema registry clusters. Fired before the broker executes the request; the principal has no role binding covering this resource and operation. Field: data.authorizationInfo.granted = 'False'.",
+          "description": "Confluent RBAC rejection via the MDS (Metadata Service) broker-side check (kafka.server/authorization, method mds.Authorize). Covers all Kafka protocol operations — topics, connectors, compute pools, schema registry clusters. Fired before the broker executes the request; the principal has no role binding covering this resource and operation. Field: data.authorizationInfo.granted = 'false'.",
           "layout": {
             "column": 7,
             "row": 1,
@@ -83,7 +83,7 @@
             "nrqlQueries": [
               {
                 "accountId": ${account_id},
-                "query": "SELECT count(*) AS 'RBAC Denied' FROM Log WHERE confluent.log.source = 'confluent-audit' AND data.authorizationInfo.granted = 'False' AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all')"
+                "query": "SELECT count(*) AS 'RBAC Denied' FROM Log WHERE confluent.log.source = 'confluent-audit' AND data.authorizationInfo.granted = 'false' AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all')"
               }
             ],
             "platformOptions": {
@@ -98,8 +98,8 @@
           }
         },
         {
-          "title": "Auth Token Errors",
-          "description": "Authentication soft-rejections where the token was recognised but invalid (e.g. JWT_EXPIRED). Confluent records result = 'SUCCESS' (identity resolved) but sets data.authenticationInfo.errorMessage with the real reason. Common cause: client not refreshing OAuth token before expiry.",
+          "title": "Failed Authentications",
+          "description": "Failed authentications: (1) data.result.status = 'UNAUTHENTICATED' (unknown/invalid API key or secret, principal None:UNKNOWN_USER), and (2) soft-rejections where the token was recognised but invalid (e.g. JWT_EXPIRED): Confluent records result = 'SUCCESS' but sets data.authenticationInfo.errorMessage with the real reason. Common cause of (2): client not refreshing OAuth token before expiry.",
           "layout": {
             "column": 10,
             "row": 1,
@@ -113,7 +113,7 @@
             "nrqlQueries": [
               {
                 "accountId": ${account_id},
-                "query": "SELECT count(*) AS 'Token Errors' FROM Log WHERE confluent.log.source = 'confluent-audit' AND data.authenticationInfo.errorMessage IS NOT NULL AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all')"
+                "query": "SELECT count(*) AS 'Failed Auths' FROM Log WHERE confluent.log.source = 'confluent-audit' AND (data.result.status = 'UNAUTHENTICATED' OR data.authenticationInfo.errorMessage IS NOT NULL) AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all')"
               }
             ],
             "platformOptions": {
@@ -145,7 +145,7 @@
             "nrqlQueries": [
               {
                 "accountId": ${account_id},
-                "query": "SELECT count(*) FROM Log WHERE confluent.log.source = 'confluent-audit' AND (data.authorizationInfo.result = 'DENY' OR data.authorizationInfo.granted = 'False' OR data.authenticationInfo.errorMessage IS NOT NULL) AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all') TIMESERIES AUTO FACET cases(WHERE data.authorizationInfo.result = 'DENY' AS 'AuthZ DENY', WHERE data.authorizationInfo.granted = 'False' AS 'RBAC Denied', WHERE data.authenticationInfo.errorMessage IS NOT NULL AS 'Token Error') LIMIT 3"
+                "query": "SELECT count(*) FROM Log WHERE confluent.log.source = 'confluent-audit' AND (data.authorizationInfo.result = 'DENY' OR data.authorizationInfo.granted = 'false' OR data.result.status = 'UNAUTHENTICATED' OR data.authenticationInfo.errorMessage IS NOT NULL) AND (crn.environment = {{crn_environment}} OR {{crn_environment}} = 'all') AND (crn.cloud_cluster = {{crn_cluster}} OR {{crn_cluster}} = 'all') AND (crn.schema_registry = {{crn_schema_registry}} OR {{crn_schema_registry}} = 'all') TIMESERIES AUTO FACET cases(WHERE data.authorizationInfo.result = 'DENY' AS 'AuthZ DENY', WHERE data.authorizationInfo.granted = 'false' AS 'RBAC Denied', WHERE data.result.status = 'UNAUTHENTICATED' AS 'Unauthenticated', WHERE data.authenticationInfo.errorMessage IS NOT NULL AS 'Token Error') LIMIT 4"
               }
             ],
             "platformOptions": {
