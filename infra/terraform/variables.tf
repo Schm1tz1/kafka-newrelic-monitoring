@@ -19,3 +19,9 @@ variable "region" {
     error_message = "The region must be US or EU."
   }
 }
+
+variable "alert_email" {
+  type        = string
+  default     = "alerts@example.com"
+  description = "Email address notified by the example alert workflow. Replace the throwaway default."
+}

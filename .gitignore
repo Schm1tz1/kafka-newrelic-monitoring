@@ -18,7 +18,7 @@ CLAUDE.md
 # Test data (may contain sensitive sampled records)
 testdata/
 
-# Generated collector configs (cluster IDs expanded from CONFLUENT_CLUSTER_ID by start-infra-ccloud.sh)
+# Generated collector configs (cluster IDs expanded from CONFLUENT_CLUSTER_ID by render-collector-ccloud.sh)
 infra/collector/*.resolved.yaml
 
 # New Relic Java agent jar (downloaded by applications/java/newrelic/download-nr-agent.sh)

@@ -23,11 +23,11 @@ applications/
 infra/
   collector/            OTel Collector configs
   dashboards/           New Relic dashboard templates (*.json.tftpl)
-  terraform/            OpenTofu/Terraform deploy of the same dashboards
+  terraform/            OpenTofu/Terraform deploy of the same dashboards + CCloud alerts
   jmx-exporter/         JMX Prometheus agent + rules (Confluent Platform)
   docker-compose.ccloud.yml
   docker-compose.cp.yml
-  start-infra-ccloud.sh
+  start-infra-ccloud.sh, render-collector-ccloud.sh (template -> resolved config only)
   start-infra-cp.sh
   stop-infra-ccloud.sh
   stop-infra-cp.sh
@@ -290,10 +290,11 @@ Or deploy all dashboards with OpenTofu/Terraform:
 cd infra/terraform
 cp terraform.tfvars.example terraform.tfvars   # set account_id and region (US|EU)
 export TF_VAR_api_key=NRAK-...                 # keep the key out of tfvars
+export TF_VAR_alert_email=you@example.com      # or set TF_VAR_alert_email in .env and `set -a; . ./.env; set +a`
 tofu init && tofu apply
 ```
 
-This deploys all five dashboards. `terraform.tfvars` and state files are gitignored; never commit them. To add a dashboard, drop a `*.json.tftpl` in `infra/dashboards/` and add its name to `local.dashboards` in `infra/terraform/main.tf`.
+This deploys all five dashboards plus the Confluent Cloud alert policy (`infra/terraform/alerts.tf`, 11 NRQL conditions incl. audit-log based authorization denials, failed authentication and failed operations, plus an example email destination + workflow, set `alert_email` in `terraform.tfvars`; thresholds are starting points, tune to your SLO and cluster limits). `terraform.tfvars` and state files are gitignored; never commit them. To add a dashboard, drop a `*.json.tftpl` in `infra/dashboards/` and add its name to `local.dashboards` in `infra/terraform/main.tf`.
 
 ## Troubleshooting
 
